@@ -755,7 +755,7 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
         <div>
           <span class="eyebrow"><iconify-icon icon="solar:calendar-mark-bold"></iconify-icon>앞으로</span>
           <h2>인력 가용 예보</h2>
-          <p>사업이 끝나면 거기 묶여 있던 인력이 풀립니다. 언제 얼마나 비는지 미리 보고 다음 배치를 정합니다.</p>
+          <p>일이 끝나면 거기 묶여 있던 인력이 풀립니다. 어느 팀이 언제 얼마나 비는지 미리 보고 다음 배치를 정합니다. 칸에 마우스를 올리면 누가 어떤 일에서 풀리는지 나옵니다.</p>
         </div>
       </div>
       <div class="grid-5-7">
@@ -768,7 +768,7 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
         </div>
         <div class="panel">
           <div class="panel-head">
-            <h3><iconify-icon icon="solar:posts-carousel-vertical-bold"></iconify-icon>종료 예정 사업과 풀리는 인력</h3>
+            <h3><iconify-icon icon="solar:users-group-two-rounded-bold"></iconify-icon>팀별 해제 시점</h3>
             <span class="note" id="rollNote"></span>
           </div>
           <div class="scroll-x"><table class="data" id="rollTbl"></table></div>
@@ -1082,23 +1082,33 @@ function buildModel(data, util, ref){
     /* 1월 시작분은 변화가 아니라 출발점이므로 넣지 않는다. 넣으면 막대가 1월에만 쏠린다. */
   });
 
-  /* 사업별 — 마지막 활동월과 그때 풀리는 인력 */
-  const rollMap = new Map();
+  /* 담당자 단위 해제 이벤트 — 누가 · 어느 팀에서 · 언제부터 · 얼마나 · 무엇이 끝나서 */
+  const releases = [];
+  const teamRelease = {};
   data.entries.forEach(e => {
     let last = -1;
     for (let i = 11; i >= 0; i--) if (e.months[i] > 0){ last = i; break; }
     if (last < 0 || last === 11) return;              /* 연말까지 이어지는 일은 해제가 없다 */
     const p = projOf[e.project];
     if (!p) return;
-    let r = rollMap.get(e.project);
-    if (!r) { r = { name:e.project, kind:p.kind, endM:0, mm:0, people:[] }; rollMap.set(e.project, r); }
-    r.endM = Math.max(r.endM, last + 1);
-    r.mm += e.months[last];
-    r.people.push({ name:e.person, team:e.teamName, mm:e.months[last], endM:last + 1 });
+    const ev = {
+      person: e.person, team: e.teamName, project: e.project, kind: p.kind,
+      endM: last + 1,                                  /* 마지막으로 일하는 달 */
+      freeFrom: last + 2,                              /* 이 달부터 손이 빈다 */
+      mm: e.months[last]
+    };
+    releases.push(ev);
+    const tr = teamRelease[ev.team] = teamRelease[ev.team] || { name:ev.team, mm:0, byMonth:new Array(13).fill(0) };
+    tr.mm += ev.mm;
+    tr.byMonth[ev.freeFrom - 1] += ev.mm;
   });
-  const rolloffs = [...rollMap.values()]
-    .map(r => { r.people.sort((a,b) => b.mm - a.mm); return r; })
-    .sort((a,b) => a.endM - b.endM || b.mm - a.mm);
+  releases.sort((a,b) => a.freeFrom - b.freeFrom || b.mm - a.mm || a.person.localeCompare(b.person, "ko"));
+  const teamReleases = Object.values(teamRelease).sort((a,b) => b.mm - a.mm);
+  /* 각 (팀, 해제월) 칸의 근거 — 어떤 일이 끝나서 풀리는지 */
+  teamReleases.forEach(tr => {
+    tr.why = new Array(13).fill(null).map(() => []);
+    releases.forEach(r => { if (r.team === tr.name) tr.why[r.freeFrom - 1].push(r); });
+  });
 
   /* ---- 겸업 부담 ---- */
   const concOf = {};
@@ -1231,7 +1241,7 @@ function buildModel(data, util, ref){
     months.push(m + "월"); monthsShort.push(String(m));
   }
   return { teams, projects, people, co, months, monthsShort, ref, util, bands, profitClass,
-           release, intake, rolloffs, entries:data.entries };
+           release, intake, releases, teamReleases, entries:data.entries };
 }
 
 /* ============================================================
@@ -1678,24 +1688,43 @@ function renderRolloff(){
       '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-free);margin-right:6px"></i>풀리는 M/M</span>' +
     "</div>";
 
-  const list = MODEL.rolloffs;
-  $("rollNote").textContent = list.length ? "가장 이른 종료는 " + MODEL.months[list[0].endM - 1] : "";
+  const list = MODEL.teamReleases;
+  const total = list.reduce((a,t) => a + t.mm, 0);
+  $("rollNote").textContent = total ? "연간 " + fmtMM(total) + " M/M이 풀립니다" : "";
   if (!list.length){
     $("rollTbl").innerHTML = "<tbody><tr><td style='padding:18px;color:var(--ink-3)'>연중에 끝나는 일이 없습니다.</td></tr></tbody>";
     return;
   }
-  const head = "<thead><tr><th>사업 / 업무명</th><th>구분</th><th>종료</th><th class='n'>풀리는 M/M</th><th>인력</th></tr></thead>";
-  const body = list.map(r => {
-    const cls = r.mm >= 1.5 ? "lv-over" : (r.mm >= 0.7 ? "lv-tight" : "lv-free");
-    return '<tr class="' + cls + '"><td style="font-weight:500">' + esc(r.name) + "</td>" +
-      '<td><span class="tag">' + esc(r.kind) + "</span></td>" +
-      '<td class="num" style="font-size:12px">' + MODEL.months[r.endM - 1] + " 이후</td>" +
-      '<td class="n" style="color:var(--lv);font-weight:700">' + fmtMM(r.mm) + "</td>" +
-      '<td><span style="display:flex;gap:5px;flex-wrap:wrap">' + r.people.map(p =>
-        '<span class="tag" title="' + esc(p.team) + '">' + esc(p.name) + " " + fmtMM(p.mm) + "</span>").join("") +
-      "</span></td></tr>";
+  const peakCell = Math.max(...list.map(t => Math.max(...t.byMonth)));
+
+  const head = "<thead><tr><th>팀</th>" + MODEL.monthsShort.map(m =>
+    "<th class='n' style='text-align:center'>" + m + "</th>").join("") +
+    "<th class='n'>연간</th></tr></thead>";
+
+  const body = list.map(t => {
+    const cells = t.byMonth.slice(0, 12).map((v,i) => {
+      if (!v) return '<td style="text-align:center;color:var(--ink-4);font-family:var(--mono);font-size:11px">·</td>';
+      const pct = 16 + (v/peakCell) * 62;
+      const why = (t.why[i] || []).map(r => r.person + " " + fmtMM(r.mm) + " (" + r.project + ")").join(", ");
+      return '<td style="text-align:center;padding:5px 3px"><span title="' + esc(MODEL.months[i] + "부터 · " + why) + '" ' +
+        'style="display:block;border-radius:5px;padding:5px 2px;font-family:var(--mono);font-size:11.5px;font-weight:700;' +
+        "background:color-mix(in oklab,var(--c-free) " + pct.toFixed(0) + '%,transparent);color:var(--ink)">' +
+        fmtMM(v) + "</span></td>";
+    }).join("");
+    return '<tr><td><span class="tname"><i style="background:var(--c-free)"></i><span>' + esc(t.name) +
+      '<em>가장 많이 풀리는 달 ' + MODEL.months[t.byMonth.indexOf(Math.max(...t.byMonth))] + "</em></span></span></td>" +
+      cells + '<td class="n" style="font-weight:700;color:var(--c-free)">' + fmtMM(t.mm) + "</td></tr>";
   }).join("");
-  $("rollTbl").innerHTML = head + "<tbody>" + body + "</tbody>";
+
+  /* 해제가 전혀 없는 팀도 보여야 판단이 된다 */
+  const silent = MODEL.teams.filter(t => !list.some(r => r.name === t.name));
+  const rest = silent.map(t =>
+    '<tr><td><span class="tname"><i style="background:var(--ink-4)"></i><span>' + esc(t.name) +
+    "<em>연중 풀리는 인력 없음</em></span></span></td>" +
+    '<td colspan="12" style="text-align:center;color:var(--ink-4);font-size:11.5px">모든 업무가 연말까지 이어집니다</td>' +
+    '<td class="n" style="color:var(--ink-4)">—</td></tr>').join("");
+
+  $("rollTbl").innerHTML = head + "<tbody>" + body + rest + "</tbody>";
 }
 
 /* ---------- 겸업 부담 ---------- */
