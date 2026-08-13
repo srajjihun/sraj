@@ -599,7 +599,6 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
       <nav class="tabs" id="tabs" aria-label="화면 전환">
         <button data-v="overview" class="on"><iconify-icon icon="solar:widget-5-bold"></iconify-icon>종합</button>
         <button data-v="teams"><iconify-icon icon="solar:users-group-rounded-bold"></iconify-icon>팀 현황</button>
-        <button data-v="portfolio"><iconify-icon icon="solar:case-round-bold"></iconify-icon>사업</button>
         <button data-v="people"><iconify-icon icon="solar:user-id-bold"></iconify-icon>인력</button>
       </nav>
       <span class="spacer"></span>
@@ -737,51 +736,50 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
         <table class="heat"><thead><tr id="heatHead"></tr></thead><tbody id="heatBody"></tbody></table>
       </div>
     </section>
-  </div>
-
-  <!-- ================= VIEW 3 · 사업 ================= -->
-  <div class="view" id="v-portfolio">
-    <section class="block wrap">
-      <div class="grid-5-7">
-        <div class="panel">
-          <div class="panel-head">
-            <h3><iconify-icon icon="solar:chart-2-bold"></iconify-icon>수익성 지도</h3>
-            <span class="note">버블 크기 = 예산</span>
-          </div>
-          <div class="panel-body">
-            <div class="scatter" id="scatter"></div>
-            <p style="margin-top:10px;font-size:12px;color:var(--ink-3);line-height:1.65">
-              오른쪽 아래로 갈수록 <b style="color:var(--c-crit)">사람은 많이 넣는데 M/M당 이윤은 낮은</b> 사업입니다. 인력을 더 투입할수록 손해가 커집니다.
-            </p>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-head">
-            <h3><iconify-icon icon="solar:calendar-bold"></iconify-icon>사업 기간</h3>
-            <span class="note" id="gtNote"></span>
-          </div>
-          <div class="scroll-x"><div class="gantt" id="gantt"></div></div>
-        </div>
-      </div>
-    </section>
 
     <section class="block wrap">
       <div class="sec-head">
         <div>
-          <h2>사업 포트폴리오</h2>
-          <p>귀속 예산·이윤은 사업 총 투입 M/M 중 각 팀이 차지하는 비율로 나눈 값이라 중복 계상되지 않습니다.</p>
+          <h2>사업 수익성</h2>
+          <p>M/M당 이윤이 낮은 사업은 인력을 더 넣을수록 손해가 커집니다. 운영·지원 업무는 예산이 없어 제외했습니다.</p>
         </div>
-        <div class="row-btns" id="kindFilters"></div>
       </div>
       <div class="panel scroll-x"><table class="data" id="projTbl"></table></div>
     </section>
   </div>
 
-  <!-- ================= VIEW 4 · 인력 ================= -->
+  <!-- ================= VIEW 3 · 인력 ================= -->
   <div class="view" id="v-people">
     <section class="block wrap">
       <div class="sec-head">
         <div>
+          <span class="eyebrow"><iconify-icon icon="solar:calendar-mark-bold"></iconify-icon>앞으로</span>
+          <h2>인력 가용 예보</h2>
+          <p>사업이 끝나면 거기 묶여 있던 인력이 풀립니다. 언제 얼마나 비는지 미리 보고 다음 배치를 정합니다.</p>
+        </div>
+      </div>
+      <div class="grid-5-7">
+        <div class="panel">
+          <div class="panel-head">
+            <h3><iconify-icon icon="solar:chart-square-bold"></iconify-icon>월별 해제 · 신규 투입</h3>
+            <span class="note">아래 = 풀리는 M/M · 위 = 새로 들어가는 M/M</span>
+          </div>
+          <div class="panel-body"><div id="rollChart"></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h3><iconify-icon icon="solar:posts-carousel-vertical-bold"></iconify-icon>종료 예정 사업과 풀리는 인력</h3>
+            <span class="note" id="rollNote"></span>
+          </div>
+          <div class="scroll-x"><table class="data" id="rollTbl"></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block wrap">
+      <div class="sec-head">
+        <div>
+          <span class="eyebrow"><iconify-icon icon="solar:layers-minimalistic-bold"></iconify-icon>지금</span>
           <h2>담당자별 월 투입률</h2>
           <p>한 사람이 여러 사업에 걸쳐 있을 때의 합계입니다. 100%를 넘으면 야근으로 메우고 있다는 뜻입니다.</p>
         </div>
@@ -790,6 +788,17 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
       <div class="panel scroll-x">
         <table class="heat"><thead><tr id="pHeatHead"></tr></thead><tbody id="pHeatBody"></tbody></table>
       </div>
+    </section>
+
+    <section class="block wrap">
+      <div class="sec-head">
+        <div>
+          <h2>겸업 부담</h2>
+          <p>가동률이 같아도 한 가지 일에 집중한 100%와 세 가지로 쪼개진 100%는 부담이 다릅니다. 칸 색이 진할수록 그 달에 동시에 맡은 일이 많습니다.</p>
+        </div>
+        <div class="hlegend" id="cclegend"></div>
+      </div>
+      <div class="panel scroll-x"><table class="data" id="concTbl"></table></div>
     </section>
 
     <section class="block wrap">
@@ -1061,6 +1070,45 @@ function buildModel(data, util, ref){
     e.profit = (p && tot) ? p.profit * e.mm / tot : 0;
   });
 
+  /* ---- 인력 가용 예보 ----
+     월별 해제 = (person,project)별로 그 달 대비 다음 달에 줄어드는 투입의 합.
+     선언된 종료월이 아니라 실제 투입 계획에서 계산하므로 램프다운도 그대로 잡힌다. */
+  const release = new Array(12).fill(0), intake = new Array(12).fill(0);
+  data.entries.forEach(e => {
+    for (let i = 0; i < 11; i++){
+      const d = e.months[i] - e.months[i+1];
+      if (d > 0) release[i+1] += d; else if (d < 0) intake[i+1] += -d;
+    }
+    /* 1월 시작분은 변화가 아니라 출발점이므로 넣지 않는다. 넣으면 막대가 1월에만 쏠린다. */
+  });
+
+  /* 사업별 — 마지막 활동월과 그때 풀리는 인력 */
+  const rollMap = new Map();
+  data.entries.forEach(e => {
+    let last = -1;
+    for (let i = 11; i >= 0; i--) if (e.months[i] > 0){ last = i; break; }
+    if (last < 0 || last === 11) return;              /* 연말까지 이어지는 일은 해제가 없다 */
+    const p = projOf[e.project];
+    if (!p) return;
+    let r = rollMap.get(e.project);
+    if (!r) { r = { name:e.project, kind:p.kind, endM:0, mm:0, people:[] }; rollMap.set(e.project, r); }
+    r.endM = Math.max(r.endM, last + 1);
+    r.mm += e.months[last];
+    r.people.push({ name:e.person, team:e.teamName, mm:e.months[last], endM:last + 1 });
+  });
+  const rolloffs = [...rollMap.values()]
+    .map(r => { r.people.sort((a,b) => b.mm - a.mm); return r; })
+    .sort((a,b) => a.endM - b.endM || b.mm - a.mm);
+
+  /* ---- 겸업 부담 ---- */
+  const concOf = {};
+  data.entries.forEach(e => {
+    const c = concOf[e.person] = concOf[e.person] || { perMonth:new Array(12).fill(0), projects:new Set() };
+    let any = false;
+    for (let i = 0; i < 12; i++) if (e.months[i] > 0){ c.perMonth[i]++; any = true; }
+    if (any) c.projects.add(e.project);
+  });
+
   const prog = ref/12;
 
   const teams = data.teams.map((t, idx) => {
@@ -1144,6 +1192,10 @@ function buildModel(data, util, ref){
     p.rates = p.months.map(v => v/util);
     p.level = level(p.avg);
     p.over = p.rates.filter(r => r > 1).length;
+    const c = concOf[p.name] || { perMonth:new Array(12).fill(0), projects:new Set() };
+    p.conc = c.perMonth;                                   /* 달마다 동시에 맡은 일 수 */
+    p.projects = c.projects.size;                          /* 연간 참여 업무 수 */
+    p.maxConc = Math.max(0, ...c.perMonth);
     return p;
   });
 
@@ -1178,7 +1230,8 @@ function buildModel(data, util, ref){
     const m = ((sm.m - 1 + i) % 12) + 1;
     months.push(m + "월"); monthsShort.push(String(m));
   }
-  return { teams, projects, people, co, months, monthsShort, ref, util, bands, profitClass, entries:data.entries };
+  return { teams, projects, people, co, months, monthsShort, ref, util, bands, profitClass,
+           release, intake, rolloffs, entries:data.entries };
 }
 
 /* ============================================================
@@ -1259,7 +1312,7 @@ function bullet(ach, prog, cls, status){
    ============================================================ */
 const LS_SHEET = "intween.sheetId";
 let DATA = JSON.parse($("demoData").textContent);
-let MODEL = null, GS_ID = null, OPEN_TEAM = null, KIND = "전체", VIEW = "overview";
+let MODEL = null, GS_ID = null, OPEN_TEAM = null, VIEW = "overview";
 let SORT = { key:"avg", dir:-1 };
 let LAST_SYNC = null, SYNCING = false, ANIMATE = true;
 
@@ -1307,9 +1360,8 @@ function render(){
   const o = opts();
   MODEL = buildModel(DATA, o.util, o.ref);
   if (VIEW === "overview"){ renderKpis(); renderMatrix(); renderCoChart(); renderFlow(); }
-  if (VIEW === "teams"){ renderSmalls(); renderLeague(); renderHeat(); renderDrill(); }
-  if (VIEW === "portfolio"){ renderScatter(); renderGantt(); renderProjects(); }
-  if (VIEW === "people"){ renderPeople(); }
+  if (VIEW === "teams"){ renderSmalls(); renderLeague(); renderHeat(); renderDrill(); renderProjects(); }
+  if (VIEW === "people"){ renderRolloff(); renderPeople(); renderConcurrency(); }
   ANIMATE = false;
 }
 
@@ -1571,78 +1623,111 @@ function renderDrill(){
   $("drillClose").addEventListener("click", () => { OPEN_TEAM = null; ANIMATE = false; renderSmalls(); renderLeague(); renderDrill(); });
 }
 
-/* ---------- 사업 수익성 지도 ---------- */
-function renderScatter(){
-  const list = MODEL.projects.filter(p => p.kind === "사업" && p.mm > 0);
-  if (!list.length){ $("scatter").innerHTML = '<p style="color:var(--ink-3);font-size:13px">사업으로 분류된 항목이 없습니다.</p>'; return; }
-  const maxMM = Math.max(...list.map(p => p.mm)) * 1.15;
-  const maxPer = Math.max(...list.map(p => p.perMM)) * 1.15;
-  const maxBud = Math.max(...list.map(p => p.budget));
-
-  const dots = list.map(p => {
-    const x = (p.mm/maxMM) * 100, y = (p.perMM/maxPer) * 100;
-    const size = 16 + Math.sqrt(p.budget/maxBud) * 34;
-    const cls = MODEL.profitClass(p.perMM);
-    return '<span class="sc-dot ' + cls + '" style="left:' + x.toFixed(1) + "%;bottom:" + y.toFixed(1) + "%;width:" + size.toFixed(0) +
-      "px;height:" + size.toFixed(0) + 'px" title="' + esc(p.name) + " · 투입 " + fmtMM(p.mm) + " M/M · M/M당 이윤 " + fmtWon(p.perMM) + " · 예산 " + fmtWon(p.budget) + '"></span>' +
-      '<span class="sc-lb" style="left:' + x.toFixed(1) + "%;bottom:calc(" + y.toFixed(1) + "% + " + (size/2 + 4).toFixed(0) + 'px)">' + esc(p.name) + "</span>";
-  }).join("");
-
-  $("scatter").innerHTML =
-    '<div class="sc-ax y"><span>' + fmtWon(maxPer) + "</span><span>" + fmtWon(maxPer/2) + "</span><span>0</span></div>" +
-    '<div class="sc-plot"><div class="sc-g h" style="bottom:50%"></div><div class="sc-g v" style="left:50%"></div>' + dots + "</div>" +
-    '<div class="sc-ax x"><span>투입 0 M/M</span><span>' + fmtMM(maxMM/2) + "</span><span>" + fmtMM(maxMM) + " M/M</span></div>" +
-    '<div class="sc-note">세로축 = M/M당 이윤<br>가로축 = 총 투입 M/M</div>';
-}
-
-/* ---------- 사업 기간 간트 ---------- */
-function renderGantt(){
-  const list = MODEL.projects.filter(p => p.start && p.end).sort((a,b) => a.start.m - b.start.m || b.mm - a.mm);
-  const ticks = Array.from({length:11}, (_,i) => '<span class="gt-tick" style="left:' + ((i+1)/12*100) + '%"></span>').join("");
-
-  $("gantt").innerHTML =
-    '<div class="gt-head"><span>사업명</span>' + MODEL.monthsShort.map(m => "<span>" + m + "</span>").join("") + "<span>투입 M/M</span></div>" +
-    list.map(p => {
-      const s = (p.start.m - 1)/12, e = p.end.m/12;
-      return '<div class="gt-row ' + MODEL.profitClass(p.perMM) + '"><span class="gt-name">' + esc(p.name) + "</span>" +
-        '<span class="gt-cellwrap">' + ticks +
-        '<span class="gt-bar" style="left:' + (s*100).toFixed(1) + "%;width:" + ((e-s)*100).toFixed(1) + '%">' +
-        (p.end.m - p.start.m + 1) + "개월</span></span>" +
-        '<span class="gt-val">' + fmtMM(p.mm) + "</span></div>";
-    }).join("");
-  $("gtNote").textContent = "색 = M/M당 이윤 수준";
-}
-
 /* ---------- 포트폴리오 표 ---------- */
 function renderProjects(){
-  const kinds = ["전체"];
-  MODEL.projects.forEach(p => { if (kinds.indexOf(p.kind) < 0) kinds.push(p.kind); });
-  if (kinds.indexOf(KIND) < 0) KIND = "전체";
-
-  $("kindFilters").innerHTML = kinds.map(k =>
-    '<button class="btn ' + (KIND === k ? "" : "ghost") + ' sm" data-k="' + esc(k) + '">' + esc(k) + "</button>"
-  ).join("");
-  Array.from($("kindFilters").children).forEach(b => {
-    b.addEventListener("click", () => { KIND = b.dataset.k; ANIMATE = false; renderProjects(); });
-  });
-
-  const list = MODEL.projects.filter(p => KIND === "전체" || p.kind === KIND).sort((a,b) => b.mm - a.mm);
+  /* 축약판 — 예산이 잡힌 '사업'만 본다. 운영·지원은 예산이 없어 수익성을 따질 수 없다. */
+  const list = MODEL.projects.filter(p => p.budget > 0).sort((a,b) => a.perMM - b.perMM);
+  if (!list.length){ $("projTbl").innerHTML = "<tbody><tr><td>예산이 등록된 사업이 없습니다.</td></tr></tbody>"; return; }
   const maxMM = Math.max(1, ...list.map(p => p.mm));
 
-  const head = "<thead><tr><th>사업 / 업무명</th><th>구분</th><th>기간</th><th class='n'>예산</th><th class='n'>이윤</th>" +
+  const head = "<thead><tr><th>사업명</th><th>기간</th><th class='n'>예산</th><th class='n'>이윤</th>" +
                "<th class='n'>이윤율</th><th>투입 M/M</th><th class='n'>M/M당 이윤</th></tr></thead>";
   const body = list.map(p => {
-    const per = p.start && p.end ? (p.start.m + "월–" + p.end.m + "월") : "—";
     const cls = MODEL.profitClass(p.perMM);
-    return '<tr class="' + cls + '"><td style="font-weight:500">' + esc(p.name) + '</td><td><span class="tag">' + esc(p.kind) + "</span></td><td>" + per + "</td>" +
+    const per = p.start && p.end ? (p.start.m + "월–" + p.end.m + "월") : "—";
+    return '<tr class="' + cls + '"><td style="font-weight:500">' + esc(p.name) + "</td><td>" + per + "</td>" +
       '<td class="n">' + fmtWon(p.budget) + '</td><td class="n">' + fmtWon(p.profit) + "</td>" +
-      '<td class="n">' + (p.budget ? fmtPct(p.rate) : "—") + "</td>" +
+      '<td class="n">' + fmtPct(p.rate) + "</td>" +
       '<td style="min-width:130px"><div style="display:flex;align-items:center;gap:9px">' +
-        '<span class="bullet ' + cls + '" style="flex:1;height:8px"><span class="meas" style="top:0;bottom:0;width:' + (p.mm/maxMM*100).toFixed(1) + '%"></span></span>' +
+        '<span class="bullet ' + cls + '" style="flex:1;height:8px"><span class="meas" style="top:0;bottom:0;width:' +
+        (p.mm/maxMM*100).toFixed(1) + '%"></span></span>' +
         '<span class="num" style="font-size:12px;min-width:34px;text-align:right">' + fmtMM(p.mm) + "</span></div></td>" +
-      '<td class="n" style="color:var(--lv);font-weight:600">' + (p.profit ? fmtWon(p.perMM) : "—") + "</td></tr>";
+      '<td class="n" style="color:var(--lv);font-weight:600">' + fmtWon(p.perMM) + "</td></tr>";
   }).join("");
   $("projTbl").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+/* ---------- 인력 가용 예보 ---------- */
+function renderRolloff(){
+  const rel = MODEL.release, ins = MODEL.intake;
+  const W = 460, H = 230, m = { l:34, r:12, t:14, b:26 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const peak = Math.max(1, ...rel, ...ins);
+  const mid = m.t + ih/2, half = ih/2;
+  const bw = iw/12 * 0.56;
+  const X = i => m.l + iw*(i + 0.5)/12;
+
+  let bars = "";
+  for (let i = 0; i < 12; i++){
+    const hi = (ins[i]/peak) * half, hr = (rel[i]/peak) * half;
+    if (ins[i] > 0.01) bars += '<rect x="' + (X(i)-bw/2).toFixed(1) + '" y="' + (mid-hi).toFixed(1) +
+      '" width="' + bw.toFixed(1) + '" height="' + hi.toFixed(1) + '" rx="2" fill="var(--c-over)" opacity=".85"/>';
+    if (rel[i] > 0.01) bars += '<rect x="' + (X(i)-bw/2).toFixed(1) + '" y="' + mid.toFixed(1) +
+      '" width="' + bw.toFixed(1) + '" height="' + hr.toFixed(1) + '" rx="2" fill="var(--c-free)" opacity=".85"/>';
+    bars += '<text class="ch-axis" x="' + X(i).toFixed(1) + '" y="' + (H-8) + '" text-anchor="middle">' +
+      MODEL.monthsShort[i] + "</text>";
+  }
+  $("rollChart").innerHTML =
+    '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto">' +
+      '<line class="ch-grid" x1="' + m.l + '" y1="' + mid + '" x2="' + (W-m.r) + '" y2="' + mid + '"/>' +
+      '<text class="ch-lbl" x="' + (m.l-5) + '" y="' + (m.t+9) + '" text-anchor="end">+' + fmtMM(peak) + "</text>" +
+      '<text class="ch-lbl" x="' + (m.l-5) + '" y="' + (m.t+ih+3) + '" text-anchor="end">-' + fmtMM(peak) + "</text>" +
+      bars + "</svg>" +
+    '<div style="display:flex;gap:16px;margin-top:12px;font-size:11.5px;color:var(--ink-2)">' +
+      '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-over);margin-right:6px"></i>새로 들어가는 M/M</span>' +
+      '<span><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--c-free);margin-right:6px"></i>풀리는 M/M</span>' +
+    "</div>";
+
+  const list = MODEL.rolloffs;
+  $("rollNote").textContent = list.length ? "가장 이른 종료는 " + MODEL.months[list[0].endM - 1] : "";
+  if (!list.length){
+    $("rollTbl").innerHTML = "<tbody><tr><td style='padding:18px;color:var(--ink-3)'>연중에 끝나는 일이 없습니다.</td></tr></tbody>";
+    return;
+  }
+  const head = "<thead><tr><th>사업 / 업무명</th><th>구분</th><th>종료</th><th class='n'>풀리는 M/M</th><th>인력</th></tr></thead>";
+  const body = list.map(r => {
+    const cls = r.mm >= 1.5 ? "lv-over" : (r.mm >= 0.7 ? "lv-tight" : "lv-free");
+    return '<tr class="' + cls + '"><td style="font-weight:500">' + esc(r.name) + "</td>" +
+      '<td><span class="tag">' + esc(r.kind) + "</span></td>" +
+      '<td class="num" style="font-size:12px">' + MODEL.months[r.endM - 1] + " 이후</td>" +
+      '<td class="n" style="color:var(--lv);font-weight:700">' + fmtMM(r.mm) + "</td>" +
+      '<td><span style="display:flex;gap:5px;flex-wrap:wrap">' + r.people.map(p =>
+        '<span class="tag" title="' + esc(p.team) + '">' + esc(p.name) + " " + fmtMM(p.mm) + "</span>").join("") +
+      "</span></td></tr>";
+  }).join("");
+  $("rollTbl").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+/* ---------- 겸업 부담 ---------- */
+const CONC = [
+  { n:1, cls:"lv-free",  label:"1가지" },
+  { n:2, cls:"lv-fit",   label:"2가지" },
+  { n:3, cls:"lv-tight", label:"3가지" },
+  { n:4, cls:"lv-crit",  label:"4가지 이상" }
+];
+const concClass = n => !n ? "" : (CONC.find(c => n <= c.n) || CONC[3]).cls;
+
+function renderConcurrency(){
+  $("cclegend").innerHTML = CONC.map(c =>
+    '<span class="' + c.cls + '"><i></i>' + c.label + "</span>").join("");
+
+  const list = MODEL.people.slice()
+    .sort((a,b) => b.maxConc - a.maxConc || b.projects - a.projects || b.mm - a.mm);
+  const head = "<thead><tr><th>담당자</th><th>소속 팀</th><th class='n'>참여 업무</th><th class='n'>최대 동시</th>" +
+               "<th>월별 동시 겸업</th><th class='n'>연 M/M</th></tr></thead>";
+  const body = list.map(p =>
+    '<tr class="' + concClass(p.maxConc) + '"><td style="font-weight:600">' + esc(p.name) + "</td>" +
+    '<td style="color:var(--ink-3);font-size:12px">' + esc(p.team) + "</td>" +
+    '<td class="n">' + p.projects + "</td>" +
+    '<td class="n" style="color:var(--lv);font-weight:700">' + p.maxConc + "</td>" +
+    '<td><span style="display:flex;gap:2px;min-width:210px">' + p.conc.map((n,i) =>
+      '<span class="' + (n ? concClass(n) : "") + '" title="' + MODEL.months[i] + " " + n + '가지" ' +
+      'style="flex:1;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;' +
+      'font-family:var(--mono);font-size:9.5px;font-weight:600;' +
+      (n ? "background:var(--lv);color:#08171A" : "background:var(--surface-3);color:var(--ink-4)") + '">' +
+      (n || "·") + "</span>").join("") + "</span></td>" +
+    '<td class="n">' + fmtMM(p.mm) + "</td></tr>").join("");
+  $("concTbl").innerHTML = head + "<tbody>" + body + "</tbody>";
 }
 
 /* ---------- 인력 ---------- */
