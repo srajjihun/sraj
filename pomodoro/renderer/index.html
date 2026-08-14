@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<!-- 바깥에서 아무것도 불러오지 않는 화면이라 전부 막아둔다 -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'" />
+<title>월야 뽀모도로</title>
+<style>
+  :root {
+    --ink:        #05040a;
+    --gold:       #e3b45f;
+    --gold-hi:    #f7dda3;
+    --gold-dim:   #8b6c34;
+    --accent:     var(--gold);
+    --accent-hi:  var(--gold-hi);
+  }
+
+  /* 휴식 중에는 금빛에서 달빛(상아색)으로 넘어간다 */
+  body.rest {
+    --accent:    #d9cfb2;
+    --accent-hi: #f2ecda;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 300px;
+    height: 364px;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    cursor: default;
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic',
+                 -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 카드 ─────────────────────────────────────────────── */
+  #card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 22px;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 80% at 78% 8%, rgba(227,180,95,.09), transparent 62%),
+      linear-gradient(180deg, #0a0806 0%, #050403 58%, #070505 100%);
+    border: 1px solid rgba(227,180,95,.22);
+    box-shadow:
+      0 18px 40px rgba(0,0,0,.55),
+      inset 0 1px 0 rgba(247,221,163,.07);
+    -webkit-app-region: drag;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: border-color .6s ease;
+  }
+  body.rest #card { border-color: rgba(217,207,178,.20); }
+
+  /* 별 */
+  #stars { position: absolute; inset: 0; pointer-events: none; }
+  .star {
+    position: absolute;
+    width: 1.5px; height: 1.5px;
+    border-radius: 50%;
+    background: var(--gold-hi);
+    animation: twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .10; }
+    50%      { opacity: .55; }
+  }
+
+  /* ── 상단 바 ──────────────────────────────────────────── */
+  #bar {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    height: 30px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+  }
+  #brand {
+    font-size: 9.5px;
+    letter-spacing: .34em;
+    color: var(--gold-dim);
+    padding-left: 3px;
+    transition: color .6s ease;
+  }
+  #tools { display: flex; gap: 2px; -webkit-app-region: no-drag; }
+  .tool {
+    width: 22px; height: 22px;
+    display: grid; place-items: center;
+    border: 0; border-radius: 6px;
+    background: transparent;
+    color: var(--gold-dim);
+    opacity: .55;
+    cursor: pointer;
+    transition: opacity .16s, background .16s, color .16s;
+  }
+  .tool:hover { opacity: 1; background: rgba(227,180,95,.10); color: var(--gold); }
+  .tool.on    { opacity: 1; color: var(--gold-hi); }
+  .tool svg   { display: block; }
+
+  /* ── 달 다이얼 ────────────────────────────────────────── */
+  #dial { position: relative; z-index: 3; width: 200px; height: 200px; margin-top: 2px; flex: none; }
+  #dial svg { position: absolute; inset: 0; }
+
+  .track  { fill: none; stroke: rgba(227,180,95,.11); stroke-width: 1; }
+  .tick   { stroke: #e3b45f; stroke-width: 1; stroke-linecap: round; }
+  .arc {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 100px 100px;
+    filter: drop-shadow(0 0 5px rgba(227,180,95,.45));
+    transition: stroke .6s ease;
+  }
+  #head {
+    fill: var(--accent-hi);
+    filter: drop-shadow(0 0 5px rgba(247,221,163,.85));
+    transition: fill .6s ease;
+  }
+  .moonline { fill: none; stroke: var(--accent); stroke-width: .9; opacity: .22; transition: stroke .6s ease; }
+  .moonedge { fill: none; stroke: var(--accent); stroke-width: .8; opacity: .16; transition: stroke .6s ease; }
+
+  /* 다이얼 위 글자 */
+  #face {
+    position: absolute; inset: 0; z-index: 4;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 9px;
+  }
+  #mode {
+    font-size: 10px;
+    letter-spacing: .42em;
+    padding-left: .42em;
+    color: var(--accent);
+    opacity: .8;
+    transition: color .6s ease;
+  }
+  #time {
+    font-size: 43px;
+    font-weight: 200;
+    letter-spacing: .035em;
+    line-height: 1;
+    color: var(--accent-hi);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 18px rgba(227,180,95,.30);
+    transition: color .6s ease;
+  }
+  #dots { display: flex; gap: 6px; height: 5px; }
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    border: 1px solid rgba(227,180,95,.38);
+    transition: background .35s ease, box-shadow .35s ease;
+  }
+  .dot.done {
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(227,180,95,.7);
+  }
+
+  /* ── 버튼 ─────────────────────────────────────────────── */
+  #controls {
+    position: relative; z-index: 4;
+    margin-top: 14px;
+    display: flex; gap: 8px;
+    -webkit-app-region: no-drag;
+    flex: none;
+  }
+  .btn {
+    min-width: 84px;
+    height: 33px;
+    padding: 0 17px;
+    border-radius: 17px;
+    border: 1px solid rgba(227,180,95,.34);
+    background: rgba(227,180,95,.05);
+    color: var(--gold-hi);
+    font-family: inherit;
+    font-size: 11.5px;
+    letter-spacing: .18em;
+    padding-left: calc(17px + .18em);
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .1s;
+  }
+  .btn:hover  { background: rgba(227,180,95,.13); border-color: rgba(227,180,95,.6); }
+  .btn:active { transform: translateY(1px); }
+  .btn.ghost  { min-width: 0; color: var(--gold-dim); border-color: rgba(227,180,95,.18); }
+  .btn.ghost:hover { color: var(--gold); }
+
+  /* ── 파도 ─────────────────────────────────────────────── */
+  #sea {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 98px;
+    z-index: 2;
+    pointer-events: none;
+    overflow: hidden;
+    mask-image: linear-gradient(180deg, transparent, #000 46%);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 46%);
+  }
+  #sea svg { position: absolute; bottom: 0; left: 0; width: 600px; height: 98px; }
+  #sea .w1 { animation: drift 26s linear infinite; opacity: .46; }
+  #sea .w2 { animation: drift 38s linear infinite; opacity: .27; }
+  #sea .w3 { animation: drift 54s linear infinite; opacity: .16; }
+  @keyframes drift { to { transform: translateX(-150px); } }
+
+  .wave  { fill: none; stroke: var(--gold); stroke-width: 1; stroke-linecap: round; transition: stroke .6s ease; }
+  .foam  { fill: var(--gold); transition: fill .6s ease; }
+
+  /* 달리는 중에만 파도가 살아난다 */
+  #sea .w1, #sea .w2, #sea .w3 { animation-play-state: paused; }
+  body.running #sea .w1,
+  body.running #sea .w2,
+  body.running #sea .w3 { animation-play-state: running; }
+
+  /* ── 설정 패널 ────────────────────────────────────────── */
+  #settings {
+    position: absolute;
+    top: 32px; left: 16px; right: 16px;
+    z-index: 6;
+    border-radius: 16px;
+    background: rgba(5,4,3,.95);
+    border: 1px solid rgba(227,180,95,.18);
+    backdrop-filter: blur(6px);
+    padding: 15px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s;
+    -webkit-app-region: no-drag;
+  }
+  #settings.open { opacity: 1; visibility: visible; transform: none; }
+  #settings h2 {
+    font-size: 9.5px; font-weight: 400;
+    letter-spacing: .34em; color: var(--gold-dim);
+    margin-bottom: 12px; padding-left: 2px;
+  }
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 2px;
+    border-bottom: 1px solid rgba(227,180,95,.07);
+  }
+  .row:last-of-type { border-bottom: 0; }
+  .row span { font-size: 11.5px; color: rgba(247,221,163,.72); letter-spacing: .05em; }
+  .stepper { display: flex; align-items: center; gap: 3px; }
+  .stepper button {
+    width: 21px; height: 21px;
+    border: 1px solid rgba(227,180,95,.24);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--gold);
+    font-size: 13px; line-height: 1;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .stepper button:hover { background: rgba(227,180,95,.14); border-color: rgba(227,180,95,.55); }
+  .stepper b {
+    min-width: 40px; text-align: center;
+    font-size: 12.5px; font-weight: 400;
+    color: var(--gold-hi);
+    font-variant-numeric: tabular-nums;
+  }
+  .stepper b::after {
+    content: '분';
+    font-size: 9.5px;
+    color: var(--gold-dim);
+    margin-left: 2px;
+  }
+  #settings footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(227,180,95,.07);
+  }
+  #settings footer button {
+    border: 0; background: transparent;
+    font-family: inherit; font-size: 10.5px; letter-spacing: .14em;
+    color: var(--gold-dim); cursor: pointer;
+    transition: color .15s;
+  }
+  #settings footer button:hover { color: var(--gold); }
+  #quit:hover { color: #d98b6a; }
+</style>
+</head>
+<body>
+
+<div id="card">
+  <div id="stars"></div>
+
+  <!-- 상단 바 -->
+  <div id="bar">
+    <div id="brand">月夜</div>
+    <div id="tools">
+      <button class="tool" id="btnPin" title="항상 맨 앞에">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 17v5"/><path d="M9 10.8V4h6v6.8l2.4 3.2H6.6L9 10.8z"/>
+        </svg>
+      </button>
+      <button class="tool" id="btnCog" title="설정">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M12 2.6v2.6M12 18.8v2.6M21.4 12h-2.6M5.2 12H2.6M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8M18.6 18.6l-1.8-1.8M7.2 7.2 5.4 5.4"/>
+        </svg>
+      </button>
+      <button class="tool" id="btnHide" title="숨기기 (트레이에서 다시 열기)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <path d="M5 12h14"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 달 다이얼 -->
+  <div id="dial">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="moonGlow" cx="50%" cy="46%" r="52%">
+          <stop offset="0%"   stop-color="#e3b45f" stop-opacity=".17"/>
+          <stop offset="62%"  stop-color="#e3b45f" stop-opacity=".055"/>
+          <stop offset="100%" stop-color="#e3b45f" stop-opacity="0"/>
+        </radialGradient>
+        <clipPath id="moonClip"><circle cx="100" cy="100" r="66"/></clipPath>
+      </defs>
+
+      <!-- 달 원반 -->
+      <circle cx="100" cy="100" r="66" fill="url(#moonGlow)"/>
+      <circle class="moonedge" cx="100" cy="100" r="66"/>
+
+      <!-- 달을 가로지르는 구름 (배경화면의 달 문양) -->
+      <g clip-path="url(#moonClip)">
+        <path class="moonline"
+              d="M28 118 C 42 118 46 110 58 110 C 68 110 70 118 84 118 C 98 118 102 111 114 111 C 126 111 128 118 142 118 L 174 118"/>
+        <path class="moonline"
+              d="M34 132 C 46 132 50 126 60 126 C 70 126 72 132 84 132 L 166 132"/>
+        <path class="moonline"
+              d="M52 145 C 62 145 66 140 76 140 C 86 140 88 145 98 145 L 150 145"/>
+      </g>
+
+      <!-- 눈금 -->
+      <g id="ticks"></g>
+
+      <!-- 진행 고리 -->
+      <circle class="track" cx="100" cy="100" r="84"/>
+      <circle class="arc" id="arc" cx="100" cy="100" r="84"/>
+      <circle id="head" cx="100" cy="16" r="2.6" opacity="0"/>
+    </svg>
+
+    <div id="face">
+      <div id="mode">집 중</div>
+      <div id="time">25:00</div>
+      <div id="dots"></div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div id="controls">
+    <button class="btn" id="btnPlay">시 작</button>
+    <button class="btn ghost" id="btnReset">초기화</button>
+  </div>
+
+  <!-- 파도 -->
+  <div id="sea">
+    <svg viewBox="0 0 600 98" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <g class="w3" transform="translate(0,30)"><g id="waveC"></g></g>
+      <g class="w2" transform="translate(0,50)"><g id="waveB"></g></g>
+      <g class="w1" transform="translate(0,66)"><g id="waveA"></g></g>
+    </svg>
+  </div>
+
+  <!-- 설정 -->
+  <div id="settings">
+    <h2>시간 설정</h2>
+    <div class="row">
+      <span>집중</span>
+      <div class="stepper" data-key="focus">
+        <button data-d="-1">−</button><b>25</b><button data-d="1">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <span>짧은 휴식</span>
+      <div class="stepper" data-key="short">
+        <button data-d="-1">−</button><b>5</b><button data-d="1">+</button>
+      </div>
+    </div>
+    <div class="row">
+      <span>긴 휴식</span>
+      <div class="stepper" data-key="long">
+        <button data-d="-1">−</button><b>15</b><button data-d="1">+</button>
+      </div>
+    </div>
+    <footer>
+      <button id="quit">종료</button>
+      <button id="closeSettings">닫기</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ────────────────────────────────────────────────────────── *
+ * 배경 장식 — 별, 눈금, 파도
+ * ────────────────────────────────────────────────────────── */
+
+(function paintStars() {
+  const host = document.getElementById('stars');
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 62 + '%';
+    s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+    s.style.animationDuration = (3 + Math.random() * 3).toFixed(2) + 's';
+    if (Math.random() > 0.78) { s.style.width = '2px'; s.style.height = '2px'; }
+    host.appendChild(s);
+  }
+})();
+
+(function paintTicks() {
+  const g = document.getElementById('ticks');
+  const ns = 'http://www.w3.org/2000/svg';
+  for (let i = 0; i < 60; i++) {
+    const major = i % 5 === 0;
+    const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+    const r1 = major ? 90 : 92.5;
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('class', 'tick');
+    line.setAttribute('x1', (100 + r1 * Math.cos(a)).toFixed(2));
+    line.setAttribute('y1', (100 + r1 * Math.sin(a)).toFixed(2));
+    line.setAttribute('x2', (100 + 95 * Math.cos(a)).toFixed(2));
+    line.setAttribute('y2', (100 + 95 * Math.sin(a)).toFixed(2));
+    line.setAttribute('opacity', major ? '.42' : '.16');
+    g.appendChild(line);
+  }
+})();
+
+// 우키요에풍 물마루 한 단위를 가로로 이어 붙인다.
+(function paintWaves() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const UNIT = 150;
+  // 솟구쳤다 말려 떨어지는 물마루 한 장
+  const crest =
+    'M0,32 C 13,31 23,27 33,18 C 41,10 51,2 62,2 C 73,2 79,10 76,17 ' +
+    'C 83,12 90,15 93,22 C 96,28 102,32 109,30 C 119,27 129,25 139,28 ' +
+    'C 144,30 147,31 150,32';
+  const curl = 'M60,6 C 69,7 72,14 66,18 C 62,20 58,19 57,16';
+
+  [['waveA', 1], ['waveB', 0.82], ['waveC', 0.66]].forEach(([id, scale], layer) => {
+    const g = document.getElementById(id);
+    for (let i = 0; i < 5; i++) {
+      const unit = document.createElementNS(ns, 'g');
+      unit.setAttribute(
+        'transform',
+        `translate(${i * UNIT * scale - layer * 40}, 0) scale(${scale})`
+      );
+
+      const p = document.createElementNS(ns, 'path');
+      p.setAttribute('class', 'wave');
+      p.setAttribute('d', crest);
+      unit.appendChild(p);
+
+      const c = document.createElementNS(ns, 'path');
+      c.setAttribute('class', 'wave');
+      c.setAttribute('d', curl);
+      c.setAttribute('opacity', '.7');
+      unit.appendChild(c);
+
+      // 물보라
+      [[57, 1], [70, 5], [106, 27]].forEach(([fx, fy], k) => {
+        const dot = document.createElementNS(ns, 'circle');
+        dot.setAttribute('class', 'foam');
+        dot.setAttribute('cx', fx);
+        dot.setAttribute('cy', fy);
+        dot.setAttribute('r', k === 1 ? 0.8 : 1.1);
+        dot.setAttribute('opacity', '.6');
+        unit.appendChild(dot);
+      });
+
+      g.appendChild(unit);
+    }
+  });
+})();
+
+/* ────────────────────────────────────────────────────────── *
+ * 타이머
+ * ────────────────────────────────────────────────────────── */
+
+const R = 84;
+const CIRC = 2 * Math.PI * R;
+
+const el = {
+  body:    document.body,
+  arc:     document.getElementById('arc'),
+  head:    document.getElementById('head'),
+  time:    document.getElementById('time'),
+  mode:    document.getElementById('mode'),
+  dots:    document.getElementById('dots'),
+  play:    document.getElementById('btnPlay'),
+  reset:   document.getElementById('btnReset'),
+  pin:     document.getElementById('btnPin'),
+  cog:     document.getElementById('btnCog'),
+  hide:    document.getElementById('btnHide'),
+  panel:   document.getElementById('settings'),
+};
+
+el.arc.style.strokeDasharray = CIRC.toFixed(2);
+el.arc.style.strokeDashoffset = CIRC.toFixed(2);
+
+const LABEL = { focus: '집 중', short: '휴 식', long: '긴 휴 식' };
+const LIMITS = { focus: [1, 90], short: [1, 30], long: [1, 60] };
+
+let durations = { focus: 25, short: 5, long: 15 };
+let roundsBeforeLong = 4;
+
+let mode = 'focus';
+let running = false;
+let remaining = durations.focus * 60 * 1000; // 남은 밀리초
+let endAt = 0;                               // 진행 중일 때의 종료 시각
+let round = 0;                               // 이번 묶음에서 끝낸 집중 횟수
+let ticker = null;
+
+const totalMs = () => durations[mode] * 60 * 1000;
+
+function render() {
+  const ms = running ? Math.max(0, endAt - Date.now()) : remaining;
+  const secs = Math.ceil(ms / 1000);
+  const mm = String(Math.floor(secs / 60)).padStart(2, '0');
+  const ss = String(secs % 60).padStart(2, '0');
+  el.time.textContent = `${mm}:${ss}`;
+
+  const p = Math.min(1, Math.max(0, 1 - ms / totalMs()));
+  el.arc.style.strokeDashoffset = (CIRC * (1 - p)).toFixed(2);
+
+  if (p > 0.001 && p < 0.999) {
+    const a = p * Math.PI * 2 - Math.PI / 2;
+    el.head.setAttribute('cx', (100 + R * Math.cos(a)).toFixed(2));
+    el.head.setAttribute('cy', (100 + R * Math.sin(a)).toFixed(2));
+    el.head.setAttribute('opacity', '1');
+  } else {
+    el.head.setAttribute('opacity', '0');
+  }
+
+  el.mode.textContent = LABEL[mode];
+  el.body.classList.toggle('rest', mode !== 'focus');
+  el.body.classList.toggle('running', running);
+  el.play.textContent = running ? '일시정지' : '시 작';
+}
+
+function paintDots() {
+  el.dots.innerHTML = '';
+  for (let i = 0; i < roundsBeforeLong; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i < round ? ' done' : '');
+    el.dots.appendChild(d);
+  }
+}
+
+function tick() {
+  if (!running) return;
+  if (Date.now() >= endAt) {
+    advance();
+    return;
+  }
+  render();
+}
+
+function start() {
+  if (running) return;
+  running = true;
+  endAt = Date.now() + remaining;
+  clearInterval(ticker);
+  ticker = setInterval(tick, 200);
+  render();
+}
+
+function pause() {
+  if (!running) return;
+  remaining = Math.max(0, endAt - Date.now());
+  running = false;
+  clearInterval(ticker);
+  render();
+}
+
+function toggle() {
+  running ? pause() : start();
+}
+
+function setMode(next, autoStart) {
+  mode = next;
+  remaining = totalMs();
+  running = false;
+  clearInterval(ticker);
+  render();
+  if (autoStart) start();
+}
+
+function reset() {
+  running = false;
+  clearInterval(ticker);
+  round = 0;
+  setMode('focus', false);
+  paintDots();
+}
+
+// 한 구간이 끝났을 때 — 알리고 다음 구간을 이어서 시작한다.
+function advance() {
+  const finished = mode;
+  let next, title, body;
+
+  if (finished === 'focus') {
+    round += 1;
+    const longNow = round >= roundsBeforeLong;
+    next = longNow ? 'long' : 'short';
+    title = '집중 완료';
+    body = longNow
+      ? `${durations.long}분 긴 휴식을 시작합니다. 잠시 창을 보세요.`
+      : `${durations.short}분 휴식을 시작합니다.`;
+    if (longNow) round = 0;
+  } else {
+    next = 'focus';
+    title = '휴식 종료';
+    body = `${durations.focus}분 집중을 시작합니다.`;
+  }
+
+  paintDots();
+  chime(finished === 'focus');
+  window.api?.notify(title, body);
+  window.api?.flash();
+  setMode(next, true);
+}
+
+/* ── 종소리 (파일 없이 합성) ─────────────────────────────── */
+let audioCtx = null;
+function chime(deep) {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const base = deep ? 392 : 523.25; // 집중 끝은 낮게, 휴식 끝은 밝게
+    const now = audioCtx.currentTime;
+
+    [[1, 0.5], [2.01, 0.2], [2.98, 0.08]].forEach(([mult, gain]) => {
+      const osc = audioCtx.createOscillator();
+      const amp = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = base * mult;
+      amp.gain.setValueAtTime(0, now);
+      amp.gain.linearRampToValueAtTime(gain * 0.28, now + 0.012);
+      amp.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+      osc.connect(amp).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 2.7);
+    });
+  } catch {
+    /* 소리를 못 내도 타이머는 계속 간다 */
+  }
+}
+
+/* ────────────────────────────────────────────────────────── *
+ * 조작
+ * ────────────────────────────────────────────────────────── */
+
+el.play.addEventListener('click', toggle);
+el.reset.addEventListener('click', reset);
+el.hide.addEventListener('click', () => window.api?.hide());
+document.getElementById('quit').addEventListener('click', () => window.api?.quit());
+
+el.cog.addEventListener('click', () => {
+  el.panel.classList.toggle('open');
+  el.cog.classList.toggle('on', el.panel.classList.contains('open'));
+});
+document.getElementById('closeSettings').addEventListener('click', () => {
+  el.panel.classList.remove('open');
+  el.cog.classList.remove('on');
+});
+
+let pinned = true;
+el.pin.addEventListener('click', async () => {
+  pinned = await window.api?.setAlwaysOnTop(!pinned);
+  el.pin.classList.toggle('on', pinned);
+});
+window.api?.onAlwaysOnTopChanged((flag) => {
+  pinned = flag;
+  el.pin.classList.toggle('on', pinned);
+});
+
+// 시간 설정 스테퍼
+el.panel.querySelectorAll('.stepper').forEach((st) => {
+  const key = st.dataset.key;
+  const out = st.querySelector('b');
+  st.querySelectorAll('button').forEach((b) => {
+    b.addEventListener('click', () => {
+      const [min, max] = LIMITS[key];
+      durations[key] = Math.min(max, Math.max(min, durations[key] + Number(b.dataset.d)));
+      out.textContent = durations[key];
+      window.api?.saveDurations(durations);
+      // 멈춰 있는 동안 지금 구간의 길이를 바꾸면 화면에 바로 반영한다.
+      if (!running && key === mode) {
+        remaining = totalMs();
+        render();
+      }
+    });
+  });
+});
+
+// 단축키 — 스페이스는 시작/정지, R은 초기화
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (e.key === 'r' || e.key === 'R') reset();
+  if (e.key === 'Escape') { el.panel.classList.remove('open'); el.cog.classList.remove('on'); }
+});
+
+/* ── 시작 ────────────────────────────────────────────────── */
+(async function init() {
+  const cfg = await window.api?.getConfig();
+  if (cfg) {
+    durations = cfg.durations;
+    roundsBeforeLong = cfg.roundsBeforeLong;
+    pinned = cfg.alwaysOnTop;
+  }
+  el.pin.classList.toggle('on', pinned);
+  el.panel.querySelectorAll('.stepper').forEach((st) => {
+    st.querySelector('b').textContent = durations[st.dataset.key];
+  });
+  remaining = totalMs();
+  paintDots();
+  render();
+})();
+</script>
+</body>
+</html>
