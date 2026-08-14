@@ -33,6 +33,7 @@ function loadState() {
   const defaults = {
     bounds: null,
     alwaysOnTop: true,
+    autoLaunch: false,
     durations: { focus: 25, short: 5, long: 15 },
     roundsBeforeLong: 4,
   };
@@ -98,6 +99,19 @@ function applyAlwaysOnTop(flag) {
 }
 
 /* ------------------------------------------------------------------ *
+ * 로그인 시 자동 시작 — 패키징된(설치된) 앱에서만 의미가 있다.
+ * ------------------------------------------------------------------ */
+
+function applyAutoLaunch(flag) {
+  if (!app.isPackaged) return; // 개발 중(npm start)에는 건드리지 않는다
+  app.setLoginItemSettings({
+    openAtLogin: flag,
+    // Windows 트레이 상주 앱이므로 시작 시 창을 감춰 두면 자연스럽다.
+    args: flag ? ['--hidden'] : [],
+  });
+}
+
+/* ------------------------------------------------------------------ *
  * 창 생성
  * ------------------------------------------------------------------ */
 
@@ -129,7 +143,8 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
   win.once('ready-to-show', () => {
-    win.show();
+    // 로그인 자동 시작일 때는 --hidden으로 실행되어 트레이에만 조용히 앉는다.
+    if (!process.argv.includes('--hidden')) win.show();
     applyAlwaysOnTop(state.alwaysOnTop);
   });
 
@@ -185,6 +200,18 @@ function createTray() {
         win.setPosition(x, y);
         state.bounds = { x, y };
         saveState();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: '로그인 시 자동 시작',
+      type: 'checkbox',
+      checked: state.autoLaunch,
+      visible: app.isPackaged, // 개발 중(npm start)에는 의미가 없어 숨긴다
+      click: (item) => {
+        state.autoLaunch = item.checked;
+        saveState();
+        applyAutoLaunch(item.checked);
       },
     },
     { type: 'separator' },
@@ -261,6 +288,9 @@ if (!app.requestSingleInstanceLock()) {
 
     createWindow();
     createTray();
+
+    // 설치본이 실행될 때마다 OS의 실제 로그인 항목 상태를 저장값과 맞춘다.
+    if (app.isPackaged) applyAutoLaunch(state.autoLaunch);
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow();
