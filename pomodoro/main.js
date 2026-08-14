@@ -13,8 +13,8 @@ const {
 const path = require('path');
 const fs = require('fs');
 
-const WIN_WIDTH = 300;
-const WIN_HEIGHT = 364;
+const WIN_WIDTH = 240;
+const WIN_HEIGHT = 240;
 const EDGE_MARGIN = 24;
 
 let win = null;
