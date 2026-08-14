@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" class="locked">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -519,6 +519,47 @@ table.data tr.total td{background:var(--surface-2);font-weight:700}
 .msg.busy{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
 .row-btns{display:flex;gap:8px;flex-wrap:wrap}
 
+/* ============================================================
+   GATE — 공용 암호 잠금 화면
+   ============================================================ */
+html.locked, html.locked body{overflow:hidden}
+html.locked .grain, html.locked .topstack, html.locked main,
+html.locked footer, html.locked #modal{visibility:hidden}
+.gate{
+  position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px;
+  background:radial-gradient(120% 90% at 50% 0%,var(--bg-2) 0%,var(--bg) 62%);
+}
+.gate.on{display:flex}
+.gate .box{
+  width:100%;max-width:392px;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r-xl);box-shadow:var(--shadow-lg);padding:32px 30px 28px;
+  animation:popIn .55s var(--ease);text-align:center;
+}
+.gate .lockup{justify-content:center}
+.gate .lg{width:38px;height:38px}
+.gate h1{margin-top:20px;font-size:19px;letter-spacing:-.01em}
+.gate p.sub{margin-top:7px;font-size:12.5px;color:var(--ink-3);line-height:1.65}
+.gate form{margin-top:22px;display:block}
+.gate input[type=password]{
+  width:100%;font:inherit;font-size:13.5px;text-align:center;letter-spacing:.08em;
+  padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--bg-2);color:var(--ink);transition:all var(--dur) var(--ease);
+}
+.gate input[type=password]:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.gate .btn{width:100%;justify-content:center;margin-top:10px}
+.gate .keep{
+  margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:12.5px;color:var(--ink-2);cursor:pointer;user-select:none;
+}
+.gate .keep input{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.gate .msg{text-align:left;justify-content:flex-start}
+.gate .foot-cap{display:block;margin-top:22px}
+.gate .box.shake{animation:gateShake .42s var(--ease)}
+@keyframes gateShake{
+  0%,100%{transform:none} 18%{transform:translateX(-8px)} 38%{transform:translateX(7px)}
+  58%{transform:translateX(-5px)} 78%{transform:translateX(3px)}
+}
+
 footer{padding:26px 0 44px;color:var(--ink-4);font-size:11.5px;line-height:1.85}
 footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .foot-brand{display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right}
@@ -569,6 +610,29 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
 
 <div class="grain" aria-hidden="true"></div>
 
+<!-- 잠금 화면 — 암호를 바꾸려면 아래 GATE 스크립트의 PASS_HASH 한 줄만 교체하면 됩니다 -->
+<div class="gate on" id="gate">
+  <div class="box" id="gateBox">
+    <div class="lockup">
+      <svg class="lg" viewBox="0 0 92 92" role="img" aria-label="인트윈"><use href="#ig-logo"></use></svg>
+      <span class="word">INTWEEN</span>
+    </div>
+    <h1>팀 컨디션 보드</h1>
+    <p class="sub">사내 공용 암호를 입력하면 대시보드가 열립니다.</p>
+    <form id="gateForm" autocomplete="off">
+      <input type="password" id="gatePw" placeholder="암호" aria-label="공용 암호" autocomplete="current-password" spellcheck="false">
+      <button class="btn" type="submit" id="gateBtn">
+        열기<span class="cap"><iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
+      </button>
+      <label class="keep" for="gateKeep">
+        <input type="checkbox" id="gateKeep" checked>이 브라우저에서 로그인 유지
+      </label>
+    </form>
+    <div class="msg" id="gateMsg"></div>
+    <span class="foot-cap">INTWEEN OPERATIONS</span>
+  </div>
+</div>
+
 <!-- INTWEEN 심볼 — 공식 에셋이 있으면 이 symbol만 교체하면 전체에 반영됩니다 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
@@ -606,6 +670,9 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
         <span class="dot demo" id="srcDot"></span>
         <span id="srcLabel">예시 데이터</span>
         <iconify-icon icon="solar:alt-arrow-down-linear" style="font-size:13px;opacity:.6"></iconify-icon>
+      </button>
+      <button class="btn ghost sm" id="logoutBtn" title="화면을 다시 잠급니다">
+        <iconify-icon icon="solar:lock-keyhole-minimalistic-linear"></iconify-icon>잠그기
       </button>
     </div>
   </header>
@@ -1972,6 +2039,190 @@ render();
 const fromHash = (location.hash.match(/gs=([a-zA-Z0-9-_]{20,})/) || [])[1];
 const saved = fromHash || store.get(LS_SHEET);
 if (saved){ $("gsUrl").value = "https://docs.google.com/spreadsheets/d/" + saved; connectSheet(saved, true); }
+})();
+</script>
+
+<script>
+/* ============================================================
+   GATE — 공용 암호 잠금
+
+   · 암호를 바꾸려면 PASS_HASH 값만 새 암호의 SHA-256 해시로 교체합니다.
+     해시 만들기(터미널):  printf '새암호' | sha256sum
+     해시를 바꾸면 이미 로그인해 둔 브라우저도 모두 다시 물어봅니다.
+   · 파일 안에서 검사하므로 소스를 열어보는 사람은 우회할 수 있습니다.
+     외부에 공개된 자리에 두지 말고, 사내 공유용 가림막으로만 쓰십시오.
+   ============================================================ */
+(function(){
+"use strict";
+
+/* 기본 암호: intween2026 */
+const PASS_HASH = "4fa5be7b853f975ba0266952b08a45e2b5583328e721865a2e2e5c8c974ff78e";
+const LS_GATE   = "intween.gate";
+const KEEP_DAYS = 30;
+const MAX_TRY   = 5;      /* 연속 실패 허용 횟수 */
+const COOL_MS   = 30000;  /* 초과 시 잠시 입력을 막는 시간 */
+
+const $ = id => document.getElementById(id);
+const root = document.documentElement;
+let tries = 0, coolUntil = 0;
+
+/* ---- SHA-256 ------------------------------------------------
+   crypto.subtle은 보안 컨텍스트(https·file)에서만 있습니다.
+   사내 http 주소로 열리는 경우를 위해 순수 JS 구현을 함께 둡니다.
+   ------------------------------------------------------------ */
+const K = [
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+];
+
+function sha256Fallback(bytes){
+  const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bitLen = bytes.length * 8;
+  const padded = new Uint8Array((((bytes.length + 8) >> 6) + 1) << 6);
+  padded.set(bytes);
+  padded[bytes.length] = 0x80;
+  new DataView(padded.buffer).setUint32(padded.length - 4, bitLen >>> 0);
+  new DataView(padded.buffer).setUint32(padded.length - 8, Math.floor(bitLen / 4294967296));
+
+  const w = new Uint32Array(64);
+  const rr = (x,n) => (x >>> n) | (x << (32 - n));
+  for (let off = 0; off < padded.length; off += 64){
+    for (let i = 0; i < 16; i++){
+      w[i] = (padded[off+i*4] << 24) | (padded[off+i*4+1] << 16) | (padded[off+i*4+2] << 8) | padded[off+i*4+3];
+    }
+    for (let i = 16; i < 64; i++){
+      const s0 = rr(w[i-15],7) ^ rr(w[i-15],18) ^ (w[i-15] >>> 3);
+      const s1 = rr(w[i-2],17) ^ rr(w[i-2],19) ^ (w[i-2] >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) >>> 0;
+    }
+    let [a,b,c,d,e,f,g,h] = H;
+    for (let i = 0; i < 64; i++){
+      const S1 = rr(e,6) ^ rr(e,11) ^ rr(e,25);
+      const ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+      const S0 = rr(a,2) ^ rr(a,13) ^ rr(a,22);
+      const maj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + maj) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0;
+      d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    const v = [a,b,c,d,e,f,g,h];
+    for (let i = 0; i < 8; i++) H[i] = (H[i] + v[i]) >>> 0;
+  }
+  return H.map(x => x.toString(16).padStart(8,"0")).join("");
+}
+
+function sha256(text){
+  const bytes = new TextEncoder().encode(text);
+  if (window.crypto && crypto.subtle && crypto.subtle.digest){
+    return crypto.subtle.digest("SHA-256", bytes)
+      .then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join(""))
+      .catch(() => sha256Fallback(bytes));
+  }
+  return Promise.resolve(sha256Fallback(bytes));
+}
+
+/* ---- 세션 보관 ---------------------------------------------
+   유지 선택 시 localStorage(30일), 아니면 sessionStorage(창을 닫으면 만료).
+   보관값에 통과한 해시를 함께 남겨 두어, PASS_HASH를 바꾸면 기존 세션이 무효가 됩니다.
+   ------------------------------------------------------------ */
+function bag(keep){ try { return keep ? localStorage : sessionStorage; } catch(e){ return null; } }
+function readTicket(){
+  for (const keep of [true,false]){
+    const b = bag(keep);
+    if (!b) continue;
+    try {
+      const t = JSON.parse(b.getItem(LS_GATE) || "null");
+      if (t && t.h === PASS_HASH && (!t.exp || t.exp > Date.now())) return true;
+      if (t) b.removeItem(LS_GATE);
+    } catch(e){}
+  }
+  return false;
+}
+function writeTicket(keep){
+  const b = bag(keep);
+  if (!b) return;
+  const t = { h:PASS_HASH, exp: keep ? Date.now() + KEEP_DAYS*864e5 : 0 };
+  try { b.setItem(LS_GATE, JSON.stringify(t)); } catch(e){}
+}
+function clearTicket(){
+  [bag(true), bag(false)].forEach(b => { if (b) try { b.removeItem(LS_GATE); } catch(e){} });
+}
+
+/* ---- 화면 --------------------------------------------------- */
+function msg(kind, icon, text){
+  const el = $("gateMsg");
+  el.className = "msg on " + kind;
+  el.innerHTML = '<iconify-icon icon="' + icon + '"></iconify-icon><span></span>';
+  el.lastChild.textContent = text;
+}
+function clearMsg(){ $("gateMsg").className = "msg"; $("gateMsg").textContent = ""; }
+
+function unlock(){
+  root.classList.remove("locked");
+  $("gate").classList.remove("on");
+  $("gatePw").value = "";
+  clearMsg();
+  window.dispatchEvent(new Event("resize")); /* 잠금 중 0폭으로 잡힌 차트를 다시 그리게 한다 */
+}
+function lock(){
+  clearTicket();
+  tries = 0; coolUntil = 0;
+  root.classList.add("locked");
+  $("gate").classList.add("on");
+  clearMsg();
+  $("gatePw").focus();
+}
+
+$("gateForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const left = coolUntil - Date.now();
+  if (left > 0){
+    msg("err","solar:clock-circle-linear", Math.ceil(left/1000) + "초 뒤에 다시 시도할 수 있습니다.");
+    return;
+  }
+  const pw = $("gatePw").value;
+  if (!pw){ msg("err","solar:danger-triangle-linear","암호를 입력해 주세요."); return; }
+
+  $("gateBtn").disabled = true;
+  sha256(pw).then(h => {
+    $("gateBtn").disabled = false;
+    if (h === PASS_HASH){
+      writeTicket($("gateKeep").checked);
+      unlock();
+      return;
+    }
+    tries++;
+    $("gatePw").value = "";
+    $("gatePw").focus();
+    const box = $("gateBox");
+    box.classList.remove("shake");
+    void box.offsetWidth;
+    box.classList.add("shake");
+    if (tries >= MAX_TRY){
+      coolUntil = Date.now() + COOL_MS;
+      tries = 0;
+      msg("err","solar:lock-keyhole-minimalistic-linear","여러 번 틀렸습니다. " + (COOL_MS/1000) + "초 뒤에 다시 시도해 주세요.");
+    } else {
+      msg("err","solar:danger-triangle-linear","암호가 맞지 않습니다. (" + tries + "/" + MAX_TRY + ")");
+    }
+  });
+});
+
+$("gatePw").addEventListener("input", () => { if ($("gateMsg").classList.contains("on")) clearMsg(); });
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) logoutBtn.addEventListener("click", lock);
+
+/* boot */
+if (readTicket()) unlock();
+else $("gatePw").focus();
 })();
 </script>
 </body>
