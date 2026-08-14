@@ -220,7 +220,8 @@ section.block{padding:24px 0}
 /* ============================================================
    KPI STRIP
    ============================================================ */
-.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:22px}
+/* 목표 이윤이 있으면 타일이 7개, 없으면 6개다. auto-fit이 남는 칸을 접어 준다. */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
 .kpi{
   background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:15px 16px 14px;
   box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
@@ -929,6 +930,7 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
     <div class="opt">
       <h4><iconify-icon icon="solar:file-download-bold-duotone"></iconify-icon>엑셀 파일 올리기</h4>
       <p>지금 쓰는 팀컨디션_대시보드.xlsx를 그대로 올리면 됩니다. 파일은 이 브라우저 안에서만 열리고 어디에도 전송되지 않습니다.</p>
+      <p style="margin-top:-8px">팀별분석 시트 <b>① 팀 구성</b>에 <b>연간 목표 이윤 (원)</b> 칸이 있으면 이윤 달성률까지 함께 계산합니다. 칸이 없는 예전 파일도 그대로 열립니다.</p>
       <label class="filedrop">
         <iconify-icon icon="solar:upload-square-bold-duotone"></iconify-icon>
         <span><span class="t" id="xlName">엑셀 파일 선택</span><span class="s">.xlsx · .xlsm</span></span>
@@ -947,7 +949,7 @@ footer .wrap{border-top:1px solid var(--line);padding-top:18px;display:flex;just
   </div>
 </div>
 
-<script id="demoData" type="application/json">{"settings":{"utilization":0.85,"startMonth":"2026-01","refMonth":8},"teams":[{"name":"사업운영팀 기획1파트","headcount":5,"target":1000000000},{"name":"사업운영팀 기획2파트","headcount":4,"target":500000000},{"name":"신사업팀","headcount":3,"target":250000000},{"name":"경영본부 사업기획실","headcount":3,"target":10000000}],"people":[{"name":"하윤서","team":"사업운영팀 기획1파트"},{"name":"박도현","team":"사업운영팀 기획1파트"},{"name":"이서진","team":"사업운영팀 기획1파트"},{"name":"정민준","team":"사업운영팀 기획1파트"},{"name":"오예린","team":"사업운영팀 기획1파트"},{"name":"최시우","team":"사업운영팀 기획2파트"},{"name":"한지원","team":"사업운영팀 기획2파트"},{"name":"김하늘","team":"사업운영팀 기획2파트"},{"name":"윤도경","team":"사업운영팀 기획2파트"},{"name":"노아린","team":"신사업팀"},{"name":"서준혁","team":"신사업팀"},{"name":"문가온","team":"신사업팀"},{"name":"배시현","team":"경영본부 사업기획실"},{"name":"윤소라","team":"경영본부 사업기획실"},{"name":"강태오","team":"경영본부 사업기획실"}],"projects":[{"name":"ERP 전면 재구축","kind":"사업","start":"2026-01","end":"2026-06","budget":420000000,"profit":126000000},{"name":"하반기 고도화 PJT","kind":"사업","start":"2026-07","end":"2026-12","budget":260000000,"profit":70000000},{"name":"채널 개편 PJT","kind":"사업","start":"2026-01","end":"2026-07","budget":310000000,"profit":96000000},{"name":"물류 시스템 고도화","kind":"사업","start":"2026-03","end":"2026-07","budget":280000000,"profit":78000000},{"name":"데이터 표준화 PJT","kind":"사업","start":"2026-01","end":"2026-06","budget":150000000,"profit":38000000},{"name":"신규 사업 타당성 검토","kind":"사업","start":"2026-01","end":"2026-04","budget":60000000,"profit":12000000},{"name":"파트너십 발굴","kind":"사업","start":"2026-01","end":"2026-12","budget":90000000,"profit":18000000},{"name":"중장기 전략 수립","kind":"사업","start":"2026-01","end":"2026-12","budget":70000000,"profit":10000000},{"name":"월간 실적보고 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"파트 상시 운영업무","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"정산·계약 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"유지보수 대응","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"경영실적 분석 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"신규 제안 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"운영 이관 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"시장조사","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"전사 예산 수립 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"이사회 보고 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0}],"entries":[{"person":"하윤서","project":"ERP 전면 재구축","months":[0.7,0.7,0.7,0.6,0.4,0,0,0,0,0,0,0]},{"person":"하윤서","project":"월간 실적보고 운영","months":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2]},{"person":"하윤서","project":"채널 개편 PJT","months":[0.3,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0,0]},{"person":"박도현","project":"ERP 전면 재구축","months":[0.8,0.8,0.8,0.8,0.8,0.4,0,0,0,0,0,0]},{"person":"박도현","project":"하반기 고도화 PJT","months":[0,0,0,0,0,0,0.9,0.9,0.9,0.9,0.9,0.9]},{"person":"박도현","project":"신규 제안 지원","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.2,0.2,0.2,0.2,0.2,0.2]},{"person":"이서진","project":"채널 개편 PJT","months":[0.6,0.6,0.8,0.8,0.8,0.8,0.4,0,0,0,0,0]},{"person":"이서진","project":"운영 이관 지원","months":[0,0,0,0,0,0,0,0.6,0.6,0.6,0.6,0.6]},{"person":"이서진","project":"파트 상시 운영업무","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"정민준","project":"파트 상시 운영업무","months":[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]},{"person":"정민준","project":"채널 개편 PJT","months":[0.5,0.5,0.5,0.5,0.5,0.5,0,0,0,0,0,0]},{"person":"정민준","project":"신규 제안 지원","months":[0,0,0,0,0,0,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"오예린","project":"정산·계약 운영","months":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"오예린","project":"ERP 전면 재구축","months":[0.4,0.6,0.6,0.6,0.6,0,0,0,0,0,0,0]},{"person":"오예린","project":"하반기 고도화 PJT","months":[0,0,0,0,0,0,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"최시우","project":"물류 시스템 고도화","months":[0,0,0.9,0.9,0.9,0.9,0.9,0,0,0,0,0]},{"person":"최시우","project":"유지보수 대응","months":[0.4,0.4,0,0,0,0,0,0.5,0.5,0.5,0.5,0.5]},{"person":"한지원","project":"물류 시스템 고도화","months":[0,0,0.8,0.8,0.8,0.8,0.8,0,0,0,0,0]},{"person":"한지원","project":"데이터 표준화 PJT","months":[0.3,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0,0]},{"person":"김하늘","project":"파트 상시 운영업무","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"김하늘","project":"데이터 표준화 PJT","months":[0.6,0.6,0.6,0.6,0.6,0.6,0,0,0,0,0,0]},{"person":"윤도경","project":"데이터 표준화 PJT","months":[0.7,0.7,0.7,0.7,0.7,0.7,0,0,0,0,0,0]},{"person":"윤도경","project":"물류 시스템 고도화","months":[0,0,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0]},{"person":"노아린","project":"신규 사업 타당성 검토","months":[0.6,0.6,0.6,0.6,0,0,0,0,0,0,0,0]},{"person":"노아린","project":"파트너십 발굴","months":[0,0,0,0,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"서준혁","project":"시장조사","months":[0.4,0.4,0.4,0.4,0.4,0.4,0,0,0,0,0,0]},{"person":"서준혁","project":"신규 사업 타당성 검토","months":[0.5,0.5,0.5,0.5,0,0,0,0,0,0,0,0]},{"person":"문가온","project":"파트너십 발굴","months":[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]},{"person":"배시현","project":"전사 예산 수립 지원","months":[0.5,0.5,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.7,0.8,0.8]},{"person":"배시현","project":"중장기 전략 수립","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"윤소라","project":"경영실적 분석 운영","months":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"윤소라","project":"파트너십 발굴","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"강태오","project":"중장기 전략 수립","months":[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]},{"person":"강태오","project":"이사회 보고 지원","months":[0,0,0,0,0,0,0,0,0,0.4,0.4,0.4]}]}</script>
+<script id="demoData" type="application/json">{"settings":{"utilization":0.85,"startMonth":"2026-01","refMonth":8},"teams":[{"name":"사업운영팀 기획1파트","headcount":5,"target":1000000000,"targetProfit":250000000},{"name":"사업운영팀 기획2파트","headcount":4,"target":500000000,"targetProfit":125000000},{"name":"신사업팀","headcount":3,"target":250000000,"targetProfit":62500000},{"name":"경영본부 사업기획실","headcount":3,"target":10000000,"targetProfit":2500000}],"people":[{"name":"하윤서","team":"사업운영팀 기획1파트"},{"name":"박도현","team":"사업운영팀 기획1파트"},{"name":"이서진","team":"사업운영팀 기획1파트"},{"name":"정민준","team":"사업운영팀 기획1파트"},{"name":"오예린","team":"사업운영팀 기획1파트"},{"name":"최시우","team":"사업운영팀 기획2파트"},{"name":"한지원","team":"사업운영팀 기획2파트"},{"name":"김하늘","team":"사업운영팀 기획2파트"},{"name":"윤도경","team":"사업운영팀 기획2파트"},{"name":"노아린","team":"신사업팀"},{"name":"서준혁","team":"신사업팀"},{"name":"문가온","team":"신사업팀"},{"name":"배시현","team":"경영본부 사업기획실"},{"name":"윤소라","team":"경영본부 사업기획실"},{"name":"강태오","team":"경영본부 사업기획실"}],"projects":[{"name":"ERP 전면 재구축","kind":"사업","start":"2026-01","end":"2026-06","budget":420000000,"profit":126000000},{"name":"하반기 고도화 PJT","kind":"사업","start":"2026-07","end":"2026-12","budget":260000000,"profit":70000000},{"name":"채널 개편 PJT","kind":"사업","start":"2026-01","end":"2026-07","budget":310000000,"profit":96000000},{"name":"물류 시스템 고도화","kind":"사업","start":"2026-03","end":"2026-07","budget":280000000,"profit":78000000},{"name":"데이터 표준화 PJT","kind":"사업","start":"2026-01","end":"2026-06","budget":150000000,"profit":38000000},{"name":"신규 사업 타당성 검토","kind":"사업","start":"2026-01","end":"2026-04","budget":60000000,"profit":12000000},{"name":"파트너십 발굴","kind":"사업","start":"2026-01","end":"2026-12","budget":90000000,"profit":18000000},{"name":"중장기 전략 수립","kind":"사업","start":"2026-01","end":"2026-12","budget":70000000,"profit":10000000},{"name":"월간 실적보고 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"파트 상시 운영업무","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"정산·계약 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"유지보수 대응","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"경영실적 분석 운영","kind":"운영","start":null,"end":null,"budget":0,"profit":0},{"name":"신규 제안 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"운영 이관 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"시장조사","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"전사 예산 수립 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0},{"name":"이사회 보고 지원","kind":"지원","start":null,"end":null,"budget":0,"profit":0}],"entries":[{"person":"하윤서","project":"ERP 전면 재구축","months":[0.7,0.7,0.7,0.6,0.4,0,0,0,0,0,0,0]},{"person":"하윤서","project":"월간 실적보고 운영","months":[0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2]},{"person":"하윤서","project":"채널 개편 PJT","months":[0.3,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0,0]},{"person":"박도현","project":"ERP 전면 재구축","months":[0.8,0.8,0.8,0.8,0.8,0.4,0,0,0,0,0,0]},{"person":"박도현","project":"하반기 고도화 PJT","months":[0,0,0,0,0,0,0.9,0.9,0.9,0.9,0.9,0.9]},{"person":"박도현","project":"신규 제안 지원","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.2,0.2,0.2,0.2,0.2,0.2]},{"person":"이서진","project":"채널 개편 PJT","months":[0.6,0.6,0.8,0.8,0.8,0.8,0.4,0,0,0,0,0]},{"person":"이서진","project":"운영 이관 지원","months":[0,0,0,0,0,0,0,0.6,0.6,0.6,0.6,0.6]},{"person":"이서진","project":"파트 상시 운영업무","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"정민준","project":"파트 상시 운영업무","months":[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]},{"person":"정민준","project":"채널 개편 PJT","months":[0.5,0.5,0.5,0.5,0.5,0.5,0,0,0,0,0,0]},{"person":"정민준","project":"신규 제안 지원","months":[0,0,0,0,0,0,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"오예린","project":"정산·계약 운영","months":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"오예린","project":"ERP 전면 재구축","months":[0.4,0.6,0.6,0.6,0.6,0,0,0,0,0,0,0]},{"person":"오예린","project":"하반기 고도화 PJT","months":[0,0,0,0,0,0,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"최시우","project":"물류 시스템 고도화","months":[0,0,0.9,0.9,0.9,0.9,0.9,0,0,0,0,0]},{"person":"최시우","project":"유지보수 대응","months":[0.4,0.4,0,0,0,0,0,0.5,0.5,0.5,0.5,0.5]},{"person":"한지원","project":"물류 시스템 고도화","months":[0,0,0.8,0.8,0.8,0.8,0.8,0,0,0,0,0]},{"person":"한지원","project":"데이터 표준화 PJT","months":[0.3,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0,0]},{"person":"김하늘","project":"파트 상시 운영업무","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"김하늘","project":"데이터 표준화 PJT","months":[0.6,0.6,0.6,0.6,0.6,0.6,0,0,0,0,0,0]},{"person":"윤도경","project":"데이터 표준화 PJT","months":[0.7,0.7,0.7,0.7,0.7,0.7,0,0,0,0,0,0]},{"person":"윤도경","project":"물류 시스템 고도화","months":[0,0,0.3,0.3,0.3,0.3,0.3,0,0,0,0,0]},{"person":"노아린","project":"신규 사업 타당성 검토","months":[0.6,0.6,0.6,0.6,0,0,0,0,0,0,0,0]},{"person":"노아린","project":"파트너십 발굴","months":[0,0,0,0,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"서준혁","project":"시장조사","months":[0.4,0.4,0.4,0.4,0.4,0.4,0,0,0,0,0,0]},{"person":"서준혁","project":"신규 사업 타당성 검토","months":[0.5,0.5,0.5,0.5,0,0,0,0,0,0,0,0]},{"person":"문가온","project":"파트너십 발굴","months":[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]},{"person":"배시현","project":"전사 예산 수립 지원","months":[0.5,0.5,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.7,0.8,0.8]},{"person":"배시현","project":"중장기 전략 수립","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"윤소라","project":"경영실적 분석 운영","months":[0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]},{"person":"윤소라","project":"파트너십 발굴","months":[0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3]},{"person":"강태오","project":"중장기 전략 수립","months":[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]},{"person":"강태오","project":"이사회 보고 지원","months":[0,0,0,0,0,0,0,0,0,0.4,0.4,0.4]}]}</script>
 
 <script>
 (function(){
@@ -1005,6 +1007,9 @@ const QUADS = {
   struct:{ key:"struct", cls:"q-struct", label:"구조 점검",  desc:"여력 없는데 진도 지연 · 가장 위험" },
   none:  { key:"none",   cls:"lv-mute",  label:"판정 보류",  desc:"목표가 없거나 신뢰할 수 없음" }
 };
+
+/* 목표를 이미 넘긴 팀은 '잔여 −4,200만'이 아니라 '초과 4,200만'으로 읽어야 뜻이 통한다 */
+const restLabel = v => (v >= 0 ? "잔여 " : "초과 ") + fmtWon(Math.abs(v));
 
 /* 수주 판정 — 진도 앞섬 +5%p 이상 / 정상 -10~+5%p / 지연 -10%p 미만 */
 function orderVerdict(gap){
@@ -1075,13 +1080,17 @@ function parseTeams(rows){
 
   const h = findRow(rows, r => r[0] === "팀" && r[1].indexOf("인원수") === 0);
   if (h < 0) throw new Error("팀별분석 시트에서 '① 팀 구성' 표를 찾지 못했습니다.");
-  const cTarget = colOf(rows[h].map(txt), ["연간 목표 수주액 (원)","연간 목표"], 4);
+  const head = rows[h].map(txt);
+  const cTarget = colOf(head, ["연간 목표 수주액 (원)","연간 목표 수주"], 4);
+  /* 목표 이윤은 목표 수주액 바로 옆 칸이다. 예전 시트에는 없으므로 못 찾으면 0으로 둔다. */
+  const cProfit = colOf(head, ["연간 목표 이윤 (원)","연간 목표 이윤"], -1);
   const teams = [];
   for (let i = h+1; i < rows.length; i++){
     const r = rows[i] || [], name = txt(r[0]);
     if (!name){ if (teams.length) break; else continue; }
     if (name.indexOf("합계") === 0) break;
-    teams.push({ name, headcount: num(r[1]), target: num(r[cTarget]) });
+    teams.push({ name, headcount: num(r[1]), target: num(r[cTarget]),
+                 targetProfit: cProfit >= 0 ? num(r[cProfit]) : 0 });
   }
   const people = [];
   let pc = -1;
@@ -1213,8 +1222,16 @@ function buildModel(data, util, ref){
     const gapRaw = ach == null ? null : ach - prog;
     const gap = targetStatus === "ok" ? gapRaw : null;
 
+    /* 이윤도 수주와 같은 잣대로 본다 — 목표 대비 달성률을 기간 진도율과 견준다. */
+    const tp    = t.targetProfit || 0;
+    const achP  = tp > 0 ? profit/tp : null;
+    let profitStatus = "ok";
+    if (!(tp > 0)) profitStatus = "none";
+    else if (achP > 3) profitStatus = "suspect";
+    const gapPRaw = achP == null ? null : achP - prog;
+
     return {
-      idx, name:t.name, headcount:t.headcount, target:t.target,
+      idx, name:t.name, headcount:t.headcount, target:t.target, targetProfit:tp,
       capM, capY, input, rates, yIn, avg,
       maxRate: Math.max(...rates),
       over: rates.filter(r => r > 1).length,
@@ -1227,8 +1244,10 @@ function buildModel(data, util, ref){
       perMMBudget: bizMM ? won/bizMM : 0,
       perMMProfit: bizMM ? profit/bizMM : 0,
       remain: t.target > 0 ? t.target - won : 0,
+      remainProfit: tp > 0 ? tp - profit : 0,
       rate: won ? profit/won : 0,
       ach, gapRaw, gap, targetStatus,
+      achP, gapP: profitStatus === "ok" ? gapPRaw : null, gapPRaw, profitStatus,
       verdict: orderVerdict(gap),
       level: level(avg), rows
     };
@@ -1279,13 +1298,15 @@ function buildModel(data, util, ref){
   const sum = f => teams.reduce((a,t) => a + f(t), 0);
   const co = {
     capY:sum(t => t.capY), yIn:sum(t => t.yIn), won:sum(t => t.won), profit:sum(t => t.profit),
-    target:sum(t => t.target), slack:sum(t => t.slack), headcount:sum(t => t.headcount),
+    target:sum(t => t.target), targetProfit:sum(t => t.targetProfit),
+    slack:sum(t => t.slack), headcount:sum(t => t.headcount),
     bizMM:sum(t => t.bizMM), overMM:sum(t => t.overMM),
     input:new Array(12).fill(0), capM:sum(t => t.capM)
   };
   teams.forEach(t => { for (let i = 0; i < 12; i++) co.input[i] += t.input[i]; });
   co.avg   = co.capY ? co.yIn/co.capY : 0;
   co.ach   = co.target ? co.won/co.target : 0;
+  co.achP  = co.targetProfit ? co.profit/co.targetProfit : null;
   co.prog  = prog;
   co.rate  = co.won ? co.profit/co.won : 0;
   co.level = level(co.avg);
@@ -1293,6 +1314,7 @@ function buildModel(data, util, ref){
   co.overTeams = teams.filter(t => t.avg >= 1).length;
   co.bizShare = co.yIn ? co.bizMM/co.yIn : 0;
   co.suspect = teams.filter(t => t.targetStatus !== "ok");
+  co.suspectProfit = teams.filter(t => t.profitStatus !== "ok");
 
   /* M/M당 이윤 구간 — 고정값이 아니라 이 회사 사업들의 3분위로 나눈다 */
   const perList = projects.filter(p => p.kind === "사업" && p.mm > 0 && p.profit > 0)
@@ -1461,6 +1483,13 @@ function renderKpis(){
     { k:"수주 달성률", i:"solar:flag-2-bold", cls:gap < -0.1 ? "lv-crit" : (gap >= 0.05 ? "lv-fit" : "lv-tight"),
       v:fmtPct(c.ach), s:"기간 진도 " + fmtPct(c.prog) + " · " + fmtPP(gap) }
   ];
+  /* 목표 이윤은 시트에 적은 팀이 하나도 없으면 칸을 만들지 않는다 */
+  if (c.achP != null){
+    const gapP = c.achP - c.prog;
+    tiles.push({ k:"이윤 달성률", i:"solar:medal-ribbon-star-bold",
+      cls:gapP < -0.1 ? "lv-crit" : (gapP >= 0.05 ? "lv-fit" : "lv-tight"),
+      v:fmtPct(c.achP), s:"목표 " + fmtWon(c.targetProfit) + " · " + fmtPP(gapP) });
+  }
   $("kpis").innerHTML = tiles.map((t,i) =>
     '<div class="kpi ' + t.cls + '" style="--i:' + i + '">' +
       '<div class="k"><iconify-icon icon="' + t.i + '"></iconify-icon>' + t.k + "</div>" +
@@ -1590,6 +1619,7 @@ const COLS = [
   { key:"slack",   label:"여유 M/M",      n:true, sortable:true },
   { key:"bizShare",label:"사업 비중",      n:true, sortable:true },
   { key:"ach",     label:"수주 달성률 (목표 대비)" },
+  { key:"achP",    label:"이윤 달성률 (목표 대비)" },
   { key:"perMMProfit", label:"M/M당 이윤", n:true, sortable:true },
   { key:"verdict", label:"판정" }
 ];
@@ -1619,7 +1649,11 @@ function renderLeague(){
       '<td style="min-width:190px">' + bullet(t.ach, MODEL.co.prog, t.verdict.cls, t.targetStatus) +
         '<div style="display:flex;justify-content:space-between;margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--ink-4)">' +
           "<span>수주 " + fmtWon(t.won) + "</span>" +
-          "<span>" + (t.targetStatus === "ok" ? "목표 " + fmtWon(t.target) + " · 잔여 " + fmtWon(t.remain) : "목표 " + fmtWon(t.target)) + "</span></div></td>" +
+          "<span>" + (t.targetStatus === "ok" ? "목표 " + fmtWon(t.target) + " · " + restLabel(t.remain) : "목표 " + fmtWon(t.target)) + "</span></div></td>" +
+      '<td style="min-width:190px">' + bullet(t.achP, MODEL.co.prog, orderVerdict(t.gapP).cls, t.profitStatus) +
+        '<div style="display:flex;justify-content:space-between;margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--ink-4)">' +
+          "<span>이윤 " + fmtWon(t.profit) + "</span>" +
+          "<span>" + (t.profitStatus === "ok" ? "목표 " + fmtWon(t.targetProfit) + " · " + restLabel(t.remainProfit) : "목표 " + fmtWon(t.targetProfit)) + "</span></div></td>" +
       '<td class="n">' + fmtWon(t.perMMProfit) + "</td>" +
       "<td>" + (t.targetStatus === "ok"
         ? '<span class="chipv ' + t.quadrant.cls + '">' + t.quadrant.label + "</span>"
@@ -1634,6 +1668,8 @@ function renderLeague(){
     '<td class="n">' + c.rates.filter(r => r > 1).length + '<span style="color:var(--ink-4)">/12</span></td>' +
     '<td class="n">' + fmtMM(c.slack) + '</td><td class="n">' + fmtPct(c.bizShare) + "</td>" +
     '<td style="font-family:var(--mono);font-size:11px;color:var(--ink-2)">' + fmtPct(c.ach) + " · " + fmtWon(c.won) + " / " + fmtWon(c.target) + "</td>" +
+    '<td style="font-family:var(--mono);font-size:11px;color:var(--ink-2)">' +
+      (c.achP == null ? "—" : fmtPct(c.achP) + " · " + fmtWon(c.profit) + " / " + fmtWon(c.targetProfit)) + "</td>" +
     '<td class="n">' + fmtWon(c.bizMM ? c.profit/c.bizMM : 0) + "</td><td></td></tr>";
 
   $("leagueTbl").innerHTML = head + "<tbody>" + body + total + "</tbody>";
