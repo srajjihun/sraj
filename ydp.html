@@ -65,6 +65,7 @@ h1{font-size:22px; font-weight:700; margin:0 0 6px}
       <button data-src="all" class="active">전체</button>
       <button data-src="ydp">영등포구청</button>
       <button data-src="seoul">서울시</button>
+      <button data-src="bizinfo">기업마당</button>
     </div>
   </header>
   <div class="list" id="list"></div>
@@ -119,6 +120,20 @@ function normalizeSeoul(items){
   }));
 }
 
+function normalizeBizinfo(items){
+  return items.map(it => ({
+    source: "bizinfo",
+    sourceLabel: "기업마당",
+    title: it.title,
+    date: it.date,
+    url: it.url,
+    badge: it.region,
+    badgeClass: "apply",
+    sub: [it.org, it.period].filter(Boolean).join(' · '),
+    summary: "",
+  }));
+}
+
 function renderList(){
   const listEl = document.getElementById("list");
   const items = currentFilter === "all"
@@ -149,16 +164,17 @@ function renderList(){
 
 async function render(){
   const metaEl = document.getElementById("meta");
-  const [ydpItems, seoulItems] = await Promise.all([
+  const [ydpItems, seoulItems, bizinfoItems] = await Promise.all([
     fetchJson("data/ydp-posts.json"),
     fetchJson("data/seoul-posts.json"),
+    fetchJson("data/bizinfo-posts.json"),
   ]);
 
-  allItems = [...normalizeYdp(ydpItems), ...normalizeSeoul(seoulItems)]
+  allItems = [...normalizeYdp(ydpItems), ...normalizeSeoul(seoulItems), ...normalizeBizinfo(bizinfoItems)]
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const newCount = allItems.filter(it => daysAgo(it.date) <= NEW_WITHIN_DAYS).length;
-  metaEl.innerHTML = `총 ${allItems.length}건 (영등포구청 ${ydpItems.length} · 서울시 ${seoulItems.length}) · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건`;
+  metaEl.innerHTML = `총 ${allItems.length}건 (영등포구청 ${ydpItems.length} · 서울시 ${seoulItems.length} · 기업마당 ${bizinfoItems.length}) · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건`;
 
   document.querySelectorAll("#filters button").forEach(btn => {
     btn.addEventListener("click", () => {
