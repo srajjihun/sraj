@@ -66,6 +66,7 @@ h1{font-size:22px; font-weight:700; margin:0 0 6px}
       <button data-src="ydp">영등포구청</button>
       <button data-src="seoul">서울시</button>
       <button data-src="bizinfo">기업마당</button>
+      <button data-src="govkr">정부24(서울전역)</button>
     </div>
   </header>
   <div class="list" id="list"></div>
@@ -120,6 +121,20 @@ function normalizeSeoul(items){
   }));
 }
 
+function normalizeGovkr(items){
+  return items.map(it => ({
+    source: "govkr",
+    sourceLabel: "정부24",
+    title: it.title,
+    date: it.date,
+    url: it.url,
+    badge: it.matchedKeyword,
+    badgeClass: it.matchedKeyword === "모집" ? "recruit" : "apply",
+    sub: it.org,
+    summary: it.summary,
+  }));
+}
+
 function normalizeBizinfo(items){
   return items.map(it => ({
     source: "bizinfo",
@@ -164,17 +179,18 @@ function renderList(){
 
 async function render(){
   const metaEl = document.getElementById("meta");
-  const [ydpItems, seoulItems, bizinfoItems] = await Promise.all([
+  const [ydpItems, seoulItems, bizinfoItems, govkrItems] = await Promise.all([
     fetchJson("data/ydp-posts.json"),
     fetchJson("data/seoul-posts.json"),
     fetchJson("data/bizinfo-posts.json"),
+    fetchJson("data/govkr-posts.json"),
   ]);
 
-  allItems = [...normalizeYdp(ydpItems), ...normalizeSeoul(seoulItems), ...normalizeBizinfo(bizinfoItems)]
+  allItems = [...normalizeYdp(ydpItems), ...normalizeSeoul(seoulItems), ...normalizeBizinfo(bizinfoItems), ...normalizeGovkr(govkrItems)]
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 
   const newCount = allItems.filter(it => daysAgo(it.date) <= NEW_WITHIN_DAYS).length;
-  metaEl.innerHTML = `총 ${allItems.length}건 (영등포구청 ${ydpItems.length} · 서울시 ${seoulItems.length} · 기업마당 ${bizinfoItems.length}) · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건`;
+  metaEl.innerHTML = `총 ${allItems.length}건 (영등포구청 ${ydpItems.length} · 서울시 ${seoulItems.length} · 기업마당 ${bizinfoItems.length} · 정부24 ${govkrItems.length}) · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건`;
 
   document.querySelectorAll("#filters button").forEach(btn => {
     btn.addEventListener("click", () => {
