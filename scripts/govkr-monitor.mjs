@@ -9,8 +9,9 @@ import { extractDeadline } from "./lib/deadline.mjs";
 const DATA_PATH = new URL("../data/govkr-posts.json", import.meta.url);
 const KEYWORDS = ["모집", "신청"];
 const SIDO = "1100000000"; // 서울특별시
-const LOOKBACK_DAYS = 5; // 매일 실행되지만 여유를 두고 최근 5일치를 재확인
-const MAX_PAGES = 10; // 좁은 날짜범위라 보통 1~2페이지면 끝나지만 안전장치로 넉넉히
+const LOOKBACK_DAYS = 20; // 보존기간(MAX_AGE_DAYS)과 맞춰 그 기간 글은 항상 채워지도록
+const MIN_PAGES = 3; // 기존 글만 나와도 최소 이만큼은 스캔 (과거 글 채우기용)
+const MAX_PAGES = 25; // 20일치면 페이지가 꽤 되므로 넉넉히
 const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
 const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
 
@@ -128,7 +129,8 @@ async function main() {
         pageHadNew = true;
       }
 
-      if (!pageHadNew) break;
+      // 최소 페이지 전에는 기존 글만 나와도 계속 (초기 백필 및 누락분 보완)
+      if (!pageHadNew && pageIndex >= MIN_PAGES) break;
     }
   }
 

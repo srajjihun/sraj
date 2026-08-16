@@ -5,7 +5,8 @@ import { pruneByPeriodEnd } from "./lib/prune.mjs";
 
 const DATA_PATH = new URL("../data/bizinfo-posts.json", import.meta.url);
 const ROWS = 15;
-const MAX_PAGES = 5; // 한 번 실행에 최대 75건까지 확인
+const MIN_PAGES = 5; // 기존 글만 나와도 최소 이만큼은 스캔 (과거 글 채우기용)
+const MAX_PAGES = 10; // 한 번 실행에 최대 150건까지 확인
 const GRACE_DAYS = 14; // 행사기간 종료 후 14일 지나면 정리
 
 function listUrl(cpage) {
@@ -103,7 +104,8 @@ async function main() {
       pageHadNew = true;
     }
 
-    if (!pageHadNew) break;
+    // 최소 페이지 전에는 기존 글만 나와도 계속 (초기 백필 및 누락분 보완)
+    if (!pageHadNew && cpage >= MIN_PAGES) break;
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
