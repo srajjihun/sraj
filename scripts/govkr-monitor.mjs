@@ -43,6 +43,13 @@ function decodeEntities(str) {
   return str.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 }
 
+function toAbsolute(href) {
+  if (!href) return href;
+  if (/^https?:\/\//i.test(href)) return href;
+  if (href.startsWith("//")) return `https:${href}`;
+  return new URL(href, "https://www.gov.kr/").href;
+}
+
 function stripTags(html) {
   return html
     .replace(/<br\s*\/?>/gi, " ")
@@ -58,7 +65,8 @@ function parseItems(html, keyword) {
   const items = [];
 
   for (const chunk of chunks) {
-    const linkMatch = chunk.match(/<a href="https:\/\/www\.gov\.kr\/portal\/locgovNews\/(\d+)\?[^"]*"[^>]*>([\s\S]*?)<\/a>/);
+    // href는 절대주소(브라우저 저장본)와 상대주소(실제 서버 응답) 둘 다 올 수 있다
+    const linkMatch = chunk.match(/<a href="[^"]*locgovNews\/(\d+)[^"]*"[^>]*>([\s\S]*?)<\/a>/);
     if (!linkMatch) continue;
 
     const summaryMatch = chunk.match(/<dd class="cont">([\s\S]*?)<\/dd>/);
@@ -78,7 +86,9 @@ function parseItems(html, keyword) {
       date,
       summary,
       deadline: extractDeadline(date, summary, title),
-      url: sourceMatch ? decodeEntities(sourceMatch[1]) : `https://www.gov.kr/portal/locgovNews/${id}`,
+      url: sourceMatch
+        ? toAbsolute(decodeEntities(sourceMatch[1]))
+        : `https://www.gov.kr/portal/locgovNews/${id}`,
       matchedKeyword: keyword,
     });
   }
