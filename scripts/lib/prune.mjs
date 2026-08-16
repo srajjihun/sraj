@@ -23,3 +23,17 @@ export function pruneByPeriodEnd(items, periodField, graceDays, now = new Date()
     return age === null || age <= graceDays;
   });
 }
+
+// deadlineField(있으면 그 날짜 기준, 없으면 dateField 기준 나이)로 정리.
+export function pruneByDeadlineOrAge(items, opts, now = new Date()) {
+  const { deadlineField, dateField, graceDays, maxAgeDays } = opts;
+  return items.filter((item) => {
+    const deadline = item[deadlineField];
+    if (deadline) {
+      const age = daysSince(deadline, now);
+      return age === null || age <= graceDays;
+    }
+    const age = daysSince(item[dateField], now);
+    return age === null || age <= maxAgeDays;
+  });
+}
