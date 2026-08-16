@@ -3,6 +3,7 @@
 // 검색이 날짜범위(srchStDtFmt~srchEdDtFmt)를 지원해서, 매일 최근 며칠치만
 // 좁혀서 검색하면 페이지를 많이 넘길 필요가 없다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
 
@@ -152,7 +153,8 @@ async function main() {
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);

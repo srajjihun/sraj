@@ -1,6 +1,7 @@
 // 영등포구청 "우리구소식" 게시판(bbsNo=40)에서 "모집"/"신청" 키워드가 포함된
 // 새 글을 찾아 data/ydp-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
 
@@ -122,7 +123,8 @@ async function main() {
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);

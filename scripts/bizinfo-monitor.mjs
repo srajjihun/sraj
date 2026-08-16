@@ -1,6 +1,7 @@
 // 기업마당(bizinfo.go.kr) 행사정보 게시판에서 수도권(area=cap) 새 글을
 // data/bizinfo-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import { pruneByPeriodEnd } from "./lib/prune.mjs";
 
 const DATA_PATH = new URL("../data/bizinfo-posts.json", import.meta.url);
@@ -115,7 +116,8 @@ async function main() {
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);
