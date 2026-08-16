@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>영등포구청 모집·신청 공고</title>
+<title>모집·신청 공고 모아보기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
   --bg:#0B1416; --surface:#111C1F; --surface-2:#162326;
   --ink:#E8F0EE; --ink-2:#9FB4B4; --ink-3:#6E8386;
   --line:#213134; --accent:#5FC3AC; --accent-ink:#04201C;
-  --tag-recruit:#4FA3D8; --tag-apply:#DCB13F;
+  --tag-recruit:#4FA3D8; --tag-apply:#DCB13F; --tag-source:#7A8FD8;
   --r:12px;
 }
 *{box-sizing:border-box}
@@ -25,9 +25,16 @@ body{
 .wrap{max-width:760px; margin:0 auto}
 header{margin-bottom:28px}
 h1{font-size:22px; font-weight:700; margin:0 0 6px}
-.meta{color:var(--ink-3); font-size:13px}
+.meta{color:var(--ink-3); font-size:13px; line-height:1.6}
 .meta a{color:var(--accent)}
-.list{display:flex; flex-direction:column; gap:10px}
+.filters{display:flex; gap:8px; margin:16px 0 4px; flex-wrap:wrap}
+.filters button{
+  font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 12px;
+  border-radius:999px; border:1px solid var(--line); background:var(--surface);
+  color:var(--ink-2); cursor:pointer;
+}
+.filters button.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.list{display:flex; flex-direction:column; gap:10px; margin-top:16px}
 .item{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
   padding:16px 18px; display:flex; flex-direction:column; gap:6px;
@@ -35,30 +42,38 @@ h1{font-size:22px; font-weight:700; margin:0 0 6px}
 .item-top{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
 .tag{
   font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px;
-  color:var(--accent-ink);
+  color:var(--accent-ink); white-space:nowrap;
 }
+.tag.source{background:var(--tag-source)}
 .tag.recruit{background:var(--tag-recruit)}
 .tag.apply{background:var(--tag-apply)}
 .tag.new{background:var(--accent)}
 .title{font-size:15px; font-weight:600; line-height:1.4}
 .title a{color:var(--ink); text-decoration:none}
 .title a:hover{color:var(--accent)}
-.sub{color:var(--ink-3); font-size:12.5px; display:flex; gap:10px}
+.sub{color:var(--ink-3); font-size:12.5px}
+.summary{color:var(--ink-2); font-size:12.5px; line-height:1.5}
 .empty{color:var(--ink-3); padding:40px 0; text-align:center; font-size:14px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>영등포구청 모집·신청 공고</h1>
+    <h1>모집·신청 공고 모아보기</h1>
     <div class="meta" id="meta">불러오는 중...</div>
+    <div class="filters" id="filters">
+      <button data-src="all" class="active">전체</button>
+      <button data-src="ydp">영등포구청</button>
+      <button data-src="seoul">서울시</button>
+    </div>
   </header>
   <div class="list" id="list"></div>
 </div>
 
 <script>
-const DATA_URL = "data/ydp-posts.json";
 const NEW_WITHIN_DAYS = 7;
+let currentFilter = "all";
+let allItems = [];
 
 function daysAgo(dateStr){
   const d = new Date(dateStr);
@@ -66,29 +81,52 @@ function daysAgo(dateStr){
   return (Date.now() - d.getTime()) / 86400000;
 }
 
-function tagLabel(kw){
-  return kw === "모집" ? "recruit" : "apply";
+async function fetchJson(url){
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    return [];
+  }
 }
 
-async function render(){
+function normalizeYdp(items){
+  return items.map(it => ({
+    source: "ydp",
+    sourceLabel: "영등포구청",
+    title: it.title,
+    date: it.date,
+    url: it.url,
+    badge: it.matchedKeyword,
+    badgeClass: it.matchedKeyword === "모집" ? "recruit" : "apply",
+    sub: it.dept,
+    summary: "",
+  }));
+}
+
+function normalizeSeoul(items){
+  return items.map(it => ({
+    source: "seoul",
+    sourceLabel: "서울시",
+    title: it.title,
+    date: it.date,
+    url: it.url,
+    badge: it.category || "모집·신청",
+    badgeClass: "apply",
+    sub: it.category ? "" : "",
+    summary: it.summary,
+  }));
+}
+
+function renderList(){
   const listEl = document.getElementById("list");
-  const metaEl = document.getElementById("meta");
-  let items = [];
-  try {
-    const res = await fetch(DATA_URL, { cache: "no-store" });
-    items = await res.json();
-  } catch (e) {
-    metaEl.textContent = "데이터를 불러오지 못했습니다.";
-    return;
-  }
-
-  items.sort((a, b) => Number(b.nttNo) - Number(a.nttNo));
-
-  const newCount = items.filter(it => daysAgo(it.date) <= NEW_WITHIN_DAYS).length;
-  metaEl.innerHTML = `총 ${items.length}건 · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건 · 원본 게시판: <a href="https://www.ydp.go.kr/www/selectBbsNttList.do?bbsNo=40&key=2848" target="_blank" rel="noopener">영등포구청 우리구소식</a>`;
+  const items = currentFilter === "all"
+    ? allItems
+    : allItems.filter(it => it.source === currentFilter);
 
   if (!items.length) {
-    listEl.innerHTML = '<div class="empty">아직 수집된 글이 없습니다.</div>';
+    listEl.innerHTML = '<div class="empty">표시할 글이 없습니다.</div>';
     return;
   }
 
@@ -97,14 +135,41 @@ async function render(){
     return `
       <div class="item">
         <div class="item-top">
-          <span class="tag ${tagLabel(it.matchedKeyword)}">${it.matchedKeyword}</span>
+          <span class="tag source">${it.sourceLabel}</span>
+          <span class="tag ${it.badgeClass}">${it.badge}</span>
           ${isNew ? '<span class="tag new">NEW</span>' : ''}
-          <span class="sub">${it.dept} · ${it.date}</span>
+          <span class="sub">${[it.sub, it.date].filter(Boolean).join(' · ')}</span>
         </div>
         <div class="title"><a href="${it.url}" target="_blank" rel="noopener">${it.title}</a></div>
+        ${it.summary ? `<div class="summary">${it.summary}</div>` : ''}
       </div>
     `;
   }).join("");
+}
+
+async function render(){
+  const metaEl = document.getElementById("meta");
+  const [ydpItems, seoulItems] = await Promise.all([
+    fetchJson("data/ydp-posts.json"),
+    fetchJson("data/seoul-posts.json"),
+  ]);
+
+  allItems = [...normalizeYdp(ydpItems), ...normalizeSeoul(seoulItems)]
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  const newCount = allItems.filter(it => daysAgo(it.date) <= NEW_WITHIN_DAYS).length;
+  metaEl.innerHTML = `총 ${allItems.length}건 (영등포구청 ${ydpItems.length} · 서울시 ${seoulItems.length}) · 최근 ${NEW_WITHIN_DAYS}일 내 ${newCount}건`;
+
+  document.querySelectorAll("#filters button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#filters button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFilter = btn.dataset.src;
+      renderList();
+    });
+  });
+
+  renderList();
 }
 
 render();
