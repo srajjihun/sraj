@@ -3,6 +3,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { pruneByAge } from "./lib/prune.mjs";
+import { filterExcluded } from "./lib/exclude.mjs";
 
 const DATA_PATH = new URL("../data/bizinfo-posts.json", import.meta.url);
 const ROWS = 15;
@@ -110,10 +111,11 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const pruned = pruneByAge(merged, "date", RETENTION_DAYS);
+  const filtered = filterExcluded(merged);
+  const pruned = pruneByAge(filtered, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
-  console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
+  console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 제외 ${merged.length - filtered.length}건, 정리 ${filtered.length - pruned.length}건)`);
 }
 
 // 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
