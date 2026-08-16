@@ -111,7 +111,7 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const filtered = filterExcluded(merged);
+  const filtered = filterExcluded(merged, "bizinfo");
   const pruned = pruneByAge(filtered, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 

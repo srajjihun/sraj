@@ -116,7 +116,7 @@ async function main() {
       it.deadline = extractDeadline(it.date, it.summary, it.title);
     }
   }
-  const filtered = filterExcluded(merged);
+  const filtered = filterExcluded(merged, "seoul");
   const pruned = pruneByAge(filtered, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
