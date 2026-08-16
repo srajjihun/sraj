@@ -1,8 +1,8 @@
 logs/
 node_modules/
 
-# 나라장터 입찰 레이더 — 사내 정보와 수집 원본은 커밋하지 않는다.
+# 입찰·영업 정보시스템 — 사내 정보와 수집 데이터는 커밋하지 않습니다.
 # (private 저장소로 옮기기 전까지는 이 저장소가 public 이므로 특히 주의)
 company/
-data/raw/
-data/g2b-*.json
+data/g2b/
+g2b-live.html

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>입찰·영업 정보시스템</title>
+<meta name="description" content="나라장터 입찰공고·사전규격을 매일 자동 수집해 분석하는 입찰·영업 정보시스템입니다.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312356F'/%3E%3Cpath d='M32 14l14 18-14 18-14-18z' fill='%231266F1'/%3E%3Cpath d='M32 22l8 10-8 10-8-10z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ═══════════ tokens ═══════════ */
+:root{
+  --ground:#F4F6FB; --surface:#FFFFFF; --surface-2:#F8FAFD; --surface-3:#EEF2F9;
+  --line:#E2E8F2; --line-soft:#EDF1F8;
+  --ink:#101828; --ink-2:#475467; --ink-3:#98A2B3;
+  --accent:#1266F1; --accent-deep:#0E4FBC; --accent-tint:#EAF1FE;
+  --nav:#12356F; --nav-2:#1B4489; --nav-ink:#E8EEF9; --nav-dim:#8FA5CC;
+  --chart-1:#C7DBFC; --chart-2:#8FB8F8; --chart-3:#4A8DF4; --chart-4:#1266F1; --chart-5:#0E4FBC;
+  --go:#178A50; --go-bg:#E6F4EC; --go-line:#BCE0CB;
+  --warn:#A26B0A; --warn-bg:#FBF1DC; --warn-line:#EBD7A8;
+  --stop:#B3362B; --stop-bg:#FBEAE7; --stop-line:#F0C8C1;
+  --pre:#33678F; --pre-bg:#E7F0F8; --pre-line:#C4D8EA;
+  --kw-1:#1266F1; --kw-1-bg:#EAF1FE;
+  --kw-2:#0E8A6D; --kw-2-bg:#E7F4F0;
+  --kw-3:#B87E00; --kw-3-bg:#F9F1DF;
+  --kw-4:#A24FD8; --kw-4-bg:#F4EBFB;
+  --kw-5:#C9375E; --kw-5-bg:#FBEAEF;
+  --kw-x:#5B6472; --kw-x-bg:#EDF0F4;
+  --shadow:0 1px 2px rgba(16,24,40,.05), 0 10px 26px -18px rgba(16,24,40,.28);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1219; --surface:#171B25; --surface-2:#1C212D; --surface-3:#232937;
+    --line:#2C3444; --line-soft:#222937;
+    --ink:#ECEFF5; --ink-2:#A5AEBF; --ink-3:#707A8E;
+    --accent:#6AA4F8; --accent-deep:#8FB8F8; --accent-tint:#1B2C4A;
+    --nav:#0D2247; --nav-2:#153264; --nav-ink:#DCE6F7; --nav-dim:#7189B4;
+    --chart-1:#24354F; --chart-2:#33507F; --chart-3:#4A78BE; --chart-4:#6AA4F8; --chart-5:#9CC2FB;
+    --go:#5FC08D; --go-bg:#14281D; --go-line:#24452F;
+    --warn:#DCA748; --warn-bg:#2B2314; --warn-line:#493A1C;
+    --stop:#E38176; --stop-bg:#2C1917; --stop-line:#4A2924;
+    --pre:#77ABD6; --pre-bg:#152535; --pre-line:#264259;
+    --kw-1:#6AA4F8; --kw-1-bg:#1B2C4A;
+    --kw-2:#5BC0A0; --kw-2-bg:#122B24;
+    --kw-3:#DCA748; --kw-3-bg:#2B2314;
+    --kw-4:#C38BE8; --kw-4-bg:#2A1C38;
+    --kw-5:#EE7E9C; --kw-5-bg:#331721;
+    --kw-x:#9AA3B2; --kw-x-bg:#242A34;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -18px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1219; --surface:#171B25; --surface-2:#1C212D; --surface-3:#232937;
+  --line:#2C3444; --line-soft:#222937;
+  --ink:#ECEFF5; --ink-2:#A5AEBF; --ink-3:#707A8E;
+  --accent:#6AA4F8; --accent-deep:#8FB8F8; --accent-tint:#1B2C4A;
+  --nav:#0D2247; --nav-2:#153264; --nav-ink:#DCE6F7; --nav-dim:#7189B4;
+  --chart-1:#24354F; --chart-2:#33507F; --chart-3:#4A78BE; --chart-4:#6AA4F8; --chart-5:#9CC2FB;
+  --go:#5FC08D; --go-bg:#14281D; --go-line:#24452F;
+  --warn:#DCA748; --warn-bg:#2B2314; --warn-line:#493A1C;
+  --stop:#E38176; --stop-bg:#2C1917; --stop-line:#4A2924;
+  --pre:#77ABD6; --pre-bg:#152535; --pre-line:#264259;
+  --kw-1:#6AA4F8; --kw-1-bg:#1B2C4A;
+  --kw-2:#5BC0A0; --kw-2-bg:#122B24;
+  --kw-3:#DCA748; --kw-3-bg:#2B2314;
+  --kw-4:#C38BE8; --kw-4-bg:#2A1C38;
+  --kw-5:#EE7E9C; --kw-5-bg:#331721;
+  --kw-x:#9AA3B2; --kw-x-bg:#242A34;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -18px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box; margin:0}
+html,body{height:100%}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo",
+              "Malgun Gothic","Segoe UI",system-ui,sans-serif;
+  font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit; cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px}
+
+/* ═══════════ shell ═══════════ */
+.shell{display:grid; grid-template-columns:216px 1fr; min-height:100vh}
+.side{
+  background:var(--nav); color:var(--nav-ink);
+  display:flex; flex-direction:column; padding:18px 12px 14px;
+  position:sticky; top:0; height:100vh;
+}
+.brand{display:flex; align-items:center; gap:9px; padding:2px 8px 16px}
+.brand-mark{
+  width:30px; height:30px; border-radius:8px; background:var(--accent);
+  display:grid; place-items:center; color:#fff; font-size:14px; font-weight:800; flex-shrink:0;
+}
+.brand-name{font-size:14.5px; font-weight:800; letter-spacing:-.01em; line-height:1.25}
+.brand-sub{font-size:10.5px; color:var(--nav-dim); margin-top:2px}
+.nav{display:flex; flex-direction:column; gap:2px; flex:1}
+.nav a{
+  display:flex; align-items:center; gap:9px; padding:8.5px 10px; border-radius:8px;
+  color:var(--nav-dim); text-decoration:none; font-size:13.5px; font-weight:650;
+}
+.nav a .ic{width:17px; text-align:center; font-size:14px; flex-shrink:0}
+.nav a:hover{background:var(--nav-2); color:var(--nav-ink)}
+.nav a.on{background:var(--accent); color:#fff}
+.nav .soon{
+  margin-left:auto; font-size:9.5px; font-weight:800; letter-spacing:.05em;
+  background:rgba(255,255,255,.13); color:var(--nav-dim); padding:2px 6px; border-radius:4px;
+}
+.nav .split{height:1px; background:rgba(255,255,255,.09); margin:9px 8px}
+.side-foot{
+  font-size:11px; color:var(--nav-dim); padding:11px 10px 0; line-height:1.7;
+  border-top:1px solid rgba(255,255,255,.09);
+}
+.side-foot b{color:var(--nav-ink); font-weight:700}
+.dotok{display:inline-block; width:7px; height:7px; border-radius:50%; background:#4ADE80; margin-right:5px}
+.dotbad{display:inline-block; width:7px; height:7px; border-radius:50%; background:#F87171; margin-right:5px}
+
+.main{padding:20px 24px 48px; min-width:0}
+.topbar{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:14px}
+.topbar h1{font-size:19px; font-weight:800; letter-spacing:-.02em}
+.topbar .scope{font-size:12.5px; color:var(--ink-3)}
+.topbar .when{margin-left:auto; font-size:12.5px; color:var(--ink-3)}
+.topbar .when b{color:var(--ink-2); font-weight:700}
+.topbar .when .bad{color:var(--stop); font-weight:700}
+
+.notice{
+  display:flex; gap:9px; align-items:baseline; flex-wrap:wrap;
+  background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn);
+  font-size:12.5px; font-weight:600; border-radius:9px; padding:9px 13px; margin-bottom:16px;
+}
+.notice b{font-weight:800}
+.notice .later{color:var(--ink-3); font-weight:500}
+
+/* setup guide (데이터 없음) */
+.setup{
+  background:var(--surface); border:1px dashed var(--line); border-radius:12px;
+  padding:28px 26px; margin-bottom:16px;
+}
+.setup h2{font-size:16px; font-weight:800; margin-bottom:9px}
+.setup ol{margin:0 0 0 20px; color:var(--ink-2); font-size:13.5px; line-height:2}
+.setup code{
+  font-family:ui-monospace,Consolas,monospace; font-size:12.5px;
+  background:var(--surface-3); padding:2px 7px; border-radius:5px; color:var(--ink);
+}
+
+/* ═══════════ KPI ═══════════ */
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:11px; margin-bottom:13px}
+.kpi{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:13px 15px 12px; box-shadow:var(--shadow);
+}
+.kpi .k{font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--ink-3); text-transform:uppercase}
+.kpi .v{font-size:27px; font-weight:800; letter-spacing:-.03em; line-height:1.15; margin-top:6px}
+.kpi .v small{font-size:13px; font-weight:700; color:var(--ink-3); letter-spacing:0}
+.kpi .v.na{font-size:19px; color:var(--ink-3); font-weight:700}
+.kpi .d{font-size:11.5px; color:var(--ink-3); margin-top:2px}
+.kpi.hot{border-color:var(--stop-line)}
+.kpi.hot .v{color:var(--stop)}
+
+/* ═══════════ panels/charts ═══════════ */
+.grid-a{display:grid; grid-template-columns:1.9fr 1fr; gap:11px; margin-bottom:11px}
+.grid-b{display:grid; grid-template-columns:1fr 1fr 1.15fr; gap:11px; margin-bottom:16px}
+.panel{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:14px 16px; box-shadow:var(--shadow); min-width:0;
+}
+.panel h2{font-size:13px; font-weight:800; letter-spacing:-.01em}
+.panel h2 .soft{font-weight:600; color:var(--ink-3)}
+.panel .sub{font-size:11.5px; color:var(--ink-3); margin-top:1px; margin-bottom:10px}
+.panel-col{display:flex; flex-direction:column; gap:11px; min-width:0}
+.placeholder{
+  display:grid; place-items:center; min-height:96px; text-align:center;
+  color:var(--ink-3); font-size:12.5px; line-height:1.7; padding:10px;
+  background:var(--surface-2); border-radius:9px;
+}
+svg{display:block; width:100%}
+.gridline{stroke:var(--line-soft); stroke-width:1}
+.axis-lbl{font-size:10px; fill:var(--ink-3); font-family:inherit}
+.endpt-lbl{font-size:11px; font-weight:800; fill:var(--accent)}
+
+.stack{display:flex; height:16px; border-radius:5px; overflow:hidden; gap:2px; margin-top:2px}
+.stack span{height:100%}
+.legend{display:flex; gap:7px 14px; flex-wrap:wrap; margin-top:9px; font-size:12px; color:var(--ink-2)}
+.legend .sw{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-.5px}
+
+.rankbars{display:flex; flex-direction:column; gap:8px}
+.rankbar{font-size:12.5px}
+.rankbar .row1{display:flex; justify-content:space-between; gap:8px; margin-bottom:3px}
+.rankbar .who{font-weight:700; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rankbar .amt{color:var(--ink-2); font-weight:600; white-space:nowrap}
+.rankbar .track{height:9px; background:var(--surface-3); border-radius:4px; overflow:hidden}
+.rankbar .fill{height:100%; background:var(--chart-3); border-radius:4px 3px 3px 4px}
+.rankbar:first-child .fill{background:var(--chart-4)}
+
+/* ═══════════ table ═══════════ */
+.tablecard{background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); overflow:hidden}
+.tablebar{display:flex; align-items:center; gap:7px; flex-wrap:wrap; padding:12px 14px; border-bottom:1px solid var(--line)}
+.chip{
+  font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:999px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.chip .n{font-weight:600; opacity:.65; margin-left:3px; font-size:11.5px}
+.search{
+  margin-left:auto; font:inherit; font-size:13px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+  padding:7px 12px; min-width:190px;
+}
+.search::placeholder{color:var(--ink-3)}
+.tbl-scroll{overflow-x:auto; max-height:600px; overflow-y:auto}
+table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:1010px}
+thead th{
+  position:sticky; top:0; z-index:2;
+  background:var(--surface-3); color:var(--ink-2);
+  font-size:11.5px; font-weight:800; letter-spacing:.03em;
+  text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); white-space:nowrap;
+}
+thead th.r{text-align:right}
+thead th.sortable{cursor:pointer; user-select:none}
+thead th.sortable:hover{color:var(--accent)}
+thead th.sorted{color:var(--accent)}
+thead th.sorted::after{content:" ▾"; font-size:9px}
+thead th.sorted.asc::after{content:" ▴"}
+tbody td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap}
+tbody tr:nth-child(even){background:var(--surface-2)}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--accent-tint)}
+tbody tr:last-child td{border-bottom:0}
+td.title{white-space:normal; min-width:320px}
+td.title .t{font-weight:650; letter-spacing:-.01em; line-height:1.4; color:var(--ink)}
+td.title .s{display:block; font-size:11.5px; color:var(--ink-3); margin-top:2px}
+td.title .s .alert{color:var(--stop); font-weight:700}
+td.title .s .flag{color:var(--warn); font-weight:700}
+td.r{text-align:right}
+td.dim{color:var(--ink-2)}
+.badge-new{
+  display:inline-block; background:var(--accent); color:#fff; font-size:9.5px; font-weight:800;
+  padding:2px 5.5px; border-radius:4px; margin-left:6px; vertical-align:1.5px;
+}
+.grade{
+  display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800;
+  padding:3px 9px; border-radius:999px; border:1px solid; white-space:nowrap;
+}
+.grade::before{content:""; width:5px; height:5px; border-radius:50%; background:currentColor}
+.g-go{color:var(--go); background:var(--go-bg); border-color:var(--go-line)}
+.g-warn{color:var(--warn); background:var(--warn-bg); border-color:var(--warn-line)}
+.g-stop{color:var(--stop); background:var(--stop-bg); border-color:var(--stop-line)}
+.g-pre{color:var(--pre); background:var(--pre-bg); border-color:var(--pre-line)}
+.kw{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; margin-right:3px}
+.dday{font-size:11px; font-weight:800; padding:2.5px 7px; border-radius:5px; background:var(--surface-3); color:var(--ink-2)}
+.dday.hot{background:var(--stop-bg); color:var(--stop)}
+.dday.past{opacity:.55}
+.btn{
+  font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-tint);
+  border:1px solid transparent; padding:5px 12px; border-radius:7px; white-space:nowrap;
+  text-decoration:none; display:inline-block;
+}
+.btn:hover{border-color:var(--accent)}
+.empty{padding:38px; text-align:center; color:var(--ink-3); font-size:13.5px}
+.foot{margin-top:14px; font-size:11.5px; color:var(--ink-3); text-align:center; line-height:1.8}
+.tip{
+  position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
+  background:var(--ink); color:var(--ground); font-size:11.5px; font-weight:600;
+  padding:5px 9px; border-radius:6px; white-space:nowrap; transform:translate(-50%,-130%);
+}
+.tip.show{opacity:1}
+
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static; height:auto; flex-direction:row; align-items:center; overflow-x:auto; padding:10px 14px}
+  .brand{padding:0 10px 0 0}
+  .nav{flex-direction:row; gap:3px}
+  .nav .split,.side-foot,.brand-sub{display:none}
+  .grid-a,.grid-b{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+</style>
+</head>
+<body>
+
+<!--G2B_DATA_START-->
+<script id="g2b-data" type="application/json">
+{"generatedAt":null,"keywordGroups":[],"failures":[],"posts":[],"prespecs":[]}
+</script>
+<!--G2B_DATA_END-->
+
+<div class="shell">
+
+<aside class="side">
+  <div class="brand">
+    <div class="brand-mark">◈</div>
+    <div>
+      <div class="brand-name">입찰·영업<br>정보시스템</div>
+      <div class="brand-sub">나라장터 자동 수집</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <a class="on" href="#"><span class="ic">▦</span>대시보드</a>
+    <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
+    <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
+    <a href="#" title="준비 중입니다"><span class="ic">🏛</span>기관 프로파일<span class="soon">2차</span></a>
+    <a href="#" title="준비 중입니다"><span class="ic">☎</span>영업 시트<span class="soon">2차</span></a>
+    <span class="split"></span>
+    <a href="#" title="행정서류 등록 후 자격 판정에 반영됩니다"><span class="ic">📁</span>행정서류<span class="soon">대기</span></a>
+  </nav>
+  <div class="side-foot num" id="side-foot">수집 이력이 없습니다</div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <h1>대시보드</h1>
+    <span class="scope" id="scope"></span>
+    <span class="when num" id="when"></span>
+  </div>
+
+  <div class="notice" id="profile-notice">
+    <b>회사 프로필 미등록</b>
+    <span>실적·행정서류를 등록하면 공고별 자격 판정과 예상 점수가 자동 산출됩니다.</span>
+    <span class="later">현재는 수집·분류까지 제공됩니다.</span>
+  </div>
+
+  <div class="setup" id="setup" hidden>
+    <h2>아직 수집된 데이터가 없습니다</h2>
+    <ol>
+      <li>공공데이터포털 마이페이지에서 <b>일반 인증키</b>를 복사합니다.</li>
+      <li>명령 프롬프트에서 <code>setx G2B_SERVICE_KEY "인증키"</code> 를 한 번 실행합니다. (최초 1회)</li>
+      <li><code>collect-g2b.bat 30</code> 을 실행하면 최근 30일 공고를 수집합니다.</li>
+      <li>생성된 <code>g2b-live.html</code> 을 열면 이 화면에 데이터가 표시됩니다.</li>
+    </ol>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid-a">
+    <section class="panel">
+      <h2>월별 발주 추이</h2>
+      <p class="sub" id="trend-sub">수집 키워드 기준 · 단위 건</p>
+      <div id="trend-wrap"></div>
+    </section>
+    <div class="panel-col">
+      <section class="panel">
+        <h2>키워드 분포</h2>
+        <div id="kwdist"></div>
+      </section>
+      <section class="panel">
+        <h2>발주 시기 <span class="soft">· 몇 월에 몰리나</span></h2>
+        <div class="placeholder">공고 데이터가 12개월 이상 쌓이면 표시됩니다.</div>
+      </section>
+    </div>
+  </div>
+
+  <div class="grid-b">
+    <section class="panel">
+      <h2>경쟁 분포</h2>
+      <div class="placeholder">낙찰 데이터 축적 후 제공됩니다.<br>(2차 · 낙찰정보 백필)</div>
+    </section>
+    <section class="panel">
+      <h2>금액대별 평균 경쟁</h2>
+      <div class="placeholder">낙찰 데이터 축적 후 제공됩니다.<br>(2차 · 낙찰정보 백필)</div>
+    </section>
+    <section class="panel">
+      <h2>발주 기관 TOP 5</h2>
+      <p class="sub">현재 수집분 예산 합계 기준</p>
+      <div id="agencies"></div>
+    </section>
+  </div>
+
+  <section class="tablecard">
+    <div class="tablebar" id="tablebar">
+      <input class="search" id="q" type="search" placeholder="🔍 공고명 검색">
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th style="width:74px">구분</th>
+          <th style="width:90px">키워드</th>
+          <th>공고명</th>
+          <th style="width:150px">수요기관</th>
+          <th class="r sortable num" data-sort="price" style="width:82px">예산</th>
+          <th class="sortable num" data-sort="reg" style="width:66px">등록</th>
+          <th class="sortable sorted num" data-sort="dday" style="width:120px">마감</th>
+          <th class="r" style="width:76px">예상</th>
+          <th style="width:70px"></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="empty" id="empty" hidden>조건에 맞는 공고가 없습니다.</div>
+    </div>
+  </section>
+
+  <p class="foot">
+    매일 아침 자동 수집됩니다 · 행을 클릭하면 나라장터 원문이 새 창으로 열립니다<br>
+    예상 점수는 회사 프로필(실적·행정서류) 등록 후 제공됩니다
+  </p>
+</main>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+
+/* ═══ 데이터 로드 ═══ */
+let DATA;
+try { DATA = JSON.parse($("#g2b-data").textContent); }
+catch { DATA = { generatedAt:null, keywordGroups:[], failures:[], posts:[], prespecs:[] }; }
+const POSTS = Array.isArray(DATA.posts) ? DATA.posts : [];
+const PRES = Array.isArray(DATA.prespecs) ? DATA.prespecs : [];
+const GROUPS = Array.isArray(DATA.keywordGroups) && DATA.keywordGroups.length
+  ? DATA.keywordGroups : ["창업","교육","쇼핑몰","행사","포럼"];
+const ALL = [...PRES, ...POSTS];
+
+/* ═══ 공통 ═══ */
+const todayMs = (() => { const d = new Date(); return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); })();
+const DAY = 86400000;
+const todayStr = new Date(todayMs).toISOString().slice(0, 10);
+
+function parseDay(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null; }
+function daysUntil(iso){ const t=parseDay(iso); return t===null?null:Math.round((t-todayMs)/DAY); }
+function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
+function fmtPrice(v){ // 원 → 억 표기
+  if(v===null||v===undefined) return "—";
+  const eok=v/1e8;
+  if(eok>=10) return eok.toFixed(0)+"억";
+  if(eok>=1) return eok.toFixed(1)+"억";
+  return Math.round(v/1e7)/1+"천만";
+}
+function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<5?i+1:"x"; };
+
+const tip=$("#tip");
+function tipShow(x,y,html){tip.innerHTML=html; tip.style.left=x+"px"; tip.style.top=y+"px"; tip.classList.add("show");}
+function tipHide(){tip.classList.remove("show");}
+
+/* ═══ 상단 정보 ═══ */
+(function(){
+  $("#scope").textContent = `키워드 ${GROUPS.join(" · ")} — 전국+서울 · 용역`;
+  const el=$("#when");
+  if(DATA.generatedAt){
+    const d=new Date(DATA.generatedAt);
+    const kst=new Date(d.getTime()+9*3600000);
+    const p=n=>String(n).padStart(2,"0");
+    let html=`마지막 수집 <b>${kst.getUTCFullYear()}.${p(kst.getUTCMonth()+1)}.${p(kst.getUTCDate())} ${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())}</b>`;
+    if(DATA.failures?.length) html+=` · <span class="bad">${DATA.failures.join(", ")} 수집 실패</span>`;
+    el.innerHTML=html;
+    $("#side-foot").innerHTML=`<span class="${DATA.failures?.length?"dotbad":"dotok"}"></span>`+
+      `마지막 수집 <b>${p(kst.getUTCMonth()+1)}.${p(kst.getUTCDate())} ${p(kst.getUTCHours())}:${p(kst.getUTCMinutes())}</b><br>`+
+      `공고 ${POSTS.length} · 사전규격 ${PRES.length}`;
+  } else {
+    el.textContent="수집 전";
+  }
+  if(!ALL.length) $("#setup").hidden=false;
+})();
+
+/* ═══ KPI ═══ */
+(function(){
+  const isNewToday = it => (it.firstSeenAt||"").slice(0,10)===todayStr || it.date===todayStr;
+  const newCount = ALL.filter(isNewToday).length;
+  const dueSoon = POSTS.filter(it=>{ const d=daysUntil(it.deadline); return d!==null&&d>=0&&d<=3; }).length;
+  const tiles = [
+    {k:"오늘 신규", v:`${newCount}<small>건</small>`, d:`전체 대기 ${ALL.length}건`},
+    {k:"마감 임박 D-3", v:`${dueSoon}<small>건</small>`, d:dueSoon?"자격등록 마감을 확인하세요":"해당 없음", hot:dueSoon>0},
+    {k:"공고", v:`${POSTS.length}<small>건</small>`, d:"수집 키워드 기준"},
+    {k:"사전규격", v:`${PRES.length}<small>건</small>`, d:"정식 공고 전 단계"},
+    {k:"유찰률", v:null, d:"낙찰 데이터 축적 중"},
+    {k:"평균 경쟁", v:null, d:"낙찰 데이터 축적 중"},
+  ];
+  $("#kpis").innerHTML = tiles.map(t=>`
+    <div class="kpi ${t.hot?"hot":""}">
+      <div class="k">${t.k}</div>
+      <div class="v num ${t.v===null?"na":""}">${t.v===null?"—":t.v}</div>
+      <div class="d num">${t.d}</div>
+    </div>`).join("");
+})();
+
+/* ═══ 월별 발주 추이 ═══ */
+(function(){
+  const byMonth = new Map();
+  for(const it of POSTS){
+    const m=(it.date||"").slice(0,7);
+    if(m) byMonth.set(m,(byMonth.get(m)||0)+1);
+  }
+  const months=[...byMonth.keys()].sort();
+  const wrap=$("#trend-wrap");
+  if(months.length<3){
+    $("#trend-sub").textContent="수집 키워드 기준 · 단위 건";
+    wrap.innerHTML=`<div class="placeholder">월별 추이는 데이터가 3개월 이상 쌓이면 그려집니다.<br>현재 ${months.length||0}개월분이 있습니다.</div>`;
+    return;
+  }
+  const vs=months.map(m=>byMonth.get(m));
+  const W=640,H=190,P={l:34,r:52,t:14,b:22};
+  const max=Math.max(5,Math.ceil(Math.max(...vs)/5)*5);
+  const x=i=>P.l+(W-P.l-P.r)*i/(vs.length-1);
+  const y=v=>P.t+(H-P.t-P.b)*(1-v/max);
+  let g="";
+  for(let i=0;i<=4;i++){const gv=max*i/4;
+    g+=`<line class="gridline" x1="${P.l}" x2="${W-P.r}" y1="${y(gv)}" y2="${y(gv)}"/>
+        <text class="axis-lbl num" x="${P.l-6}" y="${y(gv)+3}" text-anchor="end">${Math.round(gv)}</text>`;}
+  const pts=vs.map((v,i)=>`${x(i)},${y(v)}`).join(" ");
+  const area=`M${x(0)},${y(vs[0])} L${pts.split(" ").join(" L")} L${x(vs.length-1)},${H-P.b} L${x(0)},${H-P.b} Z`;
+  const step=Math.max(1,Math.floor(months.length/8));
+  let xl="";
+  months.forEach((m,i)=>{ if(i%step===0||i===months.length-1)
+    xl+=`<text class="axis-lbl num" x="${x(i)}" y="${H-6}" text-anchor="middle">${m.slice(2).replace("-",".")}</text>`;});
+  const li=vs.length-1;
+  wrap.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 발주 추이">
+    ${g}
+    <path d="${area}" fill="var(--accent)" opacity=".1"/>
+    <polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+    ${xl}
+    <circle cx="${x(li)}" cy="${y(vs[li])}" r="4" fill="var(--accent)"/>
+    <text class="endpt-lbl num" x="${x(li)+7}" y="${y(vs[li])+4}">${vs[li]}건</text>
+    ${vs.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="9" fill="transparent" data-i="${i}"/>`).join("")}
+  </svg>`;
+  const svg=wrap.querySelector("svg");
+  svg.addEventListener("mousemove",e=>{
+    const c=e.target.closest("circle[data-i]"); if(!c){tipHide();return;}
+    const i=+c.dataset.i;
+    tipShow(e.clientX,e.clientY,`${months[i].replace("-","년 ")}월 · <b>${vs[i]}건</b>`);
+  });
+  svg.addEventListener("mouseleave",tipHide);
+})();
+
+/* ═══ 키워드 분포 ═══ */
+(function(){
+  const counts=GROUPS.map(g=>ALL.filter(it=>(it.kw||[]).includes(g)).length);
+  const total=counts.reduce((a,b)=>a+b,0);
+  const box=$("#kwdist");
+  if(!total){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
+  box.innerHTML=`
+    <div class="stack">${GROUPS.map((g,i)=>counts[i]?`<span style="width:${counts[i]/total*100}%; background:var(--kw-${kwIdx(g)})" data-l="${esc(g)}" data-n="${counts[i]}"></span>`:"").join("")}</div>
+    <div class="legend num">${GROUPS.map((g,i)=>`<span><span class="sw" style="background:var(--kw-${kwIdx(g)})"></span>${esc(g)} <b>${counts[i]}</b></span>`).join("")}</div>`;
+  box.querySelector(".stack").addEventListener("mousemove",e=>{
+    const s=e.target.closest("span[data-l]"); if(!s){tipHide();return;}
+    tipShow(e.clientX,e.clientY,`${s.dataset.l} <b>${s.dataset.n}건</b>`);
+  });
+  box.querySelector(".stack").addEventListener("mouseleave",tipHide);
+})();
+
+/* ═══ 발주 기관 TOP 5 ═══ */
+(function(){
+  const byOrg=new Map();
+  for(const it of POSTS){
+    const amt=it.budget??it.price; if(!amt) continue;
+    const o=byOrg.get(it.org)||{amt:0,cnt:0};
+    o.amt+=amt; o.cnt+=1; byOrg.set(it.org,o);
+  }
+  const top=[...byOrg.entries()].sort((a,b)=>b[1].amt-a[1].amt).slice(0,5);
+  const box=$("#agencies");
+  if(!top.length){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
+  const max=top[0][1].amt;
+  box.innerHTML=top.map(([name,o])=>`
+    <div class="rankbar">
+      <div class="row1"><span class="who" title="${esc(name)}">${esc(name)}</span>
+        <span class="amt num">${o.cnt}건 · ${fmtPrice(o.amt)}</span></div>
+      <div class="track"><div class="fill" style="width:${o.amt/max*100}%"></div></div>
+    </div>`).join("");
+})();
+
+/* ═══ 표 ═══ */
+const state={kw:"all", q:"", sort:"dday", dir:1};
+
+function ddayInfo(it){
+  const d=daysUntil(it.deadline);
+  const label = it.type==="pre" ? "의견 " : "";
+  if(d===null) return {d:9999, html:`<span class="dday">일정 미상</span>`};
+  const txt=`${label}${fmtShort(it.deadline)}${it.deadlineTime?" "+it.deadlineTime:""}`;
+  if(d<0) return {d:9999, html:`<span class="dday past num">${txt} · 마감</span>`};
+  return {d, html:`<span class="dday ${d<=3?"hot":""} num">${txt} · D-${d===0?"DAY":d}</span>`};
+}
+
+function subLine(it){
+  const parts=[];
+  if(it.type==="pre"){
+    parts.push("사전규격 — 정식 공고 전 단계입니다");
+  }else{
+    // 참가자격등록 마감이 입찰 마감보다 앞서고 임박한 경우 경고
+    const q=daysUntil(it.qlfctDate);
+    if(it.qlfctDate && q!==null && q>=0 && q<=5 && it.qlfctDate<=(it.deadline||"9999")){
+      parts.push(`<span class="alert">참가자격등록 마감 ${fmtShort(it.qlfctDate)}${it.qlfctTime?" "+it.qlfctTime:""} — 입찰 마감보다 앞섭니다</span>`);
+    }
+    if(it.reNtce) parts.push(`<span class="flag">🔁 재공고 — 1차 유찰 가능성</span>`);
+    const m=[];
+    if(it.winnerMethod) m.push(esc(it.winnerMethod.split("-")[0]));
+    if(it.techRate!==null&&it.techRate!==undefined&&it.priceRate!==null&&it.priceRate!==undefined) m.push(`기술 ${it.techRate}:${it.priceRate}`);
+    if(m.length) parts.push(m.join(" · "));
+    const f=[];
+    if(it.rgnLmt) f.push("지역제한 — 공고문 확인 필요");
+    if(it.arsltCmpt) f.push("실적경쟁");
+    if(it.indstrytyLmt) f.push("업종제한");
+    if(f.length) parts.push(`<span class="flag">${f.join(" · ")}</span>`);
+  }
+  if(it.files?.length) parts.push(`첨부 ${it.files.length}`);
+  return parts.join(" · ");
+}
+
+function render(){
+  const q=state.q.trim().toLowerCase();
+  let list=ALL.filter(it=>
+    (state.kw==="all"||(it.kw||[]).includes(state.kw)) &&
+    (!q||(it.title||"").toLowerCase().includes(q)));
+
+  const withD=list.map(it=>({it, dd:ddayInfo(it)}));
+  withD.sort((a,b)=>{
+    let av,bv;
+    if(state.sort==="price"){av=a.it.budget??a.it.price??-1; bv=b.it.budget??b.it.price??-1;}
+    else if(state.sort==="reg"){av=a.it.date||""; bv=b.it.date||""; return av<bv?state.dir:av>bv?-state.dir:0;}
+    else {av=a.dd.d; bv=b.dd.d;}
+    return (av-bv)*state.dir;
+  });
+
+  $("#rows").innerHTML=withD.map(({it,dd})=>{
+    const isPre=it.type==="pre";
+    const grade=isPre?`<span class="grade g-pre">사전</span>`:`<span class="grade g-warn">검토</span>`;
+    const isNew=(it.firstSeenAt||"").slice(0,10)===todayStr||it.date===todayStr;
+    const kws=(it.kw||[]).slice(0,2).map(g=>`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`).join("");
+    const sub=subLine(it);
+    const link=it.url||it.files?.[0]?.url||"";
+    return `<tr data-url="${esc(link)}">
+      <td>${grade}</td>
+      <td>${kws}</td>
+      <td class="title"><span class="t">${esc(it.title)}</span>${isNew?'<span class="badge-new">N</span>':""}${sub?`<span class="s">${sub}</span>`:""}</td>
+      <td class="dim" title="${esc(it.org)}">${esc(it.org)}</td>
+      <td class="r dim num">${fmtPrice(it.budget??it.price)}</td>
+      <td class="dim num">${fmtShort(it.date)}</td>
+      <td>${dd.html}</td>
+      <td class="r" title="회사 프로필 등록 후 자동 채점됩니다"><span style="color:var(--ink-3)">판정 전</span></td>
+      <td class="r">${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">원문 ↗</a>`:""}</td>
+    </tr>`;}).join("");
+  $("#empty").hidden=withD.length>0;
+}
+
+/* 키워드 탭 (데이터의 그룹으로 동적 생성) */
+(function(){
+  const bar=$("#tablebar");
+  const frag=document.createDocumentFragment();
+  const mk=(label,val)=>{
+    const b=document.createElement("button");
+    b.className="chip"+(val==="all"?" on":"");
+    b.dataset.kw=val;
+    const n=val==="all"?ALL.length:ALL.filter(it=>(it.kw||[]).includes(val)).length;
+    b.innerHTML=`${esc(label)} <span class="n num">${n}</span>`;
+    b.addEventListener("click",()=>{
+      bar.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); state.kw=val; render();
+    });
+    return b;
+  };
+  frag.appendChild(mk("전체","all"));
+  for(const g of GROUPS) frag.appendChild(mk(g,g));
+  bar.insertBefore(frag,bar.firstChild);
+})();
+
+$("#q").addEventListener("input",e=>{state.q=e.target.value; render();});
+document.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{
+  const k=th.dataset.sort;
+  if(state.sort===k){state.dir*=-1;}else{state.sort=k; state.dir=1;}
+  document.querySelectorAll("th.sortable").forEach(t=>t.classList.remove("sorted","asc"));
+  th.classList.add("sorted"); if(state.dir===-1)th.classList.add("asc");
+  render();
+}));
+$("#rows").addEventListener("click",e=>{
+  if(e.target.closest("a")) return;
+  const tr=e.target.closest("tr[data-url]");
+  if(tr?.dataset.url) window.open(tr.dataset.url,"_blank","noopener");
+});
+render();
+</script>
+</body>
+</html>
