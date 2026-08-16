@@ -1,10 +1,12 @@
 // 영등포구청 "우리구소식" 게시판(bbsNo=40)에서 "모집"/"신청" 키워드가 포함된
 // 새 글을 찾아 data/ydp-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pruneByAge } from "./lib/prune.mjs";
 
 const KEYWORDS = ["모집", "신청"];
 const BOARD_KEY = "2848";
 const BBS_NO = "40";
+const MAX_AGE_DAYS = 90; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
 const DATA_PATH = new URL("../data/ydp-posts.json", import.meta.url);
 
 function searchUrl(keyword) {
@@ -95,9 +97,10 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => Number(b.nttNo) - Number(a.nttNo));
-  await writeFile(DATA_PATH, JSON.stringify(merged, null, 2) + "\n", "utf8");
+  const pruned = pruneByAge(merged, "date", MAX_AGE_DAYS);
+  await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
-  console.log(`총 ${merged.length}건 저장 (신규 ${addedCount}건)`);
+  console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

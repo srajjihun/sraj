@@ -1,10 +1,12 @@
 // 기업마당(bizinfo.go.kr) 행사정보 게시판에서 수도권(area=cap) 새 글을
 // data/bizinfo-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pruneByPeriodEnd } from "./lib/prune.mjs";
 
 const DATA_PATH = new URL("../data/bizinfo-posts.json", import.meta.url);
 const ROWS = 15;
 const MAX_PAGES = 5; // 한 번 실행에 최대 75건까지 확인
+const GRACE_DAYS = 14; // 행사기간 종료 후 14일 지나면 정리
 
 function listUrl(cpage) {
   const params = new URLSearchParams({
@@ -100,9 +102,10 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  await writeFile(DATA_PATH, JSON.stringify(merged, null, 2) + "\n", "utf8");
+  const pruned = pruneByPeriodEnd(merged, "period", GRACE_DAYS);
+  await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
-  console.log(`총 ${merged.length}건 저장 (신규 ${addedCount}건)`);
+  console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

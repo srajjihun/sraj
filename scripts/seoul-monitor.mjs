@@ -1,10 +1,12 @@
 // 서울특별시 "분야별 새소식"에서 모집/신청 카테고리로 분류된 새 글을 찾아
 // data/seoul-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { pruneByAge } from "./lib/prune.mjs";
 
 const DATA_PATH = new URL("../data/seoul-posts.json", import.meta.url);
 const PAGE_SIZE = 10;
 const MAX_PAGES = 5; // 한 번 실행에 최대 50건까지 확인
+const MAX_AGE_DAYS = 90; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
 
 function listUrl(fetchStart) {
   const params = new URLSearchParams({
@@ -96,9 +98,10 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  await writeFile(DATA_PATH, JSON.stringify(merged, null, 2) + "\n", "utf8");
+  const pruned = pruneByAge(merged, "date", MAX_AGE_DAYS);
+  await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
-  console.log(`총 ${merged.length}건 저장 (신규 ${addedCount}건)`);
+  console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
