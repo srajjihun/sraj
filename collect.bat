@@ -28,6 +28,15 @@ git add data\ydp-posts.json data\seoul-posts.json data\bizinfo-posts.json data\g
 git diff --cached --quiet || git commit -m "chore: 모집/신청 공고 갱신 (PC)" >> "%LOG%" 2>&1
 git push >> "%LOG%" 2>&1
 
+rem ── 나라장터 입찰·영업 정보시스템 ──
+rem 인증키(G2B_SERVICE_KEY)가 등록돼 있을 때만 동작한다.
+rem 최초 등록은 G2B-설치.bat 을 한 번 실행하면 된다.
+rem 수집 결과는 g2b-live.html 로만 남고 저장소에는 올리지 않는다(사내 정보).
+if not "%G2B_SERVICE_KEY%"=="" (
+  node "scripts\g2b\collect.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 수집 실패 >> "%LOG%"
+  node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 화면 생성 실패 >> "%LOG%"
+)
+
 echo ===== %DATE% %TIME% 수집 종료 ===== >> "%LOG%"
 
 rem 로그가 무한정 커지지 않도록 1MB 넘으면 비운다
