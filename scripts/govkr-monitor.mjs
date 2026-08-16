@@ -3,14 +3,16 @@
 // 검색이 날짜범위(srchStDtFmt~srchEdDtFmt)를 지원해서, 매일 최근 며칠치만
 // 좁혀서 검색하면 페이지를 많이 넘길 필요가 없다.
 import { readFile, writeFile } from "node:fs/promises";
-import { pruneByAge } from "./lib/prune.mjs";
+import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
+import { extractDeadline } from "./lib/deadline.mjs";
 
 const DATA_PATH = new URL("../data/govkr-posts.json", import.meta.url);
 const KEYWORDS = ["모집", "신청"];
 const SIDO = "1100000000"; // 서울특별시
 const LOOKBACK_DAYS = 5; // 매일 실행되지만 여유를 두고 최근 5일치를 재확인
 const MAX_PAGES = 10; // 좁은 날짜범위라 보통 1~2페이지면 끝나지만 안전장치로 넉넉히
-const MAX_AGE_DAYS = 20; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
+const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
+const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
 
 function fmtDate(d) {
   const y = d.getUTCFullYear();
@@ -65,13 +67,15 @@ function parseItems(html, keyword) {
     const id = linkMatch[1];
     const title = stripTags(linkMatch[2]);
     const date = dateMatch ? dateMatch[1].replace(/\./g, "-") : "";
+    const summary = summaryMatch ? stripTags(summaryMatch[1]) : "";
 
     items.push({
       id,
       title,
       org: orgMatch ? stripTags(orgMatch[1]) : "",
       date,
-      summary: summaryMatch ? stripTags(summaryMatch[1]) : "",
+      summary,
+      deadline: extractDeadline(date, summary, title),
       url: sourceMatch ? decodeEntities(sourceMatch[1]) : `https://www.gov.kr/portal/locgovNews/${id}`,
       matchedKeyword: keyword,
     });
@@ -124,7 +128,12 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const pruned = pruneByAge(merged, "date", MAX_AGE_DAYS);
+  const pruned = pruneByDeadlineOrAge(merged, {
+    deadlineField: "deadline",
+    dateField: "date",
+    graceDays: GRACE_DAYS,
+    maxAgeDays: MAX_AGE_DAYS,
+  });
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
