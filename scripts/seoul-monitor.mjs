@@ -6,7 +6,7 @@ import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
 const DATA_PATH = new URL("../data/seoul-posts.json", import.meta.url);
 const PAGE_SIZE = 10;
 const MAX_PAGES = 5; // 한 번 실행에 최대 50건까지 확인
-const MAX_AGE_DAYS = 90; // 마감일을 못 찾은 글은 등록일 기준으로 정리
+const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
 const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
 
 // AI 요약 문장에서 "N월 N일 ~ N월 N일" / "신청기간은 ...부터 ...까지" 같은

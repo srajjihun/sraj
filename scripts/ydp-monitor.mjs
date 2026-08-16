@@ -6,7 +6,7 @@ import { pruneByAge } from "./lib/prune.mjs";
 const KEYWORDS = ["모집", "신청"];
 const BOARD_KEY = "2848";
 const BBS_NO = "40";
-const MAX_AGE_DAYS = 90; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
+const MAX_AGE_DAYS = 20; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
 const DATA_PATH = new URL("../data/ydp-posts.json", import.meta.url);
 
 function searchUrl(keyword) {
