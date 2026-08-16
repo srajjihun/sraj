@@ -225,20 +225,6 @@ function fmtShort(iso) { // "YYYY-MM-DD" -> "MM.DD"
   return m ? `${m[1]}.${m[2]}` : "";
 }
 
-// 제목에서 "(~8.18.)" / "~ 9. 2." 같은 마감 표기를 best-effort 추출 (영등포구청용)
-function deadlineFromTitle(dateIso, title) {
-  const m = /~\s*(?:(\d{4})\s*\.\s*)?(\d{1,2})\s*\.\s*(\d{1,2})\s*\.?/.exec(title || "");
-  if (!m) return null;
-  const base = new Date(dateIso);
-  if (isNaN(base)) return null;
-  const month = +m[2], day = +m[3];
-  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-  let year = m[1] ? +m[1] : base.getUTCFullYear();
-  if (!m[1] && month < base.getUTCMonth() + 1 - 2) year += 1;
-  const d = new Date(Date.UTC(year, month - 1, day));
-  return isNaN(d) || d.getUTCMonth() !== month - 1 ? null : d.toISOString().slice(0, 10);
-}
-
 function periodEnd(period) { // "YYYY-MM-DD ~ YYYY-MM-DD" -> 종료일
   const m = /~\s*(\d{4}-\d{2}-\d{2})/.exec(period || "");
   return m ? m[1] : null;
@@ -255,7 +241,6 @@ const SOURCES = {
 function normalize(src, raw) {
   const title = decodeEntities(raw.title);
   let deadline = raw.deadline || null;
-  if (src === "ydp") deadline = deadlineFromTitle(raw.date, title);
   if (src === "biz") deadline = periodEnd(raw.period);
   return {
     src,

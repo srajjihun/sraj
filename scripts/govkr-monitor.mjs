@@ -117,7 +117,12 @@ async function main() {
 
       let pageHadNew = false;
       for (const item of items) {
-        if (seen.has(item.id)) continue;
+        const prev = seen.get(item.id);
+        if (prev) {
+          // 재수집 시 요약/마감일 갱신, firstSeenAt은 유지
+          seen.set(item.id, { ...prev, ...item, deadline: item.deadline ?? prev.deadline ?? null });
+          continue;
+        }
         seen.set(item.id, { ...item, firstSeenAt: now });
         addedCount += 1;
         pageHadNew = true;
@@ -128,6 +133,12 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
+  // 추출기가 개선되면 기존 저장분에도 소급 적용
+  for (const it of merged) {
+    if (it.deadline === undefined || it.deadline === null) {
+      it.deadline = extractDeadline(it.date, it.summary, it.title);
+    }
+  }
   const pruned = pruneByDeadlineOrAge(merged, {
     deadlineField: "deadline",
     dateField: "date",

@@ -1,12 +1,14 @@
 // 영등포구청 "우리구소식" 게시판(bbsNo=40)에서 "모집"/"신청" 키워드가 포함된
 // 새 글을 찾아 data/ydp-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
-import { pruneByAge } from "./lib/prune.mjs";
+import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
+import { extractDeadline } from "./lib/deadline.mjs";
 
 const KEYWORDS = ["모집", "신청"];
 const BOARD_KEY = "2848";
 const BBS_NO = "40";
-const MAX_AGE_DAYS = 20; // 신청기간 정보가 없어 등록일 기준으로 오래된 글 정리
+const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
+const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
 const DATA_PATH = new URL("../data/ydp-posts.json", import.meta.url);
 
 function searchUrl(keyword) {
@@ -55,6 +57,7 @@ function parseRows(html, keyword) {
       title,
       dept,
       date,
+      deadline: extractDeadline(date, title),
       url: `https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=${BBS_NO}&key=${BOARD_KEY}&nttNo=${nttNo}`,
       matchedKeyword: keyword,
     });
@@ -90,14 +93,30 @@ async function main() {
     const items = parseRows(html, keyword);
 
     for (const item of items) {
-      if (seen.has(item.nttNo)) continue;
+      const prev = seen.get(item.nttNo);
+      if (prev) {
+        // 재수집 시 제목/마감일이 바뀌었으면 갱신 (연장 공고 등), firstSeenAt은 유지
+        seen.set(item.nttNo, { ...prev, ...item, deadline: item.deadline ?? prev.deadline ?? null });
+        continue;
+      }
       seen.set(item.nttNo, { ...item, firstSeenAt: now });
       addedCount += 1;
     }
   }
 
   const merged = [...seen.values()].sort((a, b) => Number(b.nttNo) - Number(a.nttNo));
-  const pruned = pruneByAge(merged, "date", MAX_AGE_DAYS);
+  // 추출기가 개선되면 기존 저장분에도 소급 적용
+  for (const it of merged) {
+    if (it.deadline === undefined || it.deadline === null) {
+      it.deadline = extractDeadline(it.date, it.title);
+    }
+  }
+  const pruned = pruneByDeadlineOrAge(merged, {
+    deadlineField: "deadline",
+    dateField: "date",
+    graceDays: GRACE_DAYS,
+    maxAgeDays: MAX_AGE_DAYS,
+  });
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);

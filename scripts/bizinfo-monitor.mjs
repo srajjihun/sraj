@@ -92,7 +92,12 @@ async function main() {
 
     let pageHadNew = false;
     for (const item of items) {
-      if (seen.has(item.eventId)) continue;
+      const prev = seen.get(item.eventId);
+      if (prev) {
+        // 행사 연기 등으로 기간이 바뀌면 갱신, firstSeenAt은 유지
+        seen.set(item.eventId, { ...prev, ...item });
+        continue;
+      }
       seen.set(item.eventId, { ...item, firstSeenAt: now });
       addedCount += 1;
       pageHadNew = true;
