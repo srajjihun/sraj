@@ -2,14 +2,13 @@
 // data/seoul-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
+import { pruneByAge } from "./lib/prune.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
 
 const DATA_PATH = new URL("../data/seoul-posts.json", import.meta.url);
 const PAGE_SIZE = 10;
 const MAX_PAGES = 5; // 한 번 실행에 최대 50건까지 확인
-const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
-const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
+const RETENTION_DAYS = 30; // 등록일 기준 30일이 지난 글은 정리
 
 function listUrl(fetchStart) {
   const params = new URLSearchParams({
@@ -116,12 +115,7 @@ async function main() {
       it.deadline = extractDeadline(it.date, it.summary, it.title);
     }
   }
-  const pruned = pruneByDeadlineOrAge(merged, {
-    deadlineField: "deadline",
-    dateField: "date",
-    graceDays: GRACE_DAYS,
-    maxAgeDays: MAX_AGE_DAYS,
-  });
+  const pruned = pruneByAge(merged, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);

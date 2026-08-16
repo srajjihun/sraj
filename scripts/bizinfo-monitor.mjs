@@ -2,13 +2,13 @@
 // data/bizinfo-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import { pruneByPeriodEnd } from "./lib/prune.mjs";
+import { pruneByAge } from "./lib/prune.mjs";
 
 const DATA_PATH = new URL("../data/bizinfo-posts.json", import.meta.url);
 const ROWS = 15;
 const MIN_PAGES = 5; // 기존 글만 나와도 최소 이만큼은 스캔 (과거 글 채우기용)
 const MAX_PAGES = 10; // 한 번 실행에 최대 150건까지 확인
-const GRACE_DAYS = 14; // 행사기간 종료 후 14일 지나면 정리
+const RETENTION_DAYS = 30; // 등록일 기준 30일이 지난 글은 정리
 
 function listUrl(cpage) {
   const params = new URLSearchParams({
@@ -110,7 +110,7 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const pruned = pruneByPeriodEnd(merged, "period", GRACE_DAYS);
+  const pruned = pruneByAge(merged, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);

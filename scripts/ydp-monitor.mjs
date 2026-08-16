@@ -2,14 +2,13 @@
 // 새 글을 찾아 data/ydp-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
-import { pruneByDeadlineOrAge } from "./lib/prune.mjs";
+import { pruneByAge } from "./lib/prune.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
 
 const KEYWORDS = ["모집", "신청"];
 const BOARD_KEY = "2848";
 const BBS_NO = "40";
-const MAX_AGE_DAYS = 20; // 마감일을 못 찾은 글은 등록일 기준으로 정리
-const GRACE_DAYS = 14; // 마감일을 찾은 글은 마감 후 14일 지나면 정리
+const RETENTION_DAYS = 30; // 등록일 기준 30일이 지난 글은 정리
 const DATA_PATH = new URL("../data/ydp-posts.json", import.meta.url);
 
 function searchUrl(keyword) {
@@ -112,12 +111,7 @@ async function main() {
       it.deadline = extractDeadline(it.date, it.title);
     }
   }
-  const pruned = pruneByDeadlineOrAge(merged, {
-    deadlineField: "deadline",
-    dateField: "date",
-    graceDays: GRACE_DAYS,
-    maxAgeDays: MAX_AGE_DAYS,
-  });
+  const pruned = pruneByAge(merged, "date", RETENTION_DAYS);
   await writeFile(DATA_PATH, JSON.stringify(pruned, null, 2) + "\n", "utf8");
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 정리 ${merged.length - pruned.length}건)`);
