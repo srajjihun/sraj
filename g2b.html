@@ -20,11 +20,13 @@
   --warn:#A26B0A; --warn-bg:#FBF1DC; --warn-line:#EBD7A8;
   --stop:#B3362B; --stop-bg:#FBEAE7; --stop-line:#F0C8C1;
   --pre:#33678F; --pre-bg:#E7F0F8; --pre-line:#C4D8EA;
+  /* 키워드 그룹 뱃지 — 6색. 색약 검증 통과 조합(ΔE 기준)이라 순서를 바꾸지 마세요 */
   --kw-1:#1266F1; --kw-1-bg:#EAF1FE;
   --kw-2:#0E8A6D; --kw-2-bg:#E7F4F0;
   --kw-3:#B87E00; --kw-3-bg:#F9F1DF;
-  --kw-4:#A24FD8; --kw-4-bg:#F4EBFB;
-  --kw-5:#C9375E; --kw-5-bg:#FBEAEF;
+  --kw-4:#C9375E; --kw-4-bg:#FBEAEF;
+  --kw-5:#7B4FD8; --kw-5-bg:#F1EBFB;
+  --kw-6:#4A7C1F; --kw-6-bg:#EDF4E4;
   --kw-x:#5B6472; --kw-x-bg:#EDF0F4;
   --shadow:0 1px 2px rgba(16,24,40,.05), 0 10px 26px -18px rgba(16,24,40,.28);
 }
@@ -43,8 +45,9 @@
     --kw-1:#6AA4F8; --kw-1-bg:#1B2C4A;
     --kw-2:#5BC0A0; --kw-2-bg:#122B24;
     --kw-3:#DCA748; --kw-3-bg:#2B2314;
-    --kw-4:#C38BE8; --kw-4-bg:#2A1C38;
-    --kw-5:#EE7E9C; --kw-5-bg:#331721;
+    --kw-4:#EE7E9C; --kw-4-bg:#331721;
+    --kw-5:#A98BEE; --kw-5-bg:#251C3A;
+    --kw-6:#8FBF5E; --kw-6-bg:#1D2914;
     --kw-x:#9AA3B2; --kw-x-bg:#242A34;
     --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -18px rgba(0,0,0,.9);
   }
@@ -63,8 +66,9 @@
   --kw-1:#6AA4F8; --kw-1-bg:#1B2C4A;
   --kw-2:#5BC0A0; --kw-2-bg:#122B24;
   --kw-3:#DCA748; --kw-3-bg:#2B2314;
-  --kw-4:#C38BE8; --kw-4-bg:#2A1C38;
-  --kw-5:#EE7E9C; --kw-5-bg:#331721;
+  --kw-4:#EE7E9C; --kw-4-bg:#331721;
+  --kw-5:#A98BEE; --kw-5-bg:#251C3A;
+  --kw-6:#8FBF5E; --kw-6-bg:#1D2914;
   --kw-x:#9AA3B2; --kw-x-bg:#242A34;
   --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -18px rgba(0,0,0,.9);
 }
@@ -431,7 +435,7 @@ function fmtPrice(v){ // 원 → 억 표기
   return Math.round(v/1e7)/1+"천만";
 }
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<5?i+1:"x"; };
+const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
 
 const tip=$("#tip");
 function tipShow(x,y,html){tip.innerHTML=html; tip.style.left=x+"px"; tip.style.top=y+"px"; tip.classList.add("show");}
