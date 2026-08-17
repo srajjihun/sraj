@@ -9,7 +9,7 @@
 //
 // 실행: 키워드-검증.bat 더블클릭 (또는 node scripts\g2b\keyword-report.mjs)
 import { readFile } from "node:fs/promises";
-import { loadKeywords, excludedBy as excludedByConfig } from "./lib/keywords.mjs";
+import { loadKeywords, excludedBy as excludedByConfig, matchGroups } from "./lib/keywords.mjs";
 
 const RAW_BID = new URL("../../data/g2b/raw/bid.json", import.meta.url);
 const RAW_PRE = new URL("../../data/g2b/raw/prespec.json", import.meta.url);
@@ -30,11 +30,9 @@ function hay(it) {
   return `${it.title ?? ""} ${it.category ?? ""} ${it.categoryMid ?? ""} ${it.categoryLarge ?? ""}`;
 }
 
+// 수집 예외(직무역량 안의 "무역" 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.
 function matchedGroups(it) {
-  const h = hay(it);
-  return Object.entries(PROPOSED.groups)
-    .filter(([, ws]) => ws.some((w) => h.includes(w)))
-    .map(([g]) => g);
+  return matchGroups(it, PROPOSED);
 }
 
 // 어떤 단어 때문에 잡혔는지. 제목에 없으면 조달분류명에서 걸린 것이므로

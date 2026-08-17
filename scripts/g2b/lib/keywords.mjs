@@ -3,6 +3,7 @@
 // 파일 구조:
 //   # 수집 키워드   → ## 그룹명 아래 한 줄에 단어 하나
 //   # 제외 키워드   → 한 줄에 단어 하나
+//   # 수집 예외     → 한 줄에 하나. 수집어가 이 말 안에서만 걸렸으면 무시합니다
 //   # 제외 예외     → 한 줄에 하나. 제외어가 이 말 안에서만 걸렸으면 살립니다
 //   # 제외 해제     → "조건어 → 무시할제외어 무시할제외어" 형식
 //   # 조달분류코드  → "코드  설명" 형식 (첫 토큰만 코드로 사용)
@@ -15,6 +16,7 @@ export async function loadKeywords(path = CONFIG_PATH) {
   const groups = {}; // { 그룹명: [단어...] }
   const exclude = [];
   const allow = []; // 제외 예외
+  const kwAllow = []; // 수집 예외
   const release = []; // 제외 해제 조건 [{ when, words }]
   const codes = [];
 
@@ -25,6 +27,7 @@ export async function loadKeywords(path = CONFIG_PATH) {
     const line = rawLine.trim();
     if (!line) continue;
 
+    if (/^#\s*수집\s*예외/.test(line)) { section = "kwallow"; continue; } // "# 수집" 보다 먼저
     if (/^#\s*수집/.test(line)) { section = "collect"; currentGroup = null; continue; }
     // 아래 두 줄은 "# 제외" 보다 먼저 봐야 합니다 (앞부분이 같습니다)
     if (/^#\s*제외\s*예외/.test(line)) { section = "allow"; continue; }
@@ -47,6 +50,7 @@ export async function loadKeywords(path = CONFIG_PATH) {
     if (section === "collect" && currentGroup) groups[currentGroup].push(line);
     else if (section === "exclude") exclude.push(line);
     else if (section === "allow") allow.push(line);
+    else if (section === "kwallow") kwAllow.push(line);
     else if (section === "release") {
       // "수출 → 행사 전시회 상담회"
       const [left, right] = line.split(/→|->/);
@@ -60,15 +64,21 @@ export async function loadKeywords(path = CONFIG_PATH) {
     }
   }
 
-  return { groups, exclude, allow, release, codes };
+  return { groups, exclude, allow, kwAllow, release, codes };
 }
 
 // 항목(제목+분류명)에 매칭되는 키워드 그룹 목록을 돌려줍니다. 빈 배열이면 미매칭.
 export function matchGroups(item, config) {
   const hay = `${item.title ?? ""} ${item.category ?? ""} ${item.categoryMid ?? ""} ${item.categoryLarge ?? ""}`;
+  const kwAllow = config.kwAllow ?? [];
+  // 수집어가 엉뚱한 말 안에서만 걸린 경우를 걸러냅니다.
+  // 예: "무역"은 "직무역량"(직-무역-량) 안에도 있어 HRD 공고가 수출 그룹으로
+  //     분류됐습니다. "무역량"을 수집 예외에 적으면 그 안의 "무역"은 무시되고
+  //     "무역사절단 파견" 같은 진짜 무역 공고는 그대로 잡힙니다.
+  const hit = (w) => (kwAllow.length ? matchedOutsideAllowlist(hay, w, kwAllow) : hay.includes(w));
   const matched = [];
   for (const [group, words] of Object.entries(config.groups)) {
-    if (words.some((w) => hay.includes(w))) matched.push(group);
+    if (words.some(hit)) matched.push(group);
   }
   // 분류코드가 등록돼 있으면 키워드 없이도 수집 대상 (그룹은 "분류" 로 표시)
   if (!matched.length && item.categoryNo && config.codes.includes(item.categoryNo)) {
