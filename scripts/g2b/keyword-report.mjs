@@ -37,6 +37,17 @@ function matchedGroups(it) {
     .map(([g]) => g);
 }
 
+// 어떤 단어 때문에 잡혔는지. 제목에 없으면 조달분류명에서 걸린 것이므로
+// 그 사실까지 알려줍니다 — 제목만 보면 왜 잡혔는지 알 수 없는 건이 있습니다.
+function matchedWord(it, group) {
+  const title = it.title ?? "";
+  const words = PROPOSED.groups[group] ?? [];
+  const inTitle = words.find((w) => title.includes(w));
+  if (inTitle) return inTitle;
+  const inCat = words.find((w) => hay(it).includes(w));
+  return inCat ? `${inCat}·분류명` : "?";
+}
+
 // 제외 예외(기관명 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.
 function excludedBy(it) {
   return excludedByConfig(it, PROPOSED);
@@ -91,7 +102,8 @@ async function main() {
     const rows = kept.filter((k) => k.groups[0] === g); // 첫 매칭 그룹 기준
     const total = kept.filter((k) => k.groups.includes(g)).length;
     console.log(`\n[${g}] ${total}건`);
-    for (const { it } of sample(rows, 6)) console.log(`   · ${(it.title ?? "").slice(0, 46)}`);
+    for (const { it } of sample(rows, 8))
+      console.log(`   · [${matchedWord(it, g)}] ${(it.title ?? "").slice(0, 44)}`);
   }
 
   console.log(`\n\n■ 제외어가 걸러낸 것 (키워드에는 걸렸던 건): ${killed.length}건`);
