@@ -303,7 +303,7 @@ svg{display:block; width:100%}
   border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2);
 }
 .mini:hover{border-color:var(--accent); color:var(--accent)}
-.mini.done{border-color:var(--go); color:var(--go); background:var(--go-bg)}
+.nofile{font-size:12px; color:var(--ink-4)}
 .jo{font-size:11.5px; font-weight:800; padding:2px 7px; border-radius:5px}
 .jo.ok{background:var(--pre-bg); color:var(--pre)}
 .jo.no{background:var(--surface-3); color:var(--ink-3)}
@@ -482,7 +482,8 @@ svg{display:block; width:100%}
     <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
-      공고명을 누르면 규격서 파일이 열립니다 · 나라장터에서 직접 찾으실 때는 카드에 적힌 사전규격 번호로 검색하세요
+      공고명이나 [규격서 내려받기]를 누르면 규격서가 받아집니다<br>
+      나라장터는 사전규격 상세 주소를 제공하지 않아 직접 연결할 수 없습니다 · 카드의 사전규격 번호로 검색하세요
     </p>
   </section>
 
@@ -997,16 +998,22 @@ function docLine(it){
 
 /* 사전공고는 나라장터 상세 주소를 만들 수 없습니다.
    API 가 상세 주소를 안 주고, 나라장터 화면의 공고 제목도 진짜 링크가 아니라
-   자바스크립트로 팝업을 띄우는 글자 상자(WebSquare w2textbox)입니다. href 가
-   아예 없어서 바깥에서 특정 공고를 지목할 방법이 없습니다.
-   그래서 "번호 복사 → 나라장터 열기 → 붙여넣기" 세 동작으로 줄여 줍니다. */
-const G2B_SEARCH = "https://www.g2b.go.kr/link/PRCA001_04/single/?srch=0002&flag=cnrtSl";
+   자바스크립트로 팝업을 띄우는 글자 상자(WebSquare w2textbox)라 href 가 없습니다.
+   그래서 규격서를 바로 받게 합니다 — 어차피 봐야 할 것은 규격서입니다.
+   (규격서 주소는 API 가 직접 준 값이라 반드시 열립니다) */
 function preFindLine(it){
-  const no=String(it.bidNo||"").trim();
-  if(!no) return "";
-  return `<div class="meta findline">사전규격 <span class="num">${esc(no)}</span>`
-    + `<button type="button" class="mini" data-copy="${esc(no)}">번호 복사</button>`
-    + `<a class="mini" href="${G2B_SEARCH}" target="_blank" rel="noopener">나라장터 열기 ↗</a></div>`;
+  const files = it.files ?? [];
+  const no = String(it.bidNo || "").trim();
+  const bits = [];
+  if (no) bits.push(`사전규격 <span class="num">${esc(no)}</span>`);
+  if (files.length) {
+    bits.push(...files.map((f, i) =>
+      `<a class="mini" href="${esc(f.url)}" target="_blank" rel="noopener" download>`
+      + `${esc(files.length > 1 ? `규격서 ${i + 1}` : "규격서 내려받기")} ↓</a>`));
+  } else {
+    bits.push(`<span class="nofile">규격서 없음</span>`);
+  }
+  return `<div class="meta findline">${bits.join(" ")}</div>`;
 }
 
 /* 예측점수 배지. 마우스를 올리면 왜 그 점수인지 보여줍니다. */
@@ -1121,29 +1128,6 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
     wrap.innerHTML=list.map(it=>cardHtml(it,kind)).join("");
     empty.hidden=list.length>0;
   }
-
-  /* 카드는 다시 그려지므로 버튼마다 붙이지 않고 목록 전체에서 한 번만 받습니다. */
-  wrap.addEventListener("click", async e=>{
-    const b=e.target.closest("button.mini[data-copy]");
-    if(!b) return;
-    const no=b.dataset.copy;
-    let ok=false;
-    try{ await navigator.clipboard.writeText(no); ok=true; }
-    catch{
-      // 브라우저가 클립보드를 막는 경우가 있어 예전 방식으로 한 번 더 시도합니다.
-      try{
-        const ta=document.createElement("textarea");
-        ta.value=no; ta.style.position="fixed"; ta.style.opacity="0";
-        document.body.appendChild(ta); ta.select();
-        ok=document.execCommand("copy");
-        ta.remove();
-      }catch{}
-    }
-    const was=b.textContent;
-    b.textContent = ok ? "복사됨" : "복사 실패";
-    b.classList.toggle("done", ok);
-    setTimeout(()=>{ b.textContent=was; b.classList.remove("done"); }, 1400);
-  });
 
   root.querySelector(".search").addEventListener("input",e=>{st.q=e.target.value; draw();});
   draw();
