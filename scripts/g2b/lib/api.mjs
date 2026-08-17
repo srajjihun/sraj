@@ -93,7 +93,11 @@ export function parseResponse(text, label) {
   // ② 나라장터 백엔드 오류 (입력범위값 초과 등)
   const nk = json["nkoneps.com.response.ResponseError"]?.header;
   if (nk) {
-    throw new Error(`${label} 나라장터 오류 ${nk.resultCode}: ${nk.resultMsg}`);
+    const err = new Error(`${label} 나라장터 오류 ${nk.resultCode}: ${nk.resultMsg}`);
+    // resultCode "07" = 입력범위값 초과. 과거로 갈수록 반복 발생하면 조회 가능 기간의
+    // 한계에 도달했다는 뜻이므로, 호출부(collect.mjs)가 이 코드로 구분해 대응한다.
+    err.g2bCode = nk.resultCode;
+    throw err;
   }
 
   // ③ 정상 응답
