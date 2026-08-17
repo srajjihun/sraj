@@ -93,7 +93,7 @@ export function normalizeBid(raw, kind = "용역") {
     rgnLmt: text(raw.rgnLmtYn) === "Y", // 지역제한 (내용은 공고문에만 있음)
 
     // 공동수급(컨소시엄) — 지분 참여 시 지분율만큼 실적증명이 발급되므로
-    // 신설법인이 자기 이름으로 실적을 쌓을 수 있는지가 여기서 갈린다.
+    // 단독 참여가 어려운 공고를 컨소시엄으로 갈 수 있는지가 여기서 갈린다.
     jointOk: jointAllowed(raw),
     jointMethod: text(raw.cmmnSpldmdMethdNm), // 공동이행 / 분담이행 / (없음)공동수급불허
     jointRgnLmt: text(raw.cmmnSpldmdCorpRgnLmtYn) === "Y", // 공동수급 구성원 지역제한
