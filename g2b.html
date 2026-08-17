@@ -771,6 +771,11 @@ const HIDDEN_PRIVATE = RAW_ALL.filter(it=>!isExpired(it)&&isPrivate(it)).length;
 function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
+/* 한 공고가 여러 분야에 걸리면 설정 파일에서 위에 있는 분야로 봅니다.
+   "수출마케팅 협력사업(무역사절단)"은 수출과 마케팅에 둘 다 걸리는데
+   수출·해외진출이 위에 있으므로 수출입니다. 카드의 분야 뱃지, 분야 칩,
+   시장 리포트가 모두 이 하나의 기준을 씁니다 — 서로 다르면 건수가 안 맞습니다. */
+const mainKw = it => (it.kw || [])[0] ?? "";
 const SEQ = ["var(--seq-1)","var(--seq-2)","var(--seq-3)","var(--seq-4)","var(--seq-5)"];
 
 const tip=$("#tip");
@@ -1114,7 +1119,7 @@ function scoreBadge(it){
 }
 
 function cardHtml(it, kind){
-  const g=(it.kw||[])[0];
+  const g=mainKw(it);
   const d=daysUntil(dueOf(it).iso);
   const u=g2bLink(it);
   const badge = g
@@ -1158,7 +1163,7 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
 
   const btns=[];
   for(const g of GROUPS){
-    const n=items.filter(it=>(it.kw||[]).includes(g)).length;
+    const n=items.filter(it=>mainKw(it)===g).length;
     const b=document.createElement("button");
     b.type="button"; b.className="chip"; b.setAttribute("aria-pressed","false");
     b.innerHTML=`${esc(g)} <span class="n num">${n}</span>`;
@@ -1205,7 +1210,7 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
   function draw(){
     const q=st.q.trim().toLowerCase();
     const list=items.filter(it=>
-      (st.kw.size===0 || (it.kw||[]).some(g=>st.kw.has(g))) &&
+      (st.kw.size===0 || st.kw.has(mainKw(it))) &&
       (!q || (it.title||"").toLowerCase().includes(q)));
     const key=SORTS.find(s=>s.id===st.sort).key;
     list.sort((a,b)=>key(a)-key(b));
@@ -1261,7 +1266,7 @@ function bars(rows, opts={}){
 
   // 분야별 — 건수와 예산을 함께 봅니다. 건수만 보면 작은 건이 많은 분야가 커 보입니다.
   const byKw = GROUPS.map(g=>{
-    const rows=live.filter(it=>(it.kw||[]).includes(g));
+    const rows=live.filter(it=>mainKw(it)===g);
     const sum=rows.reduce((a,b)=>a+((b.budget??b.price)||0),0);
     return { k:g, v:rows.length, label:`${rows.length}건 · ${억(sum)}`, note:`${rows.length}건`,
              color:`var(--kw-${kwIdx(g)})` };
