@@ -13,7 +13,9 @@
 :root{
   --ground:#F4F6FB; --surface:#FFFFFF; --surface-2:#F8FAFD; --surface-3:#EEF2F9;
   --line:#E2E8F2; --line-soft:#EDF1F8;
-  --ink:#101828; --ink-2:#475467; --ink-3:#98A2B3;
+  --ink:#101828; --ink-2:#475467;
+  --ink-3:#667085;   /* 본문 보조 텍스트 — 흰 배경 대비 4.97:1 */
+  --ink-4:#98A2B3;   /* 아이콘·구분선·placeholder 전용 (텍스트에 쓰지 마세요) */
   --accent:#1266F1; --accent-deep:#0E4FBC; --accent-tint:#EAF1FE;
   --nav:#12356F; --nav-2:#1B4489; --nav-ink:#E8EEF9; --nav-dim:#8FA5CC;
 
@@ -161,8 +163,10 @@ svg{display:block; width:100%}
   text-align:left; padding:7px 12px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); white-space:nowrap;
 }
 .ftable td{padding:8px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle}
-.ftable tr{cursor:pointer}
-.ftable tbody tr:hover{background:var(--accent-tint)}
+.ftable tr[data-url]{cursor:pointer}
+.ftable tr[data-url]:hover{background:var(--accent-tint)}
+.ftable tr[data-url]:focus-visible{background:var(--accent-tint); outline:2px solid var(--accent); outline-offset:-2px}
+.ftable tr.nolink{cursor:default}
 .ftable tr.divider td{background:var(--surface-2); font-size:11px; font-weight:800; color:var(--ink-3); padding:5px 12px; letter-spacing:.03em; cursor:default}
 .ftable tr.divider:hover td{background:var(--surface-2)}
 .ftable .tt{font-weight:650; letter-spacing:-.01em; display:block; max-width:520px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
@@ -171,6 +175,7 @@ svg{display:block; width:100%}
 .ftable .sched b{font-weight:700}
 .rate{display:inline-flex; align-items:center; gap:0; font-size:11px; font-weight:800; white-space:nowrap}
 .rate .tech{background:var(--seq-4); color:#fff; padding:2.5px 6px; border-radius:5px 0 0 5px}
+.rate .sep{padding:0 3px; color:var(--ink-3); font-weight:700}
 .rate .prc{background:var(--surface-3); color:var(--ink-2); padding:2.5px 6px; border-radius:0 5px 5px 0}
 .rate.na{font-weight:700; color:var(--ink-3)}
 .kind{display:inline-block; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px; white-space:nowrap; border:1px solid}
@@ -179,18 +184,16 @@ svg{display:block; width:100%}
 .k-re{color:var(--warn); background:var(--warn-bg); border-color:var(--warn-line)}
 
 /* ─── 3행 : 시각화 그리드 ─── */
-.vizgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-bottom:12px}
-.vizgrid .span2{grid-column:span 2}
+.vizgrid{display:grid; grid-template-columns:1.35fr 1fr; gap:11px; margin-bottom:12px; align-items:start}
+
 .legend{display:flex; gap:6px 13px; flex-wrap:wrap; margin-top:9px; font-size:11.5px; color:var(--ink-2)}
 .legend .sw{display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:-.5px}
 .legend b{font-weight:800; color:var(--ink)}
-.stack{display:flex; height:18px; border-radius:5px; overflow:hidden; gap:2px}
-.stack span{height:100%}
 
 /* 마감 캘린더 */
-.cal{display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; margin-top:4px; max-width:560px}
-.cal .dow{font-size:10px; font-weight:800; color:var(--ink-3); text-align:center; padding-bottom:2px}
-.cal .wk{font-size:10px; color:var(--ink-3); display:grid; place-items:center}
+.cal{display:grid; grid-template-columns:38px repeat(7,1fr); gap:3px; margin-top:4px}
+.cal .dow{font-size:11px; font-weight:800; color:var(--ink-2); text-align:center; padding-bottom:2px}
+.cal .wk{font-size:11px; color:var(--ink-2); display:grid; place-items:center}
 .cal .cell{
   height:26px; border-radius:5px; display:grid; place-items:center;
   font-size:11px; font-weight:800; background:var(--seq-0); color:var(--ink-3); cursor:default;
@@ -210,16 +213,13 @@ svg{display:block; width:100%}
 .rankbar .who{font-weight:700; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .rankbar .amt{color:var(--ink-2); font-weight:700; white-space:nowrap; font-size:12px}
 .rankbar .track{height:10px; background:var(--surface-3); border-radius:4px; overflow:hidden}
-.rankbar .fill{height:100%; border-radius:4px}
 
 /* ─── 4행 : 참여 조건 ─── */
 .cond{display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin-bottom:16px}
 .condcard{
   background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);
-  padding:13px 15px; text-align:left; cursor:pointer;
+  padding:13px 15px; text-align:left;
 }
-.condcard:hover{border-color:var(--accent)}
-.condcard.on{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-tint), var(--shadow)}
 .condcard .k{font-size:11.5px; font-weight:800; color:var(--ink-2)}
 .condcard .v{font-size:26px; font-weight:800; letter-spacing:-.03em; margin-top:5px}
 .condcard .v small{font-size:12.5px; font-weight:700; color:var(--ink-3)}
@@ -231,52 +231,6 @@ svg{display:block; width:100%}
 .condcard.team .v{color:var(--pre)} .condcard.team .fill{background:var(--pre)}
 .condcard.solo .v{color:var(--ink-2)} .condcard.solo .fill{background:var(--ink-3)}
 
-/* ═══════════ 전체 목록 ═══════════ */
-.tablecard{background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); overflow:hidden}
-.tablebar{display:flex; align-items:center; gap:7px; flex-wrap:wrap; padding:12px 14px; border-bottom:1px solid var(--line)}
-.chip{font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-2)}
-.chip:hover{border-color:var(--accent)}
-.chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
-.chip .n{font-weight:600; opacity:.65; margin-left:3px; font-size:11.5px}
-.search{margin-left:auto; font:inherit; font-size:13px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:7px 12px; min-width:190px}
-.search::placeholder{color:var(--ink-3)}
-.tbl-scroll{overflow-x:auto; max-height:620px; overflow-y:auto}
-table.full{width:100%; border-collapse:collapse; font-size:13.5px; min-width:1080px; table-layout:fixed}
-table.full thead th{
-  position:sticky; top:0; z-index:2; background:var(--surface-3); color:var(--ink-2);
-  font-size:11.5px; font-weight:800; letter-spacing:.03em; text-align:left;
-  padding:9px 12px; border-bottom:1px solid var(--line); white-space:nowrap;
-}
-table.full thead th.r{text-align:right}
-table.full thead th.sortable{cursor:pointer; user-select:none}
-table.full thead th.sortable:hover{color:var(--accent)}
-table.full thead th.sorted{color:var(--accent)}
-table.full thead th.sorted::after{content:" ▾"; font-size:9px}
-table.full thead th.sorted.asc::after{content:" ▴"}
-table.full tbody td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap}
-table.full tbody tr:nth-child(even){background:var(--surface-2)}
-table.full tbody tr{cursor:pointer}
-table.full tbody tr:hover{background:var(--accent-tint)}
-table.full tbody tr:last-child td{border-bottom:0}
-table.full td.title{white-space:normal}
-table.full td.title .t{font-weight:650; letter-spacing:-.01em; line-height:1.4}
-table.full td.title .s{display:block; font-size:11.5px; color:var(--ink-3); margin-top:2px; line-height:1.55}
-td.title .s .alert{color:var(--stop); font-weight:700}
-td.title .s .flag{color:var(--warn); font-weight:700}
-td.title .s .ok{color:var(--go); font-weight:700}
-td.title .s .dimflag{color:var(--ink-3)}
-td.r{text-align:right}
-td.dim{color:var(--ink-2)}
-.badge-new{display:inline-block; background:var(--accent); color:#fff; font-size:9.5px; font-weight:800; padding:2px 5.5px; border-radius:4px; margin-left:6px; vertical-align:1.5px}
-.kwmore{font-size:10.5px; font-weight:800; color:var(--ink-3)}
-.kw{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; margin-right:3px}
-.dday{font-size:11px; font-weight:800; padding:2.5px 7px; border-radius:5px; background:var(--surface-3); color:var(--ink-2)}
-.dday.hot{background:var(--stop-bg); color:var(--stop)}
-.dday.past{opacity:.55}
-.btn{font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-tint); border:1px solid transparent; padding:5px 12px; border-radius:7px; white-space:nowrap; text-decoration:none; display:inline-block}
-.btn:hover{border-color:var(--accent)}
-.empty{padding:38px; text-align:center; color:var(--ink-3); font-size:13.5px}
-.foot{margin-top:14px; font-size:11.5px; color:var(--ink-3); text-align:center; line-height:1.8}
 .tip{
   position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
   background:var(--ink); color:#fff; font-size:11.5px; font-weight:600;
@@ -284,7 +238,7 @@ td.dim{color:var(--ink-2)}
 }
 .tip.show{opacity:1}
 
-@media (max-width:1180px){ .vizgrid{grid-template-columns:repeat(2,1fr)} .cond{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:1180px){ .cond{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:980px){
   .shell{grid-template-columns:1fr}
   .side{position:static; height:auto; flex-direction:row; align-items:center; overflow-x:auto; padding:10px 14px}
@@ -337,6 +291,7 @@ td.dim{color:var(--ink-2)}
   </div>
   <nav class="nav">
     <a class="on" href="#"><span class="ic">▦</span>대시보드</a>
+    <a href="#" title="준비 중입니다"><span class="ic">☰</span>공고 목록<span class="soon">준비중</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">🏛</span>기관 프로파일<span class="soon">2차</span></a>
@@ -371,22 +326,18 @@ td.dim{color:var(--ink-2)}
     </ol>
   </div>
 
-  <!-- 1행 · 놓치면 안 되는 것 -->
-  <div class="alertcard" id="qlfct"></div>
-
-  <!-- 2행 · 주목할 공고 -->
+  <!-- 주목할 공고 -->
   <section class="focus">
     <div class="focus-head">
       <h2>주목할 공고</h2>
       <span class="sub">기술배점 높은 순 · 마감이 지나면 자동으로 사라집니다</span>
-      <button class="more" id="focus-more">전체 목록 ↓</button>
     </div>
     <div id="focus-body"></div>
   </section>
 
-  <!-- 3행 · 시각화 -->
+  <!-- 시각화 -->
   <div class="vizgrid">
-    <section class="panel span2">
+    <section class="panel">
       <h2>마감 캘린더 <span class="soft">· 언제 몰려 있나</span><span class="cnt" id="cal-cnt"></span></h2>
       <div id="cal"></div>
     </section>
@@ -397,75 +348,14 @@ td.dim{color:var(--ink-2)}
       <div id="v-kw"></div>
     </section>
 
-    <section class="panel">
-      <h2>마감 임박 분포</h2>
-      <p class="sub">진할수록 급합니다</p>
-      <div id="v-dday"></div>
-    </section>
-
-    <section class="panel">
-      <h2>예산 규모 분포</h2>
-      <p class="sub">배정예산 없으면 추정가격 기준</p>
-      <div id="v-budget"></div>
-    </section>
-
-    <section class="panel">
-      <h2>평가 유형 <span class="soft">· 제안서로 붙는 판인가</span></h2>
-      <p class="sub">기술배점 비율 기준</p>
-      <div id="v-eval"></div>
-    </section>
-
-    <section class="panel">
-      <h2>낙찰 방법</h2>
-      <p class="sub">상위 5개</p>
-      <div id="v-method"></div>
-    </section>
-
-    <section class="panel">
-      <h2>참가 제한 <span class="soft">· 공고문 확인이 필요한 것</span></h2>
-      <p class="sub">제한 내용은 API에 없어 공고문을 봐야 합니다</p>
-      <div id="v-limit"></div>
-    </section>
-
-    <section class="panel">
-      <h2>공고 종류</h2>
-      <p class="sub">사전규격은 정식 공고 전 단계입니다</p>
-      <div id="v-kind"></div>
-    </section>
   </div>
 
-  <!-- 4행 · 참여 조건 -->
+  <!-- 참여 조건 -->
   <div class="cond" id="cond"></div>
 
-  <!-- 전체 목록 -->
-  <section class="tablecard" id="tablecard">
-    <div class="tablebar" id="tablebar">
-      <button class="chip toggle" id="tg-joint">🤝 공동수급 가능 <span class="n num" id="n-joint"></span></button>
-      <button class="chip toggle" id="tg-norec">실적요건 없음 <span class="n num" id="n-norec"></span></button>
-      <input class="search" id="q" type="search" placeholder="🔍 공고명 검색">
-    </div>
-    <div class="tbl-scroll">
-      <table class="full">
-        <thead><tr>
-          <th style="width:74px">구분</th>
-          <th style="width:104px">키워드</th>
-          <th>공고명</th>
-          <th class="sortable sorted num" data-sort="dday" style="width:152px">마감</th>
-          <th style="width:132px">수요기관</th>
-          <th class="r sortable num" data-sort="price" style="width:82px">예산</th>
-          <th class="r" style="width:86px">평가</th>
-          <th class="sortable num" data-sort="reg" style="width:66px">등록</th>
-          <th style="width:92px"></th>
-        </tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-      <div class="empty" id="empty" hidden>조건에 맞는 공고가 없습니다.</div>
-    </div>
-  </section>
-
   <p class="foot">
-    매일 아침 자동 수집됩니다 · 행을 클릭하면 나라장터 원문이 새 창으로 열립니다<br>
-    예상 점수는 회사 프로필(실적·행정서류) 등록 후 제공됩니다
+    매일 아침 자동 수집됩니다 · 원문 링크가 있는 행을 클릭하면 나라장터가 새 창으로 열립니다<br>
+    사전규격은 나라장터가 상세 링크를 주지 않아 열리지 않습니다 · 전체 공고 목록은 별도 페이지로 준비 중입니다
   </p>
 </main>
 </div>
@@ -513,14 +403,6 @@ const ALL   = [...PRES, ...POSTS];
 const HIDDEN = (RAW_POSTS.length-POSTS.length)+(RAW_PRES.length-PRES.length);
 
 function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
-function fmtPrice(v){
-  if(v===null||v===undefined) return "—";
-  const eok=v/1e8;
-  if(eok>=10) return Math.round(eok)+"억";
-  if(eok>=1) return eok.toFixed(1)+"억";
-  const cheon=Math.round(v/1e7);
-  return cheon>=10 ? "1.0억" : cheon+"천만";
-}
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
 const SEQ = ["var(--seq-1)","var(--seq-2)","var(--seq-3)","var(--seq-4)","var(--seq-5)"];
@@ -537,7 +419,10 @@ function hoverTip(root, sel, fn){
 }
 
 const isJoint     = it => it.type!=="pre" && it.jointOk===true;
-const needsRecord = it => it.type!=="pre" && it.arsltCmpt===true;
+/* arsltCmptYn 은 "실적제한경쟁" 입찰방식 여부입니다.
+   제안요청서가 요구하는 수행실적 요건과는 다른 것이라 그렇게 부르면 안 됩니다.
+   진짜 실적요건 판정은 회사 프로필이 붙은 뒤에 합니다. */
+const isRecordBid = it => it.type!=="pre" && it.arsltCmpt===true;
 const openUrl = it => it.url || it.files?.[0]?.url || "";
 
 /* ═══ 상단 ═══ */
@@ -557,40 +442,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   if(!ALL.length) $("#setup").hidden=false;
 })();
 
-/* ═══ 1행 · 자격등록 마감 ═══
-   입찰참가자격 등록마감은 공고 마감보다 먼저 오고, 지나면 입찰 자체가 불가능합니다.
-   공고 마감보다 앞서고 7일 이내인 것만 올립니다. */
-(function(){
-  const box=$("#qlfct");
-  const rows=POSTS.filter(it=>{
-    if(!it.qlfctDate) return false;
-    const q=daysUntil(it.qlfctDate);
-    if(q===null||q<0||q>7) return false;
-    const due=dueOf(it).iso; return !due || it.qlfctDate<=due;
-  }).sort((a,b)=>(a.qlfctDate<b.qlfctDate?-1:1));
-
-  if(!rows.length){
-    box.className="alertcard calm";
-    box.innerHTML=`<h2>자격등록 마감 <span class="why">공고 마감보다 먼저 오는 마감입니다</span><span class="cnt num">0건</span></h2>
-      <div class="calm-msg">7일 안에 자격등록이 마감되는 공고가 없습니다.</div>`;
-    return;
-  }
-  box.className="alertcard";
-  box.innerHTML=`<h2>⚠ 자격등록 마감 임박 <span class="why">지나면 입찰 자체가 불가능합니다</span><span class="cnt num">${rows.length}건</span></h2>
-    <div class="qlist">${rows.slice(0,5).map(it=>{
-      const q=daysUntil(it.qlfctDate), d=daysUntil(dueOf(it).iso);
-      return `<div class="qrow" data-url="${esc(openUrl(it))}">
-        <span class="t" title="${esc(it.title)}">${esc(it.title)}</span>
-        <span class="q num">자격 ${q===0?"오늘":"D-"+q} ${it.qlfctTime?esc(it.qlfctTime):""}</span>
-        <span class="b num">공고마감 ${d===null?"미상":(d===0?"오늘":"D-"+d)}</span>
-      </div>`;}).join("")}</div>
-    ${rows.length>5?`<div class="calm-msg">외 ${rows.length-5}건이 더 있습니다. 아래 전체 목록에서 확인하세요.</div>`:""}`;
-  box.querySelectorAll(".qrow").forEach(r=>r.addEventListener("click",()=>{
-    if(r.dataset.url) window.open(r.dataset.url,"_blank","noopener");
-  }));
-})();
-
-/* ═══ 2행 · 주목할 공고 ═══ */
+/* ═══ 주목할 공고 ═══ */
 (function(){
   const body=$("#focus-body");
   const scored=POSTS.filter(it=>it.techRate!==null&&it.techRate!==undefined)
@@ -613,16 +465,23 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     const pre=it.type==="pre"?"의견 ":(due.src==="개찰"?"개찰 ":"");
     return `<span class="sched num">${pre}<b>${fmtShort(due.iso)}</b>${due.time?" "+esc(due.time):""} · ${d===0?"오늘":"D-"+d}</span>`;
   };
-  const rate = it => (it.techRate===null||it.techRate===undefined)
-    ? `<span class="rate na">미정</span>`
-    : `<span class="rate"><span class="tech num">${it.techRate}</span><span class="prc num">${it.priceRate??100-it.techRate}</span></span>`;
-  const row = it => `<tr data-url="${esc(openUrl(it))}">
+  const rate = it => {
+    if(it.techRate===null||it.techRate===undefined) return `<span class="rate na">미정</span>`;
+    const pr=it.priceRate??100-it.techRate;
+    // 색만으로 기술/가격을 구분하면 화면낭독기에는 "9010" 으로 읽힙니다.
+    return `<span class="rate" title="기술 ${it.techRate} · 가격 ${pr}">`
+      + `<span class="tech num"><span class="sr">기술 </span>${it.techRate}</span>`
+      + `<span class="sep" aria-hidden="true">:</span>`
+      + `<span class="prc num"><span class="sr">가격 </span>${pr}</span></span>`;
+  };
+  // 링크가 없는 행은 data-url 을 아예 달지 않습니다 — 커서·호버·키보드 모두 그에 맞게 꺼집니다.
+  const row = it => { const u=openUrl(it); return `<tr ${u?`data-url="${esc(u)}" tabindex="0" role="link" aria-label="${esc(it.title)} 원문 열기"`:`class="nolink"`}>
       <td>${kindTag(it)}</td>
       <td><span class="tt" title="${esc(it.title)}">${esc(it.title)}</span></td>
       <td>${sched(it)}</td>
       <td><span class="org" title="${esc(it.org)}">${esc(it.org)}</span></td>
       <td class="r">${rate(it)}</td>
-    </tr>`;
+    </tr>`; };
 
   body.innerHTML=`<table class="ftable">
     <thead><tr>
@@ -635,28 +494,33 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
       ${noScore.length?`<tr class="divider"><td colspan="5">배점 미정 — 사전규격이거나 배점이 공개되지 않은 공고</td></tr>`:""}
       ${noScore.map(row).join("")}
     </tbody></table>`;
-  body.querySelectorAll("tbody tr[data-url]").forEach(tr=>tr.addEventListener("click",()=>{
-    if(tr.dataset.url) window.open(tr.dataset.url,"_blank","noopener");
-  }));
+  const open = tr => { if(tr.dataset.url) window.open(tr.dataset.url,"_blank","noopener"); };
+  body.querySelectorAll("tbody tr[data-url]").forEach(tr=>{
+    tr.addEventListener("click",()=>open(tr));
+    // 마우스로만 열 수 있으면 키보드 사용자는 접근할 방법이 없습니다.
+    tr.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(tr); } });
+  });
 })();
-$("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({behavior:"smooth",block:"start"}));
-
 /* ═══ 마감 캘린더 ═══
    앞으로 8주. 날짜별 마감 건수를 순서형 램프로 칠합니다(진할수록 많음). */
 (function(){
   const box=$("#cal");
-  const byDay=new Map();
-  for(const it of ALL){
-    const t=parseDay(dueOf(it).iso); if(t===null) continue;
-    if(t<todayMs) continue;
-    byDay.set(t,(byDay.get(t)||0)+1);
-  }
-  if(!byDay.size){ box.innerHTML=`<div class="placeholder">마감일이 있는 공고가 없습니다.</div>`; return; }
-
-  // 이번 주 월요일부터 8주
+  // 그리는 창을 먼저 정하고, 집계도 정확히 그 창 안에서만 합니다.
+  // 두 창이 어긋나면 헤더 숫자와 칸 숫자의 합이 달라집니다.
   const dow=new Date(todayMs).getUTCDay();          // 0=일
   const start=todayMs-((dow+6)%7)*DAY;              // 직전 월요일
   const WEEKS=6;
+  const last=start+(WEEKS*7-1)*DAY;
+
+  const byDay=new Map();
+  let outside=0;
+  for(const it of ALL){
+    const t=parseDay(dueOf(it).iso); if(t===null) continue;
+    if(t<todayMs) continue;
+    if(t>last){ outside+=1; continue; }
+    byDay.set(t,(byDay.get(t)||0)+1);
+  }
+  if(!byDay.size){ box.innerHTML=`<div class="placeholder">앞으로 ${WEEKS}주 안에 마감하는 공고가 없습니다.</div>`; return; }
   const counts=[];
   for(let i=0;i<WEEKS*7;i++){ const t=start+i*DAY; counts.push(byDay.get(t)||0); }
   const max=Math.max(...counts);
@@ -685,7 +549,8 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
     const n=+el.dataset.n;
     return `${el.dataset.d} · <b>${n?n+"건 마감":"마감 없음"}</b>`;
   });
-  $("#cal-cnt").textContent=`${[...byDay.values()].reduce((a,b)=>a+b,0)}건`;
+  const inWin=[...byDay.values()].reduce((a,b)=>a+b,0);
+  $("#cal-cnt").textContent = outside ? `${inWin}건 (이후 ${outside}건)` : `${inWin}건`;
 })();
 
 /* ═══ 분야별 공고 (범주형 6색) ═══ */
@@ -703,152 +568,16 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
   hoverTip(box,".rankbar[data-l]",el=>`${el.dataset.l} · <b>${el.dataset.n}건</b>`);
 })();
 
-/* ═══ 마감 임박 분포 (순서형) ═══ */
-(function(){
-  const box=$("#v-dday");
-  const bands=[
-    {k:"오늘~D-3", f:d=>d!==null&&d>=0&&d<=3},
-    {k:"D-4~7",   f:d=>d!==null&&d>=4&&d<=7},
-    {k:"D-8~14",  f:d=>d!==null&&d>=8&&d<=14},
-    {k:"D-15 이상",f:d=>d!==null&&d>=15},
-    {k:"일정 미상", f:d=>d===null},
-  ];
-  const live2=ALL;
-  const ns=bands.map(b=>live2.filter(it=>b.f(daysUntil(dueOf(it).iso))).length);
-  const max=Math.max(1,...ns);
-  // 급한 쪽이 진하도록 램프를 뒤집습니다. 일정 미상은 중립색.
-  const col=i=>i===4?"var(--seq-0)":SEQ[4-i];
-  box.innerHTML=`<div class="rankbars">${bands.map((b,i)=>`
-    <div class="rankbar" data-l="${esc(b.k)}" data-n="${ns[i]}">
-      <div class="row1"><span class="who">${b.k}</span><span class="amt num">${ns[i]}</span></div>
-      <div class="track"><div class="fill" style="width:${ns[i]/max*100}%; background:${col(i)}"></div></div>
-    </div>`).join("")}</div>`;
-  hoverTip(box,".rankbar[data-l]",el=>`${el.dataset.l} · <b>${el.dataset.n}건</b>`);
-})();
-
-/* ═══ 예산 규모 분포 (단일 계열) ═══ */
-(function(){
-  const box=$("#v-budget");
-  const bands=[
-    {k:"5천만 미만", lo:0, hi:5e7},
-    {k:"5천만~1억",  lo:5e7, hi:1e8},
-    {k:"1억~3억",    lo:1e8, hi:3e8},
-    {k:"3억~10억",   lo:3e8, hi:1e9},
-    {k:"10억 이상",  lo:1e9, hi:Infinity},
-  ];
-  const vals=ALL.map(it=>it.budget??it.price).filter(v=>v!==null&&v!==undefined&&v>0);
-  const unknown=ALL.length-vals.length;
-  const ns=bands.map(b=>vals.filter(v=>v>=b.lo&&v<b.hi).length);
-  const max=Math.max(1,...ns,unknown);
-  const rows=bands.map((b,i)=>({k:b.k,n:ns[i],c:"var(--seq-4)"}));
-  if(unknown) rows.push({k:"금액 미공개", n:unknown, c:"var(--seq-0)"});
-  box.innerHTML=`<div class="rankbars">${rows.map(r=>`
-    <div class="rankbar" data-l="${esc(r.k)}" data-n="${r.n}">
-      <div class="row1"><span class="who">${r.k}</span><span class="amt num">${r.n}</span></div>
-      <div class="track"><div class="fill" style="width:${r.n/max*100}%; background:${r.c}"></div></div>
-    </div>`).join("")}</div>`;
-  hoverTip(box,".rankbar[data-l]",el=>`${el.dataset.l} · <b>${el.dataset.n}건</b>`);
-})();
-
-/* ═══ 평가 유형 (100% 누적) ═══ */
-(function(){
-  const box=$("#v-eval");
-  const cats=[
-    {k:"제안서형", d:"기술 70 이상", f:r=>r>=70, c:"var(--seq-5)"},
-    {k:"혼합형",   d:"기술 40~70",  f:r=>r>=40&&r<70, c:"var(--seq-3)"},
-    {k:"가격형",   d:"기술 40 미만", f:r=>r<40, c:"var(--seq-1)"},
-  ];
-  const withRate=POSTS.filter(it=>it.techRate!==null&&it.techRate!==undefined);
-  const ns=cats.map(c=>withRate.filter(it=>c.f(it.techRate)).length);
-  const na=POSTS.length-withRate.length;
-  const total=POSTS.length;
-  if(!total){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
-  const segs=[...cats.map((c,i)=>({...c,n:ns[i]})),{k:"배점 미공개",d:"공고문 확인 필요",n:na,c:"var(--seq-0)"}];
-  box.innerHTML=`
-    <div class="stack">${segs.filter(s=>s.n).map(s=>
-      `<span style="width:${s.n/total*100}%; background:${s.c}" data-l="${esc(s.k)}" data-n="${s.n}"></span>`).join("")}</div>
-    <div class="legend">${segs.map(s=>
-      `<span><span class="sw" style="background:${s.c}"></span>${s.k} <b class="num">${s.n}</b></span>`).join("")}</div>`;
-  hoverTip(box.querySelector(".stack"),"span[data-l]",el=>
-    `${el.dataset.l} · <b>${el.dataset.n}건</b> (${Math.round(el.dataset.n/total*100)}%)`);
-})();
-
-/* ═══ 낙찰 방법 TOP 5 (단일 계열) ═══ */
-(function(){
-  const box=$("#v-method");
-  const m=new Map();
-  for(const it of POSTS){
-    const k=(it.winnerMethod||"").split("-")[0].trim();
-    if(!k) continue;
-    m.set(k,(m.get(k)||0)+1);
-  }
-  const top=[...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
-  if(!top.length){ box.innerHTML=`<div class="placeholder">낙찰 방법 정보가 없습니다.</div>`; return; }
-  const max=top[0][1];
-  box.innerHTML=`<div class="rankbars">${top.map(([k,n])=>`
-    <div class="rankbar" data-l="${esc(k)}" data-n="${n}">
-      <div class="row1"><span class="who" title="${esc(k)}">${esc(k)}</span><span class="amt num">${n}</span></div>
-      <div class="track"><div class="fill" style="width:${n/max*100}%; background:var(--seq-4)"></div></div>
-    </div>`).join("")}</div>`;
-  hoverTip(box,".rankbar[data-l]",el=>`${el.dataset.l} · <b>${el.dataset.n}건</b>`);
-})();
-
-/* ═══ 참가 제한 (단일 계열) ═══
-   API는 제한 여부만 주고 내용(어느 지역·어느 업종)은 공고문에만 있습니다. */
-(function(){
-  const box=$("#v-limit");
-  if(!POSTS.length){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
-  const rows=[
-    {k:"지역제한", n:POSTS.filter(it=>it.rgnLmt).length},
-    {k:"업종·면허 제한", n:POSTS.filter(it=>it.indstrytyLmt).length},
-    {k:"실적경쟁", n:POSTS.filter(needsRecord).length},
-    {k:"국제입찰", n:POSTS.filter(it=>it.intlBid).length},
-  ].sort((a,b)=>b.n-a.n);
-  const max=Math.max(1,...rows.map(r=>r.n));
-  box.innerHTML=`<div class="rankbars">${rows.map(r=>`
-    <div class="rankbar" data-l="${esc(r.k)}" data-n="${r.n}">
-      <div class="row1"><span class="who">${r.k}</span><span class="amt num">${r.n}</span></div>
-      <div class="track"><div class="fill" style="width:${r.n/max*100}%; background:var(--seq-3)"></div></div>
-    </div>`).join("")}</div>
-  <p class="sub" style="margin:9px 0 0">전체 공고 ${POSTS.length}건 중 비율입니다.</p>`;
-  hoverTip(box,".rankbar[data-l]",el=>`${el.dataset.l} · <b>${el.dataset.n}건</b>`);
-})();
-
-/* ═══ 공고 종류 ═══ */
-(function(){
-  const box=$("#v-kind");
-  const re=POSTS.filter(it=>it.reNtce).length;
-  const gen=POSTS.length-re;
-  const total=ALL.length;
-  if(!total){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
-  const segs=[
-    {k:"일반공고", n:gen, c:"var(--seq-4)"},
-    {k:"유찰(재공고)", n:re, c:"var(--seq-2)"},
-    {k:"사전규격", n:PRES.length, c:"var(--seq-0)"},
-  ];
-  box.innerHTML=`
-    <div class="stack">${segs.filter(s=>s.n).map(s=>
-      `<span style="width:${s.n/total*100}%; background:${s.c}" data-l="${esc(s.k)}" data-n="${s.n}"></span>`).join("")}</div>
-    <div class="legend">${segs.map(s=>
-      `<span><span class="sw" style="background:${s.c}"></span>${s.k} <b class="num">${s.n}</b></span>`).join("")}</div>
-    <p class="sub" style="margin:9px 0 0">유찰 공고는 1차에서 낙찰자가 없었다는 뜻이라 경쟁이 약할 수 있습니다.</p>`;
-  hoverTip(box.querySelector(".stack"),"span[data-l]",el=>
-    `${el.dataset.l} · <b>${el.dataset.n}건</b> (${Math.round(el.dataset.n/total*100)}%)`);
-})();
-
-/* ═══ 표 상태 ═══ */
-const state={kw:"all", q:"", sort:"dday", dir:1, joint:false, norec:false, rec:false, nojoint:false};
-
-/* ═══ 4행 · 참여 조건 ═══ */
+/* ═══ 참여 조건 ═══ */
 (function(){
   const base=POSTS.length||1;
-  const noRec=POSTS.filter(it=>!needsRecord(it)).length;
-  const rec=POSTS.filter(needsRecord).length;
+  const rec=POSTS.filter(isRecordBid).length;
+  const noRec=POSTS.length-rec;
   const jo=POSTS.filter(isJoint).length;
   const nojo=POSTS.filter(it=>it.jointOk===false).length;
   const cards=[
-    {key:"norec", cls:"good", k:"실적요건 없음", n:noRec, d:"기존 실적을 요구하지 않습니다"},
-    {key:"rec",   cls:"hold", k:"실적요건 있음", n:rec,   d:"실적증명원이 필요합니다"},
+    {key:"norec", cls:"good", k:"실적제한경쟁 아님", n:noRec, d:"수행실적 요건은 공고문에만 있습니다"},
+    {key:"rec",   cls:"hold", k:"실적제한경쟁",    n:rec,   d:"실적을 경쟁 기준으로 삼는 입찰입니다"},
     {key:"joint", cls:"team", k:"공동수급 가능", n:jo,    d:"컨소시엄을 구성할 수 있습니다"},
     {key:"nojoint",cls:"solo",k:"공동수급 불허", n:nojo,  d:"단독으로만 참여합니다"},
   ];
@@ -859,158 +588,14 @@ const state={kw:"all", q:"", sort:"dday", dir:1, joint:false, norec:false, rec:f
     cards[3].d=`단독으로만 참여합니다 · ${unknownJoint}건은 공고문 확인 필요`;
   }
   $("#cond").innerHTML=cards.map(c=>`
-    <button class="condcard ${c.cls}" data-key="${c.key}">
+    <div class="condcard ${c.cls}">
       <div class="k">${c.k}</div>
       <div class="v num">${c.n}<small>건</small></div>
       <div class="track"><div class="fill" style="width:${Math.min(100,c.n/base*100)}%"></div></div>
-      <div class="d">${c.d} · 클릭하면 목록이 걸러집니다</div>
-    </button>`).join("");
-  $("#cond").addEventListener("click",e=>{
-    const b=e.target.closest(".condcard"); if(!b) return;
-    const k=b.dataset.key;
-    const wasOn=state[k];
-    state.norec=state.rec=state.joint=state.nojoint=false;
-    $("#cond").querySelectorAll(".condcard").forEach(x=>x.classList.remove("on"));
-    $("#tg-joint").classList.remove("on"); $("#tg-norec").classList.remove("on");
-    if(!wasOn){ state[k]=true; b.classList.add("on"); }
-    if(state.joint) $("#tg-joint").classList.add("on");
-    if(state.norec) $("#tg-norec").classList.add("on");
-    render();
-    $("#tablecard").scrollIntoView({behavior:"smooth",block:"start"});
-  });
+      <div class="d">${c.d}</div>
+    </div>`).join("");
 })();
 
-/* ═══ 전체 목록 ═══ */
-function ddayInfo(it){
-  const due=dueOf(it);
-  const d=daysUntil(due.iso);
-  const label = it.type==="pre" ? "의견 " : (due.src==="개찰" ? "개찰 " : "");
-  if(d===null) return {d:9999, html:`<span class="dday">일정 미상</span>`};
-  const txt=`${label}${fmtShort(due.iso)}${due.time?" "+esc(due.time):""}`;
-  if(d<0) return {d:9999, html:`<span class="dday past num">${txt} · 마감</span>`};
-  return {d, html:`<span class="dday ${d<=3?"hot":""} num">${txt} · ${d===0?"오늘":"D-"+d}</span>`};
-}
-
-function subLine(it){
-  const parts=[];
-  if(it.type==="pre"){ parts.push("사전규격 — 정식 공고 전 단계입니다"); }
-  else{
-    const q=daysUntil(it.qlfctDate);
-    if(it.qlfctDate && q!==null && q>=0 && q<=5 && it.qlfctDate<=(it.deadline||"9999")){
-      parts.push(`<span class="alert">참가자격등록 마감 ${fmtShort(it.qlfctDate)}${it.qlfctTime?" "+esc(it.qlfctTime):""} — 입찰 마감보다 앞섭니다</span>`);
-    }
-    if(it.reNtce) parts.push(`<span class="flag">🔁 재공고 — 1차 유찰 가능성</span>`);
-    if(it.jointOk===true){
-      const how=it.jointMethod?` ${esc(it.jointMethod.replace(/^\(없음\)/,""))}`:"";
-      parts.push(`<span class="ok">🤝 공동수급 가능${how}</span>`);
-    } else if(it.jointOk===false){
-      parts.push(`<span class="dimflag">공동수급 불허</span>`);
-    }
-    parts.push(it.arsltCmpt?`<span class="flag">📄 실적요건 있음</span>`:`<span class="ok">실적요건 없음</span>`);
-    if(it.winnerMethod) parts.push(esc(it.winnerMethod.split("-")[0]));
-    const f=[];
-    if(it.rgnLmt) f.push("지역제한 — 공고문 확인 필요");
-    if(it.indstrytyLmt) f.push("업종제한");
-    if(f.length) parts.push(`<span class="flag">${f.join(" · ")}</span>`);
-  }
-  if(it.files?.length) parts.push(`첨부 ${it.files.length}`);
-  return parts.join(" · ");
-}
-
-function render(){
-  const q=state.q.trim().toLowerCase();
-  const list=ALL.filter(it=>
-    (state.kw==="all"||(it.kw||[]).includes(state.kw)) &&
-    (!state.joint||isJoint(it)) &&
-    (!state.nojoint||(it.type!=="pre"&&it.jointOk===false)) &&
-    (!state.norec||(it.type!=="pre"&&!needsRecord(it))) &&
-    (!state.rec||needsRecord(it)) &&
-    (!q||(it.title||"").toLowerCase().includes(q)));
-
-  const withD=list.map(it=>({it, dd:ddayInfo(it)}));
-  withD.sort((a,b)=>{
-    let av,bv;
-    if(state.sort==="price"){av=a.it.budget??a.it.price??-1; bv=b.it.budget??b.it.price??-1;}
-    else if(state.sort==="reg"){av=a.it.date||""; bv=b.it.date||""; return av<bv?state.dir:av>bv?-state.dir:0;}
-    else {av=a.dd.d; bv=b.dd.d;}
-    return (av-bv)*state.dir;
-  });
-
-  $("#rows").innerHTML=withD.map(({it,dd})=>{
-    const isPre=it.type==="pre";
-    const kind=isPre?`<span class="kind k-pre">📋 사전</span>`
-      :it.reNtce?`<span class="kind k-re">🔁 유찰</span>`:`<span class="kind k-gen">일반</span>`;
-    const isNew=(it.firstSeenAt||"").slice(0,10)===todayStr||it.date===todayStr;
-    const gs=it.kw||[];
-    const kws=gs.length
-      ? `<span class="kw" style="color:var(--kw-${kwIdx(gs[0])}); background:var(--kw-${kwIdx(gs[0])}-bg)">${esc(gs[0])}</span>`
-        + (gs.length>1?`<span class="kwmore num" title="${esc(gs.slice(1).join(", "))}">+${gs.length-1}</span>`:"")
-      : "";
-    const sub=subLine(it);
-    const link=openUrl(it);
-    const rate=(it.techRate===null||it.techRate===undefined)?`<span class="rate na">미정</span>`
-      :`<span class="rate"><span class="tech num">${it.techRate}</span><span class="prc num">${it.priceRate??100-it.techRate}</span></span>`;
-    return `<tr data-url="${esc(link)}">
-      <td>${kind}</td>
-      <td>${kws}</td>
-      <td class="title"><span class="t">${esc(it.title)}</span>${isNew?'<span class="badge-new">N</span>':""}${sub?`<span class="s">${sub}</span>`:""}</td>
-      <td>${dd.html}</td>
-      <td class="dim" title="${esc(it.org)}">${esc(it.org)}</td>
-      <td class="r dim num">${fmtPrice(it.budget??it.price)}</td>
-      <td class="r">${rate}</td>
-      <td class="dim num">${fmtShort(it.date)}</td>
-      <td class="r">${link?`<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">원문 ↗</a>`:""}</td>
-    </tr>`;}).join("");
-  $("#empty").hidden=withD.length>0;
-}
-
-/* 키워드 탭 */
-(function(){
-  const bar=$("#tablebar");
-  const frag=document.createDocumentFragment();
-  const mk=(label,val)=>{
-    const b=document.createElement("button");
-    b.className="chip"+(val==="all"?" on":"");
-    const n=val==="all"?ALL.length:ALL.filter(it=>(it.kw||[]).includes(val)).length;
-    b.innerHTML=`${esc(label)} <span class="n num">${n}</span>`;
-    b.addEventListener("click",()=>{
-      bar.querySelectorAll(".chip:not(.toggle)").forEach(x=>x.classList.remove("on"));
-      b.classList.add("on"); state.kw=val; render();
-    });
-    return b;
-  };
-  frag.appendChild(mk("전체","all"));
-  for(const g of GROUPS) frag.appendChild(mk(g,g));
-  bar.insertBefore(frag,bar.firstChild);
-})();
-
-$("#n-joint").textContent=ALL.filter(isJoint).length;
-$("#n-norec").textContent=ALL.filter(it=>it.type!=="pre"&&!needsRecord(it)).length;
-function syncCond(){
-  $("#cond").querySelectorAll(".condcard").forEach(c=>c.classList.toggle("on",!!state[c.dataset.key]));
-}
-$("#tg-joint").addEventListener("click",e=>{
-  state.joint=!state.joint; if(state.joint) state.nojoint=false;
-  e.currentTarget.classList.toggle("on",state.joint); syncCond(); render();
-});
-$("#tg-norec").addEventListener("click",e=>{
-  state.norec=!state.norec; if(state.norec) state.rec=false;
-  e.currentTarget.classList.toggle("on",state.norec); syncCond(); render();
-});
-$("#q").addEventListener("input",e=>{state.q=e.target.value; render();});
-document.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{
-  const k=th.dataset.sort;
-  if(state.sort===k){state.dir*=-1;}else{state.sort=k; state.dir=1;}
-  document.querySelectorAll("th.sortable").forEach(t=>t.classList.remove("sorted","asc"));
-  th.classList.add("sorted"); if(state.dir===-1)th.classList.add("asc");
-  render();
-}));
-$("#rows").addEventListener("click",e=>{
-  if(e.target.closest("a")) return;
-  const tr=e.target.closest("tr[data-url]");
-  if(tr?.dataset.url) window.open(tr.dataset.url,"_blank","noopener");
-});
-render();
 </script>
 </body>
 </html>
