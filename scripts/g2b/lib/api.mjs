@@ -19,11 +19,32 @@ const HOSTS = {
 // (999/1000 은 "입력범위값 초과 에러(07)" 로 거부된다)
 export const ROWS_PER_PAGE = 100;
 
-const MAX_RETRY = 3;
-const RETRY_BASE_MS = 2000;
-const THROTTLE_MS = 120; // 초당 최대 30건 제한에 여유를 둔다
+const MAX_RETRY = 5;
+const RETRY_BASE_MS = 3000;
+const THROTTLE_MIN_MS = 150; // 평상시 호출 간격
+const THROTTLE_MAX_MS = 3000; // 429를 계속 맞을 때까지 늘어나는 상한
 
+// 나라장터는 순간 속도뿐 아니라 누적 호출량에도 429(Too Many Requests)를 낸다.
+// 고정 간격으로는 장시간 수집에서 반드시 걸리므로, 429가 나면 간격을 늘리고
+// 성공이 이어지면 서서히 줄이는 적응형 방식을 쓴다.
+let throttleMs = THROTTLE_MIN_MS;
+let okStreak = 0;
 let lastCallAt = 0;
+
+function slowDown() {
+  throttleMs = Math.min(THROTTLE_MAX_MS, Math.max(500, Math.round(throttleMs * 2)));
+  okStreak = 0;
+  return throttleMs;
+}
+
+function speedUpGradually() {
+  okStreak += 1;
+  // 연속 성공이 쌓이면 조금씩 원래 속도로 되돌린다.
+  if (okStreak >= 20 && throttleMs > THROTTLE_MIN_MS) {
+    throttleMs = Math.max(THROTTLE_MIN_MS, Math.round(throttleMs * 0.8));
+    okStreak = 0;
+  }
+}
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -114,19 +135,33 @@ export function parseResponse(text, label) {
 }
 
 async function fetchOnce(url, label) {
-  // 초당 트랜잭션 제한을 넘지 않도록 호출 간격을 둔다.
-  const wait = lastCallAt + THROTTLE_MS - Date.now();
+  // 호출 간격을 둔다. 429를 맞으면 이 간격이 자동으로 늘어난다.
+  const wait = lastCallAt + throttleMs - Date.now();
   if (wait > 0) await sleep(wait);
   lastCallAt = Date.now();
 
   const res = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (compatible; g2b-radar/1.0)" },
   });
-  if (!res.ok) throw new Error(`${label} HTTP ${res.status}`);
+  if (!res.ok) {
+    const err = new Error(`${label} HTTP ${res.status}`);
+    err.httpStatus = res.status;
+    throw err;
+  }
+  speedUpGradually();
   return res.text();
 }
 
-// 한 페이지를 가져온다. 네트워크 오류는 지수 백오프로 재시도하되,
+// 재시도할 가치가 있는 오류인지 판단한다.
+// 429(속도 제한)와 5xx(서버 일시 장애)는 기다렸다 다시 하면 대개 성공한다.
+// 네트워크 예외(fetch 자체 실패)도 마찬가지다.
+function isTransient(err) {
+  const s = err.httpStatus;
+  if (s === 429 || (s >= 500 && s < 600)) return true;
+  return s === undefined; // 네트워크 오류 등 HTTP 응답 자체가 없던 경우
+}
+
+// 한 페이지를 가져온다. 일시적 오류는 지수 백오프로 재시도하되,
 // API가 명시적으로 돌려준 오류(인증·범위 초과 등)는 재시도해도 소용없으므로 즉시 던진다.
 async function fetchPage(service, operation, params, label) {
   const url = buildUrl(service, operation, params);
@@ -138,7 +173,12 @@ async function fetchPage(service, operation, params, label) {
       text = await fetchOnce(url, label);
     } catch (err) {
       lastErr = err;
-      if (attempt === MAX_RETRY) break;
+      if (!isTransient(err) || attempt === MAX_RETRY) break;
+      // 429면 앞으로의 호출 간격 자체를 늘려 같은 상황이 반복되지 않게 한다.
+      if (err.httpStatus === 429) {
+        const now = slowDown();
+        console.log(`  ${label}: 호출 속도 제한(429) — 간격을 ${now}ms로 늦추고 재시도합니다`);
+      }
       await sleep(RETRY_BASE_MS * 2 ** attempt);
       continue;
     }

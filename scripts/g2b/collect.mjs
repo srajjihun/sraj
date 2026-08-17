@@ -213,17 +213,33 @@ async function main() {
   let earliestBid = null;
   let earliestPre = null;
 
+  // 속도 제한으로 중단된 경우, 지금까지 받은 것은 이미 저장돼 있으므로
+  // "실패"가 아니라 "여기까지 받았고 다시 실행하면 이어진다"로 안내한다.
+  const rateLimited = (err) => String(err.message).includes("HTTP 429");
+
   try {
     ({ store: bidStore, earliestReached: earliestBid } = await collectBids(days));
   } catch (err) {
-    console.error(`[경고] 입찰공고 수집 실패: ${err.message}`);
-    failures.push("입찰공고");
+    if (rateLimited(err)) {
+      console.log(`[안내] 입찰공고: 나라장터 호출 속도 제한에 걸려 여기까지 받았습니다.`);
+      console.log(`       받은 데이터는 저장돼 있습니다. 잠시 뒤 다시 실행하면 이어서 받습니다.`);
+    } else {
+      console.error(`[경고] 입찰공고 수집 실패: ${err.message}`);
+      failures.push("입찰공고");
+    }
+    bidStore = await loadJson(RAW_BID, bidStore);
   }
   try {
     ({ store: preStore, earliestReached: earliestPre } = await collectPrespecs(days));
   } catch (err) {
-    console.error(`[경고] 사전규격 수집 실패: ${err.message}`);
-    failures.push("사전규격");
+    if (rateLimited(err)) {
+      console.log(`[안내] 사전규격: 나라장터 호출 속도 제한에 걸려 여기까지 받았습니다.`);
+      console.log(`       받은 데이터는 저장돼 있습니다. 잠시 뒤 다시 실행하면 이어서 받습니다.`);
+    } else {
+      console.error(`[경고] 사전규격 수집 실패: ${err.message}`);
+      failures.push("사전규격");
+    }
+    preStore = await loadJson(RAW_PRE, preStore);
   }
 
   // 요청한 기간보다 덜 받았으면(조회 가능 기간의 한계) 정직하게 알립니다.
