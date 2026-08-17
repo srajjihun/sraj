@@ -6,9 +6,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { loadCompany } from "./lib/company.mjs";
+import { judgeEligibility } from "./lib/require.mjs";
 
 const TEMPLATE = new URL("../../g2b.html", import.meta.url);
 const DATA = new URL("../../data/g2b/posts.json", import.meta.url);
+const DOCS = new URL("../../data/g2b/docs.json", import.meta.url); // docs.mjs 가 만듭니다
 const OUT = new URL("../../g2b-live.html", import.meta.url);
 
 const START = "<!--G2B_DATA_START-->";
@@ -28,6 +30,36 @@ async function main() {
   // config/회사정보.md 만 고치고 이 스크립트를 다시 돌려도 점수가 갱신됩니다.
   // (수집을 다시 할 필요가 없습니다)
   payload.company = await loadCompany();
+
+  // 공고문에서 읽어낸 자격·배점을 각 공고에 붙입니다.
+  // 목록 API 는 "지역제한 있음"까지만 알려주므로, 여기까지 와야 "우리가 들어갈 수
+  // 있는가"를 추측이 아니라 확정으로 말할 수 있습니다.
+  let docs = {};
+  try {
+    docs = JSON.parse(await readFile(DOCS, "utf8"));
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+  }
+  let attached = 0;
+  for (const it of [...(payload.posts ?? []), ...(payload.prespecs ?? [])]) {
+    const d = docs[it.bidNo];
+    if (!d?.ok) continue;
+    it.doc = {
+      region: d.region ?? null,
+      industry: d.industry ?? [],
+      record: d.record ?? null,
+      rate: d.rate ?? null,
+      scoreTable: d.scoreTable ?? null,
+      source: d.source ?? "",
+      eligibility: judgeEligibility(d, payload.company),
+    };
+    attached += 1;
+  }
+  console.log(
+    attached
+      ? `[공고문] ${attached}건에 자격·배점을 붙였습니다`
+      : `[공고문] 아직 읽은 공고문이 없습니다 — 공고문-분석.bat 을 돌리면 자격 판정이 확정됩니다`
+  );
   console.log(
     payload.company.filled
       ? `[회사정보] ${payload.company.filled}개 항목 반영 — 예측점수를 계산합니다`

@@ -294,6 +294,14 @@ svg{display:block; width:100%}
 .card .prev .co{font-weight:700; color:var(--ink)}
 .card .prev.none{color:var(--ink-3)}
 
+/* 공고문에서 읽어낸 줄 — 추측이 아니라 원문에 적힌 사실입니다 */
+.card .docm{font-size:12px; color:var(--ink-3); cursor:help}
+.src{font-size:9.5px; font-weight:800; color:var(--go); background:var(--go-bg); padding:1px 4px; border-radius:3px; vertical-align:1px}
+.jud{font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px}
+.jud.yes{background:var(--go-bg); color:var(--go)}
+.jud.no{background:var(--stop-bg); color:var(--stop)}
+.jud.chk{background:var(--warn-bg); color:var(--warn)}
+
 /* 예측점수 배지 — 카드 오른쪽 위. 높을수록 진합니다. */
 .sc{
   display:inline-flex; align-items:baseline; gap:3px; white-space:nowrap;
@@ -306,6 +314,10 @@ svg{display:block; width:100%}
 .sc.s1{background:var(--surface-3); color:var(--ink-2)}
 .sc.s0{background:var(--surface-2); color:var(--ink-3)}
 .sc.prov::after{content:"?"; font-size:10px; opacity:.75}
+.sc.no{background:var(--stop-bg); color:var(--stop)}
+/* 못 들어가는 공고는 눈에 덜 띄게 — 지우지는 않습니다. 근거를 확인해야 하니까요. */
+.card.blocked{opacity:.62}
+.card.blocked::before{background:var(--ink-4)}
 
 /* 회사정보가 비어 예측이 잠정일 때 목록 위에 뜨는 안내 */
 .conf{
@@ -517,6 +529,16 @@ const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
    API 는 "지역제한이 있다"까지만 알려주고 어느 지역인지는 공고문에만 있습니다.
    그래서 제한이 걸린 공고는 확실히 깎되, 못 들어간다고 단정하지는 않습니다. */
 function scoreEntry(it){
+  // 공고문을 읽었으면 추측하지 않습니다.
+  // 목록 API 는 "지역제한 있음"까지만 알려주지만, 공고문에는 어느 지역인지 적혀 있습니다.
+  const el = it.doc?.eligibility;
+  if(el && el.verdict !== "정보없음"){
+    if(el.verdict === "불가")
+      return { v:0, why:["공고문 확인 — 참가 불가: " + el.checks.filter(c=>c.verdict==="불가").map(c=>c.key).join("·")] };
+    if(el.verdict === "가능")
+      return { v:40, why:["공고문 확인 — 자격 충족"] };
+    // 확인필요: 회사 정보가 비어 판정을 못 한 것이므로 아래 추정으로 내려갑니다.
+  }
   let v = 34;
   const why = [];
   if(it.rgnLmt){ const d = CO.region ? 8 : 12; v -= d; why.push(`지역제한 −${d}`); }
@@ -563,7 +585,8 @@ function scoreEval(it){
   else if(m.includes("최저")){ v = 4; why.push("최저가 4"); }
   else { v = 10; why.push("평가방식 미상 10"); }
 
-  const t = it.techRate;
+  // 공고문에 적힌 배점이 있으면 그것이 정확합니다(API 값이 비어 오는 공고가 많습니다).
+  const t = it.doc?.rate?.tech ?? it.techRate;
   if(t !== null && t !== undefined){
     const d = t >= 80 ? 6 : t >= 70 ? 4 : t >= 60 ? 1 : -3;
     v += d; why.push(`기술배점 ${t} ${d>=0?"+":""}${d}`);
@@ -575,10 +598,14 @@ function scoreEval(it){
 
 function predict(it){
   const e = scoreEntry(it), r = scoreRecord(it), v = scoreEval(it);
+  // 못 들어가는 공고는 나머지가 아무리 좋아도 의미가 없습니다.
+  // 참가 불가인데 60점이 붙어 목록 가운데 섞이면 그게 제일 위험합니다.
+  const blocked = it.doc?.eligibility?.verdict === "불가";
   return {
-    total: e.v + r.v + v.v,
+    total: blocked ? 0 : e.v + r.v + v.v,
     entry: e.v, record: r.v, evaluation: v.v,
-    why: [...e.why, ...r.why, ...v.why],
+    blocked,
+    why: blocked ? e.why : [...e.why, ...r.why, ...v.why],
     provisional: !CO_KNOWN,
   };
 }
@@ -868,7 +895,10 @@ function moneyLine(it, kind){
   const bits=[`<span class="amt">${won(kind==="pre" ? it.budget : (it.budget ?? it.price))}</span>`];
   if(kind!=="pre"){
     if(it.winnerMethod) bits.push(esc(it.winnerMethod));
-    if(it.techRate!==null && it.techRate!==undefined)
+    // 공고문에 적힌 배점이 있으면 그것을 씁니다. API 값과 다를 때는 공고문이 맞습니다.
+    const d = it.doc?.rate;
+    if(d) bits.push(`<span title="${esc(d.evidence)}">기술 ${d.tech} : 가격 ${d.price} <span class="src">공고문</span></span>`);
+    else if(it.techRate!==null && it.techRate!==undefined)
       bits.push(`기술 ${it.techRate} : 가격 ${it.priceRate ?? 100-it.techRate}`);
   }
   return bits.join(`<span class="dot">·</span>`);
@@ -896,10 +926,31 @@ function prevLine(it){
   return `<div class="prev"><span class="tag">작년</span>`+bits.join(`<span class="dot">·</span>`)+`</div>`;
 }
 
+/* 공고문에서 읽어낸 것. 근거(원문)를 title 로 달아 둡니다 — 숫자만 있고
+   근거가 없으면 믿을 수 없습니다. */
+function docLine(it){
+  const d = it.doc;
+  if(!d) return "";
+  const el = d.eligibility;
+  const bits = [];
+  if(el && el.verdict !== "정보없음"){
+    const cls = el.verdict === "불가" ? "no" : el.verdict === "가능" ? "yes" : "chk";
+    const tip = el.checks.map(c=>`${c.key} ${c.verdict} — ${c.detail}\n  ${c.evidence||""}`).join("\n");
+    bits.push(`<span class="jud ${cls}" title="${esc(tip)}">참가 ${esc(el.verdict)}</span>`);
+  }
+  if(d.region) bits.push(`<span title="${esc(d.region.evidence)}">지역 ${esc(d.region.value)}</span>`);
+  if(d.industry?.length) bits.push(`<span title="${esc(d.industry[0].evidence)}">업종 ${esc(d.industry[0].value)}</span>`);
+  if(d.record?.amount) bits.push(`<span title="${esc(d.record.evidence)}">실적 ${Math.round(d.record.amount/1e6).toLocaleString()}백만↑</span>`);
+  if(d.scoreTable) bits.push(`<span title="${esc(d.scoreTable.items.map(i=>`${i.name} ${i.score}`).join("\n"))}">배점표 ${d.scoreTable.items.length}항목</span>`);
+  if(!bits.length) return "";
+  return `<div class="meta docm">${bits.join(`<span class="dot">·</span>`)}</div>`;
+}
+
 /* 예측점수 배지. 마우스를 올리면 왜 그 점수인지 보여줍니다. */
 function scoreBadge(it){
   const s = it.score;
   if(!s) return "";
+  if(s.blocked) return `<span class="sc no" title="${esc(s.why.join(" · "))}">참가 불가</span>`;
   const band = s.total >= 75 ? "s3" : s.total >= 60 ? "s2" : s.total >= 45 ? "s1" : "s0";
   const tip = `참가 ${s.entry}/40 · 실적 ${s.record}/35 · 평가 ${s.evaluation}/25`
     + (s.why.length ? `\n${s.why.join(" · ")}` : "")
@@ -918,12 +969,13 @@ function cardHtml(it, kind){
   const ttl = u
     ? `<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
     : `<span class="nmplain">${esc(it.title)}</span>`;
-  return `<article class="card${d!==null&&d<=3?" hot":""}">
+  return `<article class="card${it.score?.blocked?" blocked":d!==null&&d<=3?" hot":""}">
     <div class="top">${badge}${scoreBadge(it)}${dueCell(it)}</div>
     <h3 class="ttl">${ttl}</h3>
     <div class="org" title="${esc(it.org)}">${esc(it.org)}</div>
     <div class="meta">${moneyLine(it,kind)}</div>
     <div class="meta">${whenLine(it,kind)}</div>
+    ${docLine(it)}
     ${prevLine(it)}
   </article>`;
 }
