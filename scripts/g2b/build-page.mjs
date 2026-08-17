@@ -40,6 +40,15 @@ async function main() {
   } catch (err) {
     if (err.code !== "ENOENT") throw err;
   }
+  // 경쟁사 분석 화면이 쓸 낙찰 원본도 같이 심습니다.
+  try {
+    const aw = JSON.parse(await readFile(new URL("../../data/g2b/awards.json", import.meta.url), "utf8"));
+    payload.awards = Array.isArray(aw?.awards) ? aw.awards : [];
+  } catch (err) {
+    if (err.code !== "ENOENT") throw err;
+    payload.awards = [];
+  }
+
   let attached = 0;
   for (const it of [...(payload.posts ?? []), ...(payload.prespecs ?? [])]) {
     const d = docs[it.bidNo];

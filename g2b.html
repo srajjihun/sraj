@@ -367,6 +367,62 @@ svg{display:block; width:100%}
   .qrow .b{text-align:left}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+
+/* ═══════════ 2차 화면 ═══════════ */
+.listwrap{background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); overflow-x:auto}
+.listwrap-empty{background:var(--surface); border:1px dashed var(--line); border-radius:12px;
+  padding:34px 26px; text-align:center; color:var(--ink-2); font-size:13.5px; line-height:1.9}
+.listwrap-empty b{color:var(--ink); font-size:15px}
+.listwrap-empty p{margin-top:8px}
+table.prof{width:100%; min-width:900px; border-collapse:collapse; font-size:13px}
+table.prof th{
+  background:var(--surface-3); color:var(--ink-2); font-size:11.5px; font-weight:800;
+  letter-spacing:.03em; text-align:left; padding:9px 12px; white-space:nowrap;
+  border-bottom:1px solid var(--line);
+}
+table.prof th.r, table.prof td.r{text-align:right}
+table.prof td{padding:9px 12px; border-bottom:1px solid var(--line-soft); white-space:nowrap}
+table.prof tbody tr:nth-child(even){background:var(--surface-2)}
+table.prof tbody tr:last-child td{border-bottom:0}
+table.prof td.nm{font-weight:700; letter-spacing:-.01em; max-width:280px; overflow:hidden; text-overflow:ellipsis}
+table.prof td.dim{color:var(--ink-2); max-width:200px; overflow:hidden; text-overflow:ellipsis}
+table.prof .sub2{font-size:11px; color:var(--ink-3); font-weight:600}
+.listbar .lb{font-size:11.5px; font-weight:800; color:var(--ink-3); letter-spacing:.03em}
+
+#mkt{align-items:start}
+#mkt .wide{grid-column:1/-1}
+.mktstack{display:flex; flex-direction:column; gap:12px; min-width:0}
+
+/* 영업 시트 — 인쇄해서 들고 다닐 수 있게 */
+#sheet{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px}
+@media (max-width:1000px){ #sheet{grid-template-columns:1fr} }
+.sheetcard{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); padding:14px 16px; break-inside:avoid;
+}
+.sheetcard h3{font-size:15px; font-weight:750; line-height:1.45; letter-spacing:-.01em; margin:8px 0 10px}
+.sh-top{display:flex; align-items:center; gap:8px}
+.sh-due{margin-left:auto; font-size:12px; font-weight:800; color:var(--ink-2)}
+.sh-due.hot{color:var(--stop)}
+.sh-tb{width:100%; border-collapse:collapse; font-size:13px}
+.sh-tb th{
+  width:74px; text-align:left; vertical-align:top; padding:4px 0;
+  font-size:11.5px; font-weight:800; color:var(--ink-3); letter-spacing:.02em;
+}
+.sh-tb td{padding:4px 0; color:var(--ink-2); line-height:1.55}
+.sh-tb b.good{color:var(--go)} .sh-tb b.bad{color:var(--stop)} .sh-tb b.warn{color:var(--warn)}
+.sh-chk{
+  margin-top:10px; padding-top:9px; border-top:1px solid var(--line-soft);
+  font-size:12px; color:var(--ink-3); font-weight:600;
+}
+@media print{
+  .side, .listbar, .foot, .topbar .when{display:none !important}
+  .shell{grid-template-columns:1fr}
+  .main{padding:0}
+  #sheet{grid-template-columns:repeat(2,1fr); gap:8px}
+  .sheetcard{box-shadow:none; border-color:#bbb}
+}
 </style>
 </head>
 <body>
@@ -414,10 +470,10 @@ svg{display:block; width:100%}
     <a href="#" data-view="re"><span class="ic">🔁</span>유찰공고<span class="n num" id="nav-n-re"></span></a>
     <a href="#" data-view="urg"><span class="ic">⚡</span>긴급공고<span class="n num" id="nav-n-urg"></span></a>
     <span class="split"></span>
-    <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
-    <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
-    <a href="#" title="준비 중입니다"><span class="ic">🏛</span>기관 프로파일<span class="soon">2차</span></a>
-    <a href="#" title="준비 중입니다"><span class="ic">☎</span>영업 시트<span class="soon">2차</span></a>
+    <a href="#" data-view="mkt"><span class="ic">◔</span>시장 리포트</a>
+    <a href="#" data-view="comp"><span class="ic">⚔</span>경쟁사 분석<span class="n num" id="nav-n-comp"></span></a>
+    <a href="#" data-view="org"><span class="ic">🏛</span>기관 프로파일<span class="n num" id="nav-n-org"></span></a>
+    <a href="#" data-view="sheet"><span class="ic">☎</span>영업 시트</a>
     <span class="split"></span>
     <a href="#" title="행정서류 등록 후 자격 판정에 반영됩니다"><span class="ic">📁</span>행정서류<span class="soon">대기</span></a>
   </nav>
@@ -512,6 +568,33 @@ svg{display:block; width:100%}
       긴급으로 올라온 공고입니다 · 준비 기간이 짧으니 마감부터 확인하세요<br>
       그래서 이 화면만 <b>마감순</b>이 기본입니다 · 공고명을 누르면 나라장터 원문이 새 창으로 열립니다
     </p>
+  </section>
+
+  <section class="view" id="view-mkt" hidden>
+    <div class="vizgrid" id="mkt"></div>
+    <p class="foot">지금 수집된 공고를 기준으로 계산합니다 · 마감된 공고는 빠져 있으므로 "지금 살아 있는 시장"입니다</p>
+  </section>
+
+  <section class="view" id="view-comp" hidden>
+    <div class="listbar"><div class="sortbar"></div><input class="search" type="search" placeholder="업체명 검색" aria-label="업체명 검색"></div>
+    <div id="comp"></div>
+    <p class="foot">작년 낙찰정보 기준입니다 · 낙찰률이 낮을수록 싸게 써서 딴 것이고, 투찰업체가 많을수록 경쟁이 셌던 사업입니다</p>
+  </section>
+
+  <section class="view" id="view-org" hidden>
+    <div class="listbar"><div class="sortbar"></div><input class="search" type="search" placeholder="기관명 검색" aria-label="기관명 검색"></div>
+    <div id="org"></div>
+    <p class="foot">발주처가 어떤 식으로 발주하는지 봅니다 · 기술배점이 높고 재공고가 잦은 기관이 우리에게 유리합니다</p>
+  </section>
+
+  <section class="view" id="view-sheet" hidden>
+    <div class="listbar">
+      <span class="lb">영업 시트</span>
+      <div class="sortbar" id="sheet-n"></div>
+      <button type="button" class="mini" id="sheet-print">인쇄 ↗</button>
+    </div>
+    <div id="sheet"></div>
+    <p class="foot">예측점수 상위 공고를 한 장으로 정리합니다 · 참가 불가로 확인된 공고는 빠집니다</p>
   </section>
 
 </main>
@@ -893,7 +976,8 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
 /* ═══ 화면 전환 ═══ */
 (function(){
   const links=[...document.querySelectorAll(".nav a[data-view]")];
-  const titles={dash:"대시보드", pre:"사전공고", gen:"일반공고", re:"유찰공고", urg:"긴급공고"};
+  const titles={dash:"대시보드", pre:"사전공고", gen:"일반공고", re:"유찰공고", urg:"긴급공고",
+    mkt:"시장 리포트", comp:"경쟁사 분석", org:"기관 프로파일", sheet:"영업 시트"};
   function show(v){
     document.querySelectorAll(".view").forEach(el=>{ el.hidden = el.id!=="view-"+v; });
     links.forEach(a=>a.classList.toggle("on", a.dataset.view===v));
@@ -1132,6 +1216,290 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
   root.querySelector(".search").addEventListener("input",e=>{st.q=e.target.value; draw();});
   draw();
 }
+
+/* ═══════════ 2차 화면 넷 ═══════════
+   전부 이미 있는 데이터로 계산합니다. 새로 받아올 것은 없습니다.
+   (경쟁사 분석만 낙찰정보가 있어야 하고, 없으면 그 사실을 말합니다) */
+
+const AWARDS = Array.isArray(DATA.awards) ? DATA.awards : [];
+const 억 = v => v ? (v >= 1e8 ? (v/1e8).toFixed(v>=1e9?0:1)+"억" : Math.round(v/1e6)+"백만") : "—";
+
+/* 값 목록 → [{k, n, sum}] 내림차순 */
+function tally(items, keyFn, valFn){
+  const m = new Map();
+  for(const it of items){
+    for(const k of [].concat(keyFn(it) ?? [])){
+      if(!k) continue;
+      const cur = m.get(k) ?? { k, n:0, sum:0 };
+      cur.n += 1; cur.sum += (valFn?.(it) ?? 0) || 0;
+      m.set(k, cur);
+    }
+  }
+  return [...m.values()].sort((a,b)=>b.n-a.n);
+}
+
+/* 가로 막대 묶음 — 대시보드의 분야별 그래프와 같은 모양입니다 */
+function bars(rows, opts={}){
+  if(!rows.length) return `<div class="placeholder">아직 볼 만한 게 없습니다.</div>`;
+  const max = Math.max(...rows.map(r=>r.v));
+  return `<div class="rankbars">${rows.map((r,i)=>`
+    <div class="rankbar" data-l="${esc(r.k)}" data-n="${esc(r.note ?? r.v)}">
+      <div class="row1"><span class="who">${esc(r.k)}</span><span class="amt">${esc(r.label)}</span></div>
+      <div class="track"><div class="fill" style="width:${max?Math.max(2,r.v/max*100):0}%; background:${r.color ?? SEQ[Math.min(4,Math.floor(i/Math.max(1,rows.length/5)))]}"></div></div>
+    </div>`).join("")}</div>`;
+}
+
+/* ─── 시장 리포트 ─── */
+(function(){
+  const box=$("#mkt");
+  if(!box) return;
+  const live=[...POSTS, ...PRES];
+  if(!live.length){ box.innerHTML=`<div class="placeholder">수집된 공고가 없습니다.</div>`; return; }
+
+  const panel=(title,sub,inner)=>`<section class="panel">
+    <h2>${esc(title)}${sub?` <span class="soft">· ${esc(sub)}</span>`:""}</h2>${inner}</section>`;
+
+  // 분야별 — 건수와 예산을 함께 봅니다. 건수만 보면 작은 건이 많은 분야가 커 보입니다.
+  const byKw = GROUPS.map(g=>{
+    const rows=live.filter(it=>(it.kw||[]).includes(g));
+    const sum=rows.reduce((a,b)=>a+((b.budget??b.price)||0),0);
+    return { k:g, v:rows.length, label:`${rows.length}건 · ${억(sum)}`, note:`${rows.length}건`,
+             color:`var(--kw-${kwIdx(g)})` };
+  }).filter(r=>r.v).sort((a,b)=>b.v-a.v);
+
+  // 월별 — 공고일 기준. 언제 물량이 몰리는지.
+  const months=new Map();
+  for(const it of live){
+    const m=(it.date||"").slice(0,7);
+    if(m) months.set(m,(months.get(m)??0)+1);
+  }
+  const mrows=[...months.entries()].sort((a,b)=>a[0]<b[0]?-1:1).slice(-8)
+    .map(([m,n])=>({ k:m.replace("-","."), v:n, label:`${n}건` }));
+
+  // 발주처 — 우리 분야를 실제로 발주하는 곳
+  const orgs=tally(live, it=>it.org, it=>(it.budget??it.price)||0).slice(0,12)
+    .map(r=>({ k:r.k, v:r.n, label:`${r.n}건 · ${억(r.sum)}` }));
+
+  // 예산 규모 — 우리가 감당할 구간이 얼마나 되는지
+  const BANDS=[[0,3e7,"3천만 미만"],[3e7,1e8,"3천만~1억"],[1e8,3e8,"1억~3억"],
+               [3e8,1e9,"3억~10억"],[1e9,Infinity,"10억 이상"]];
+  const brows=BANDS.map(([lo,hi,name])=>{
+    const n=live.filter(it=>{const v=(it.budget??it.price)||0; return v>=lo&&v<hi;}).length;
+    return { k:name, v:n, label:`${n}건` };
+  }).filter(r=>r.v);
+  const noAmt=live.filter(it=>!(it.budget??it.price)).length;
+
+  // 평가·계약 방식 — 기술로 붙는 판이 얼마나 되나
+  const ways=tally(POSTS, it=>it.winnerMethod||"미상").slice(0,6)
+    .map(r=>({ k:r.k, v:r.n, label:`${r.n}건` }));
+
+  // 한눈 지표
+  const re=POSTS.filter(it=>it.reNtce).length;
+  const joint=POSTS.filter(it=>it.jointOk===true).length;
+  const jointKnown=POSTS.filter(it=>it.jointOk!==null&&it.jointOk!==undefined).length;
+  const techHigh=POSTS.filter(it=>{const t=it.doc?.rate?.tech??it.techRate; return t!==null&&t!==undefined&&t>=80;}).length;
+  const techKnown=POSTS.filter(it=>{const t=it.doc?.rate?.tech??it.techRate; return t!==null&&t!==undefined;}).length;
+  const pct=(a,b)=>b?Math.round(a/b*100)+"%":"—";
+
+  /* 발주처 막대가 다른 칸보다 훨씬 길어서, 2단으로 흘려보내면 오른쪽에 큰 빈칸이
+     생깁니다. 긴 칸 하나와 짧은 칸 둘을 짝지어 높이를 맞춥니다. */
+  box.innerHTML =
+    panel("분야별 물량","건수와 예산을 함께 봅니다", bars(byKw)) +
+    panel("월별 공고","언제 몰리나 · 공고일 기준", bars(mrows)) +
+    panel("발주처 상위 12","우리 분야를 실제로 발주하는 곳", bars(orgs)) +
+    `<div class="mktstack">`
+      + panel("사업 규모 분포", noAmt?`금액 미상 ${noAmt}건 제외`:"", bars(brows))
+      + panel("낙찰 방법","기술로 붙는 판이 얼마나 되나", bars(ways))
+    + `</div>` +
+    panel("시장 성격","",`<div class="cond">
+      <div class="condcard team"><div class="k">재공고(유찰) 비율</div><div class="v num">${pct(re,POSTS.length)}</div>
+        <div class="d">${re}건 · 한 번 유찰된 공고는 경쟁이 약할 수 있습니다</div></div>
+      <div class="condcard good"><div class="k">공동수급 허용</div><div class="v num">${pct(joint,jointKnown)}</div>
+        <div class="d">${joint}건 · 값이 온 ${jointKnown}건 기준</div></div>
+      <div class="condcard hold"><div class="k">기술배점 80 이상</div><div class="v num">${pct(techHigh,techKnown)}</div>
+        <div class="d">${techHigh}건 · 배점이 공개된 ${techKnown}건 기준</div></div>
+    </div>`).replace(/^/,"");
+  box.lastElementChild.classList.add("wide");
+  hoverTip(box, ".rankbar[data-l]", el=>`${el.dataset.l} · <b>${el.dataset.n}</b>`);
+})();
+
+/* ─── 경쟁사 분석 ─── */
+(function(){
+  const box=$("#comp"), root=$("#view-comp");
+  if(!box) return;
+  const cnt=$("#nav-n-comp");
+
+  if(!AWARDS.length){
+    if(cnt) cnt.textContent="";
+    box.innerHTML=`<div class="listwrap-empty">
+      <b>아직 낙찰정보가 없습니다.</b>
+      <p>작년 누가 얼마에 땄는지를 모으면 여기서 업체별로 볼 수 있습니다.<br>
+      <b>작년실적-수집.bat</b> 을 한 번 실행해 주세요. 하루 호출 한도에 걸리면 멈췄다가 다음 날 이어받습니다.</p></div>`;
+    return;
+  }
+
+  const rows=[...tally(AWARDS, a=>a.corp, a=>a.amount||0).values()].map(r=>{
+    const mine=AWARDS.filter(a=>a.corp===r.k);
+    const rates=mine.map(a=>a.rate).filter(v=>typeof v==="number");
+    const bids=mine.map(a=>a.bidders).filter(v=>typeof v==="number");
+    const orgs=tally(mine,a=>a.org);
+    const kws=tally(mine,a=>a.kw||[]);
+    return { corp:r.k, n:r.n, sum:r.sum,
+      rate: rates.length?Math.round(rates.reduce((a,b)=>a+b,0)/rates.length):null,
+      bidders: bids.length?(bids.reduce((a,b)=>a+b,0)/bids.length).toFixed(1):null,
+      org: orgs[0]?.k ?? "", orgN: orgs.length,
+      kw: kws.slice(0,2).map(x=>x.k) };
+  });
+  if(cnt) cnt.textContent=rows.length;
+
+  const st={ q:"", sort:"n" };
+  const SORTS=[{id:"n",label:"수주건수"},{id:"sum",label:"수주금액"},{id:"rate",label:"낙찰률 낮은순"}];
+  const sortbar=root.querySelector(".sortbar");
+  sortbar.innerHTML=`<span class="lb">정렬</span>`;
+  for(const so of SORTS){
+    const b=document.createElement("button");
+    b.type="button"; b.className="sortbtn"+(so.id===st.sort?" on":""); b.textContent=so.label;
+    b.addEventListener("click",()=>{ st.sort=so.id;
+      sortbar.querySelectorAll(".sortbtn").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); draw(); });
+    sortbar.appendChild(b);
+  }
+  root.querySelector(".search").addEventListener("input",e=>{ st.q=e.target.value; draw(); });
+
+  function draw(){
+    const q=st.q.trim().toLowerCase();
+    const list=rows.filter(r=>!q||r.corp.toLowerCase().includes(q))
+      .sort((a,b)=> st.sort==="rate"
+        ? ((a.rate ?? 999)-(b.rate ?? 999))
+        : (b[st.sort]-a[st.sort]))
+      .slice(0,60);
+    box.innerHTML=`<div class="listwrap"><table class="prof">
+      <thead><tr><th>업체</th><th class="r">수주</th><th class="r">금액</th>
+        <th class="r">평균 낙찰률</th><th class="r">평균 투찰</th><th>주력 발주처</th><th>분야</th></tr></thead>
+      <tbody>${list.map(r=>`<tr>
+        <td class="nm">${esc(r.corp)}</td>
+        <td class="r num">${r.n}건</td>
+        <td class="r num">${억(r.sum)}</td>
+        <td class="r num">${r.rate!==null?r.rate+"%":"—"}</td>
+        <td class="r num">${r.bidders ?? "—"}곳</td>
+        <td class="dim">${esc(r.org)}${r.orgN>1?` 외 ${r.orgN-1}`:""}</td>
+        <td>${r.kw.map(g=>`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`).join(" ")}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+  }
+  draw();
+})();
+
+/* ─── 기관 프로파일 ─── */
+(function(){
+  const box=$("#org"), root=$("#view-org");
+  if(!box) return;
+  const live=[...POSTS, ...PRES];
+  const cnt=$("#nav-n-org");
+
+  const rows=tally(live, it=>it.org, it=>(it.budget??it.price)||0).map(r=>{
+    const mine=live.filter(it=>it.org===r.k);
+    const bids=mine.filter(it=>it.type!=="pre");
+    const techs=bids.map(it=>it.doc?.rate?.tech ?? it.techRate).filter(v=>typeof v==="number");
+    const jointKnown=bids.filter(it=>it.jointOk!==null&&it.jointOk!==undefined);
+    const next=mine.map(it=>daysUntil(dueOf(it).iso)).filter(d=>d!==null&&d>=0).sort((a,b)=>a-b)[0];
+    return { org:r.k, n:r.n, sum:r.sum, pre:mine.filter(it=>it.type==="pre").length,
+      re: bids.filter(it=>it.reNtce).length,
+      tech: techs.length?Math.round(techs.reduce((a,b)=>a+b,0)/techs.length):null,
+      joint: jointKnown.length?Math.round(jointKnown.filter(it=>it.jointOk===true).length/jointKnown.length*100):null,
+      kw: tally(mine,it=>it.kw||[]).slice(0,2).map(x=>x.k),
+      next: next ?? null };
+  });
+  if(cnt) cnt.textContent=rows.length;
+
+  const st={ q:"", sort:"n" };
+  const SORTS=[{id:"n",label:"공고 많은순"},{id:"sum",label:"예산 큰순"},{id:"tech",label:"기술배점 높은순"},{id:"re",label:"유찰 잦은순"}];
+  const sortbar=root.querySelector(".sortbar");
+  sortbar.innerHTML=`<span class="lb">정렬</span>`;
+  for(const so of SORTS){
+    const b=document.createElement("button");
+    b.type="button"; b.className="sortbtn"+(so.id===st.sort?" on":""); b.textContent=so.label;
+    b.addEventListener("click",()=>{ st.sort=so.id;
+      sortbar.querySelectorAll(".sortbtn").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); draw(); });
+    sortbar.appendChild(b);
+  }
+  root.querySelector(".search").addEventListener("input",e=>{ st.q=e.target.value; draw(); });
+
+  function draw(){
+    const q=st.q.trim().toLowerCase();
+    const list=rows.filter(r=>!q||r.org.toLowerCase().includes(q))
+      .sort((a,b)=>((b[st.sort] ?? -1)-(a[st.sort] ?? -1)))
+      .slice(0,60);
+    box.innerHTML=`<div class="listwrap"><table class="prof">
+      <thead><tr><th>기관</th><th class="r">공고</th><th class="r">예산</th>
+        <th class="r">평균 기술배점</th><th class="r">유찰</th><th class="r">공동수급</th>
+        <th class="r">다음 마감</th><th>분야</th></tr></thead>
+      <tbody>${list.map(r=>`<tr>
+        <td class="nm">${esc(r.org)}</td>
+        <td class="r num">${r.n}건${r.pre?` <span class="sub2">사전 ${r.pre}</span>`:""}</td>
+        <td class="r num">${억(r.sum)}</td>
+        <td class="r num">${r.tech ?? "—"}</td>
+        <td class="r num">${r.re}건</td>
+        <td class="r num">${r.joint!==null?r.joint+"%":"—"}</td>
+        <td class="r num">${r.next===null?"—":r.next===0?"오늘":"D-"+r.next}</td>
+        <td>${r.kw.map(g=>`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`).join(" ")}</td>
+      </tr>`).join("")}</tbody></table></div>`;
+  }
+  draw();
+})();
+
+/* ─── 영업 시트 ─── */
+(function(){
+  const box=$("#sheet");
+  if(!box) return;
+  const st={ n:12 };
+  const bar=$("#sheet-n");
+  bar.innerHTML=`<span class="lb">건수</span>`;
+  for(const n of [6,12,24]){
+    const b=document.createElement("button");
+    b.type="button"; b.className="sortbtn"+(n===st.n?" on":""); b.textContent=n+"건";
+    b.addEventListener("click",()=>{ st.n=n;
+      bar.querySelectorAll(".sortbtn").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); draw(); });
+    bar.appendChild(b);
+  }
+  $("#sheet-print").addEventListener("click",()=>window.print());
+
+  function draw(){
+    const list=[...POSTS, ...PRES].filter(it=>!it.score?.blocked)
+      .sort((a,b)=>((b.score?.total??0)-(a.score?.total??0)))
+      .slice(0,st.n);
+    if(!list.length){ box.innerHTML=`<div class="placeholder">표시할 공고가 없습니다.</div>`; return; }
+    box.innerHTML=list.map(it=>{
+      const due=dueOf(it), d=daysUntil(due.iso);
+      const el=it.doc?.eligibility;
+      const t=it.doc?.rate?.tech ?? it.techRate;
+      const L=it.last;
+      const row=(k,v)=>v?`<tr><th>${k}</th><td>${v}</td></tr>`:"";
+      return `<article class="sheetcard">
+        <div class="sh-top">
+          <span class="kw" style="color:var(--kw-${kwIdx((it.kw||[])[0])}); background:var(--kw-${kwIdx((it.kw||[])[0])}-bg)">${esc((it.kw||[])[0]||"기타")}</span>
+          <span class="sc ${it.score.total>=75?"s3":it.score.total>=60?"s2":"s1"}">예측 <span class="v">${it.score.total}</span></span>
+          <span class="sh-due ${d!==null&&d<=3?"hot":""}">${due.iso?`${esc(due.iso)}${due.time?" "+esc(due.time):""} · ${d===0?"오늘":"D-"+d}`:"일정 미상"}</span>
+        </div>
+        <h3>${esc(it.title)}</h3>
+        <table class="sh-tb"><tbody>
+          ${row("발주처", esc(it.org))}
+          ${row("사업비", 억(it.budget ?? it.price))}
+          ${row("계약", [it.winnerMethod, t!==null&&t!==undefined?`기술 ${t} : 가격 ${it.doc?.rate?.price ?? it.priceRate ?? 100-t}`:""].filter(Boolean).map(esc).join(" · "))}
+          ${row("공동수급", it.jointOk===true?`가능${it.jointMethod?` (${esc(it.jointMethod)})`:""}`:it.jointOk===false?"단독참여만":"미상")}
+          ${row("자격", el&&el.verdict!=="정보없음"
+            ? `<b class="${el.verdict==="불가"?"bad":el.verdict==="가능"?"good":"warn"}">${esc(el.verdict)}</b> — ${el.checks.map(c=>esc(`${c.key} ${c.verdict}`)).join(", ")}`
+            : "공고문 미분석")}
+          ${row("작년", L&&L.corp?`${esc(L.corp)} · ${억(L.amount)}${L.rate?` · 낙찰률 ${L.rate}%`:""}${L.bidders?` · ${L.bidders}곳 투찰`:""}`:"기록 없음")}
+          ${row("자격등록", it.qlfctDate?`${esc(it.qlfctDate)}${it.qlfctTime?" "+esc(it.qlfctTime):""} 까지`:"")}
+        </tbody></table>
+        <div class="sh-chk">준비 확인 &nbsp; □ 공고문 정독 &nbsp; □ 자격 서류 &nbsp; □ 실적증명 &nbsp; □ 제안서 담당 &nbsp; □ 가격 결정</div>
+      </article>`;
+    }).join("");
+  }
+  draw();
+})();
 
 /* 사전공고 — 정식 공고 전 단계라 일정이 "의견마감"입니다 */
 cardView("view-pre", PRES, "pre", "#nav-n-pre");
