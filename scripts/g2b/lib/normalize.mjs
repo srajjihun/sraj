@@ -111,6 +111,48 @@ export function normalizeBid(raw, kind = "용역") {
   };
 }
 
+// 낙찰정보 응답은 오퍼레이션마다 필드 이름이 조금씩 다릅니다.
+// 실제로 어떤 이름으로 오는지는 호출해 봐야 알 수 있으므로,
+// 후보를 늘어놓고 값이 있는 첫 번째를 씁니다.
+function pick(raw, ...names) {
+  for (const n of names) {
+    const v = text(raw[n]);
+    if (v) return v;
+  }
+  return "";
+}
+
+function pickNum(raw, ...names) {
+  for (const n of names) {
+    const v = num(raw[n]);
+    if (v !== null) return v;
+  }
+  return null;
+}
+
+/**
+ * 낙찰(개찰결과) 1건 정규화.
+ *
+ * 쓰임새는 하나입니다 — 올해 올라온 공고를 보고 "작년에 같은 사업을 누가
+ * 얼마에 했는지"를 붙여 주는 것. 그래서 업체명·금액·낙찰률·투찰업체 수만 봅니다.
+ */
+export function normalizeAward(raw) {
+  const openg = splitDt(pick(raw, "opengDt", "rlOpengDt", "finlSucsfDate"));
+  return {
+    bidNo: `${pick(raw, "bidNtceNo")}-${pick(raw, "bidNtceOrd") || "000"}`,
+    title: pick(raw, "bidNtceNm"),
+    org: pick(raw, "dminsttNm", "ntceInsttNm"),
+    noticeOrg: pick(raw, "ntceInsttNm"),
+    date: openg.date,
+    corp: pick(raw, "bidwinnrNm", "sucsfbidCorpNm", "scsbidCorpNm", "opengCorpNm", "cmpnyNm"),
+    bizno: pick(raw, "bidwinnrBizno", "sucsfbidCorpBizno", "bizno"),
+    amount: pickNum(raw, "sucsfbidAmt", "scsbidAmt", "sucsfbidPrce", "bidwinnrAmt"),
+    rate: pickNum(raw, "sucsfbidRate", "scsbidRate"),
+    // 투찰(참가)업체 수 — 작년 이 사업에 몇 곳이 붙었는지
+    bidders: pickNum(raw, "prtcptCnum", "bidwinnrCnt", "prtcptCnt", "bidderCnt"),
+  };
+}
+
 /** 사전규격 1건 정규화 */
 export function normalizePrespec(raw) {
   const opinion = splitDt(raw.opninRgstClseDt);

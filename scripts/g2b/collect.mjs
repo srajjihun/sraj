@@ -16,12 +16,14 @@ import { pathToFileURL } from "node:url";
 import { fetchAll, stamp } from "./lib/api.mjs";
 import { normalizeBid, normalizePrespec } from "./lib/normalize.mjs";
 import { loadKeywords, matchGroups, isExcluded } from "./lib/keywords.mjs";
+import { indexAwards, lastYearOf } from "./lib/match.mjs";
 
 const DATA_DIR = new URL("../../data/g2b/", import.meta.url);
 const RAW_BID = new URL("raw/bid.json", DATA_DIR);
 const RAW_PRE = new URL("raw/prespec.json", DATA_DIR);
 const PROGRESS = new URL("raw/progress.json", DATA_DIR);
 const OUT = new URL("posts.json", DATA_DIR);
+const AWARDS = new URL("awards.json", DATA_DIR); // 작년 낙찰정보 (award.mjs 가 만듭니다)
 
 // 수집 대상 업무구분. 물품·공사를 추가하려면 주석을 해제하세요.
 const BID_OPS = {
@@ -241,7 +243,9 @@ async function collectPrespecs(days, progress) {
 }
 
 // 원본 저장소 → 키워드 필터 → 화면용 posts.json
-export function buildPosts(bidStore, preStore, config, now = new Date()) {
+export function buildPosts(bidStore, preStore, config, now = new Date(), awards = []) {
+  // 작년 낙찰 건 색인. 사업명·기관이 둘 다 같을 때만 붙습니다(match.mjs 참고).
+  const awardIndex = indexAwards(awards);
   const posts = [];
   for (const it of Object.values(bidStore)) {
     if (isExcluded(it, config)) continue;
@@ -253,7 +257,7 @@ export function buildPosts(bidStore, preStore, config, now = new Date()) {
     const age = ref ? daysSince(ref, now) : daysSince(it.date, now);
     if (age !== null && age > (ref ? DEADLINE_GRACE_DAYS : MAX_AGE_DAYS)) continue;
 
-    posts.push({ ...it, kw });
+    posts.push({ ...it, kw, last: lastYearOf(it, awardIndex) });
   }
 
   const prespecs = [];
@@ -267,7 +271,7 @@ export function buildPosts(bidStore, preStore, config, now = new Date()) {
     const ref = it.deadline || null;
     const age = ref ? daysSince(ref, now) : daysSince(it.date, now);
     if (age !== null && age > (ref ? PRE_GRACE_DAYS : MAX_AGE_DAYS)) continue;
-    prespecs.push({ ...it, kw });
+    prespecs.push({ ...it, kw, last: lastYearOf(it, awardIndex) });
   }
 
   posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -339,7 +343,15 @@ async function main() {
   if (earliestPre) console.log(`[범위] 사전규격 실제 수집 범위: ${earliestPre} ~ 오늘`);
 
   // 이전 posts.json 의 firstSeenAt 보존은 raw 저장소가 담당하므로 여기선 그대로 씁니다.
-  const { posts, prespecs } = buildPosts(bidStore, preStore, config);
+  // 작년 낙찰정보가 있으면 공고에 "작년 수행업체"를 붙입니다.
+  // 없으면 그냥 비워 둡니다 — award.mjs 를 아직 안 돌린 상태입니다.
+  const awardFile = await loadJson(AWARDS, null);
+  const awards = Array.isArray(awardFile?.awards) ? awardFile.awards : [];
+  if (awards.length) console.log(`[작년] 낙찰정보 ${awards.length}건을 대조합니다`);
+  else console.log(`[작년] 낙찰정보가 없습니다 — 작년실적-수집.bat 을 한 번 돌리면 채워집니다`);
+
+  const { posts, prespecs } = buildPosts(bidStore, preStore, config, new Date(), awards);
+  const matched = [...posts, ...prespecs].filter((it) => it.last).length;
 
   await saveJson(OUT, {
     generatedAt: new Date().toISOString(),
@@ -350,7 +362,7 @@ async function main() {
   });
 
   console.log(
-    `[완료] 공고 ${posts.length}건 · 사전규격 ${prespecs.length}건 ` +
+    `[완료] 공고 ${posts.length}건 · 사전규격 ${prespecs.length}건 · 작년 수행업체 확인 ${matched}건 ` +
       `(원본 보관 ${Object.keys(bidStore).length + Object.keys(preStore).length}건)`
   );
   if (failures.length) process.exitCode = 1;
