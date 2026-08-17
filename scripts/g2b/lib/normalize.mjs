@@ -90,6 +90,9 @@ export function normalizeBid(raw, kind = "용역") {
     priceRate: num(raw.bidPrceEvlRt), // 입찰가격평가 배점비율
 
     reNtce: text(raw.reNtceYn) === "Y", // 재공고 = 1차 유찰 신호
+    // 공고종류 — "긴급공고" 는 준비 기간이 짧아 따로 봐야 합니다.
+    // 이 값이 비어 오는 공고도 있어 화면에서는 제목의 [긴급] 표기도 같이 봅니다.
+    ntceKind: text(raw.ntceKindNm),
     intlBid: text(raw.intrntnlBidYn) === "Y",
     arsltCmpt: text(raw.arsltCmptYn) === "Y", // 실적경쟁
     indstrytyLmt: text(raw.indstrytyLmtYn) === "Y", // 업종(면허)제한

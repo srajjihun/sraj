@@ -400,6 +400,7 @@ svg{display:block; width:100%}
     <a href="#" data-view="pre"><span class="ic">📋</span>사전공고<span class="n num" id="nav-n-pre"></span></a>
     <a href="#" data-view="gen"><span class="ic">📄</span>일반공고<span class="n num" id="nav-n-gen"></span></a>
     <a href="#" data-view="re"><span class="ic">🔁</span>유찰공고<span class="n num" id="nav-n-re"></span></a>
+    <a href="#" data-view="urg"><span class="ic">⚡</span>긴급공고<span class="n num" id="nav-n-urg"></span></a>
     <span class="split"></span>
     <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
@@ -477,7 +478,7 @@ svg{display:block; width:100%}
     <div class="listbar"><div class="chips"></div><div class="sortbar"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="일반공고 공고명 검색"></div>
     <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
-      한 번도 유찰되지 않은 정식 입찰공고입니다 · 공고명을 누르면 나라장터 원문이 새 창으로 열립니다<br>
+      한 번도 유찰되지 않은 일반 입찰공고입니다 · 유찰·긴급 건은 각각 다른 화면에 있습니다<br>
       평가는 기술배점 : 가격배점입니다 · 마감이 지나면 자동으로 사라집니다
     </p>
   </section>
@@ -488,6 +489,15 @@ svg{display:block; width:100%}
     <p class="foot">
       1차에서 낙찰자가 없어 다시 올라온 공고입니다 · 경쟁이 약할 수 있습니다<br>
       공고명을 누르면 나라장터 원문이 새 창으로 열립니다
+    </p>
+  </section>
+
+  <section class="view" id="view-urg" hidden>
+    <div class="listbar"><div class="chips"></div><div class="sortbar"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="긴급공고 공고명 검색"></div>
+    <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
+    <p class="foot">
+      긴급으로 올라온 공고입니다 · 준비 기간이 짧으니 마감부터 확인하세요<br>
+      그래서 이 화면만 <b>마감순</b>이 기본입니다 · 공고명을 누르면 나라장터 원문이 새 창으로 열립니다
     </p>
   </section>
 
@@ -644,6 +654,13 @@ const isExpired = it => { const d=daysUntil(dueOf(it).iso); return d!==null && d
    "모트"처럼 표기가 없는 민간사는 남습니다. 보이면 이름을 알려주세요. */
 const PRIVATE_ORG = /주식회사|㈜|\(주\)|\(유\)|유한회사|유한책임회사|합자회사|합명회사/;
 const isPrivate = it => PRIVATE_ORG.test(it.org||"");
+
+/* 긴급공고 — 준비 기간이 짧아 따로 봅니다.
+   API 의 공고종류(ntceKind)가 정답이지만 비어 오는 건이 있어 제목 표기도 같이 봅니다.
+   "긴급" 두 글자만으로 보면 "긴급복지 지원사업" 같은 사업명이 걸리므로
+   대괄호·소괄호 표기나 "긴급입찰/긴급공고" 처럼 확실한 형태만 인정합니다. */
+const URGENT_MARK = /[[(（【]\s*긴\s*급\s*[\])）】]|긴급공고|긴급입찰|긴급\s*재공고/;
+const isUrgent = it => (it.ntceKind || "").includes("긴급") || URGENT_MARK.test(it.title || "");
 
 const drop = it => isExpired(it) || isPrivate(it);
 const POSTS = RAW_POSTS.filter(it=>!drop(it));
@@ -855,7 +872,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
 /* ═══ 화면 전환 ═══ */
 (function(){
   const links=[...document.querySelectorAll(".nav a[data-view]")];
-  const titles={dash:"대시보드", pre:"사전공고", gen:"일반공고", re:"유찰공고"};
+  const titles={dash:"대시보드", pre:"사전공고", gen:"일반공고", re:"유찰공고", urg:"긴급공고"};
   function show(v){
     document.querySelectorAll(".view").forEach(el=>{ el.hidden = el.id!=="view-"+v; });
     links.forEach(a=>a.classList.toggle("on", a.dataset.view===v));
@@ -989,11 +1006,11 @@ const SORTS = [
   { id:"date",   label:"최신순", key:it=>it.date ? -Number(it.date.replace(/-/g,"")) : 1 },
 ];
 
-function cardView(viewId, items, kind, countEl){
+function cardView(viewId, items, kind, countEl, defaultSort="score"){
   const root=$("#"+viewId);
   if(countEl) $(countEl).textContent=items.length;
   /* 분야는 여러 개 겹쳐 고를 수 있습니다. 아무것도 안 고르면 전체입니다. */
-  const st={kw:new Set(), q:"", sort:"score"};
+  const st={kw:new Set(), q:"", sort:defaultSort};
 
   const chips=root.querySelector(".chips");
   const all=document.createElement("button");
@@ -1065,10 +1082,18 @@ function cardView(viewId, items, kind, countEl){
 
 /* 사전공고 — 정식 공고 전 단계라 일정이 "의견마감"입니다 */
 cardView("view-pre", PRES, "pre", "#nav-n-pre");
+/* 세 목록은 서로 겹치지 않습니다 — 같은 공고가 두 곳에 보이면 건수를 못 믿습니다.
+   유찰(재공고) > 긴급 > 일반 순서로 하나에만 들어갑니다. */
+const RE_POSTS  = POSTS.filter(it=>it.reNtce);
+const URG_POSTS = POSTS.filter(it=>!it.reNtce && isUrgent(it));
+const GEN_POSTS = POSTS.filter(it=>!it.reNtce && !isUrgent(it));
+
 /* 일반공고 — 한 번도 유찰되지 않은 정식 입찰공고 */
-cardView("view-gen", POSTS.filter(it=>!it.reNtce), "bid", "#nav-n-gen");
+cardView("view-gen", GEN_POSTS, "bid", "#nav-n-gen");
 /* 유찰공고 — 1차에서 낙찰자가 없어 다시 올라온 공고. 경쟁이 약할 수 있습니다 */
-cardView("view-re", POSTS.filter(it=>it.reNtce), "bid", "#nav-n-re");
+cardView("view-re", RE_POSTS, "bid", "#nav-n-re");
+/* 긴급공고 — 준비 기간이 짧습니다. 여기서는 예측점수보다 마감이 먼저입니다. */
+cardView("view-urg", URG_POSTS, "bid", "#nav-n-urg", "due");
 
 </script>
 </body>
