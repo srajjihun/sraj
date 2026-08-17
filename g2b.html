@@ -296,6 +296,14 @@ svg{display:block; width:100%}
 
 /* 공고문에서 읽어낸 줄 — 추측이 아니라 원문에 적힌 사실입니다 */
 .card .docm{font-size:13px; color:var(--ink-3); cursor:help}
+.card .findline{gap:6px; color:var(--ink-3)}
+.mini{
+  font-size:11.5px; font-weight:800; line-height:1;
+  padding:4px 9px; border-radius:6px; text-decoration:none;
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2);
+}
+.mini:hover{border-color:var(--accent); color:var(--accent)}
+.mini.done{border-color:var(--go); color:var(--go); background:var(--go-bg)}
 .jo{font-size:11.5px; font-weight:800; padding:2px 7px; border-radius:5px}
 .jo.ok{background:var(--pre-bg); color:var(--pre)}
 .jo.no{background:var(--surface-3); color:var(--ink-3)}
@@ -949,9 +957,9 @@ function whenLine(it, kind){
   const label = kind==="pre" ? "의견마감" : (due.src==="개찰" ? "개찰" : "마감");
   const when  = due.iso ? `${due.iso}${due.time?" "+due.time:""}` : "일정 미상";
   const reg   = it.date ? `${kind==="pre"?"접수":"공고"} ${it.date}` : "";
-  const no    = kind==="pre" && it.bidNo ? `<span class="dot">·</span>사전규격 <span class="num">${esc(it.bidNo)}</span>` : "";
+
   // 언제 올라온 공고인지를 먼저 읽고, 그다음 언제까지인지를 봅니다.
-  return (reg?`${reg}<span class="dot">·</span>`:"") + `${label} ${when}` + no;
+  return (reg?`${reg}<span class="dot">·</span>`:"") + `${label} ${when}`;
 }
 
 /* 작년 같은 사업을 누가 얼마에 했는지.
@@ -987,6 +995,20 @@ function docLine(it){
   return `<div class="meta docm">${bits.join(`<span class="dot">·</span>`)}</div>`;
 }
 
+/* 사전공고는 나라장터 상세 주소를 만들 수 없습니다.
+   API 가 상세 주소를 안 주고, 나라장터 화면의 공고 제목도 진짜 링크가 아니라
+   자바스크립트로 팝업을 띄우는 글자 상자(WebSquare w2textbox)입니다. href 가
+   아예 없어서 바깥에서 특정 공고를 지목할 방법이 없습니다.
+   그래서 "번호 복사 → 나라장터 열기 → 붙여넣기" 세 동작으로 줄여 줍니다. */
+const G2B_SEARCH = "https://www.g2b.go.kr/link/PRCA001_04/single/?srch=0002&flag=cnrtSl";
+function preFindLine(it){
+  const no=String(it.bidNo||"").trim();
+  if(!no) return "";
+  return `<div class="meta findline">사전규격 <span class="num">${esc(no)}</span>`
+    + `<button type="button" class="mini" data-copy="${esc(no)}">번호 복사</button>`
+    + `<a class="mini" href="${G2B_SEARCH}" target="_blank" rel="noopener">나라장터 열기 ↗</a></div>`;
+}
+
 /* 예측점수 배지. 마우스를 올리면 왜 그 점수인지 보여줍니다. */
 function scoreBadge(it){
   const s = it.score;
@@ -1017,6 +1039,7 @@ function cardHtml(it, kind){
     <div class="meta">${moneyLine(it,kind)}</div>
     <div class="meta">${whenLine(it,kind)}</div>
     ${docLine(it)}
+    ${kind==="pre" ? preFindLine(it) : ""}
     ${prevLine(it)}
   </article>`;
 }
@@ -1098,6 +1121,29 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
     wrap.innerHTML=list.map(it=>cardHtml(it,kind)).join("");
     empty.hidden=list.length>0;
   }
+
+  /* 카드는 다시 그려지므로 버튼마다 붙이지 않고 목록 전체에서 한 번만 받습니다. */
+  wrap.addEventListener("click", async e=>{
+    const b=e.target.closest("button.mini[data-copy]");
+    if(!b) return;
+    const no=b.dataset.copy;
+    let ok=false;
+    try{ await navigator.clipboard.writeText(no); ok=true; }
+    catch{
+      // 브라우저가 클립보드를 막는 경우가 있어 예전 방식으로 한 번 더 시도합니다.
+      try{
+        const ta=document.createElement("textarea");
+        ta.value=no; ta.style.position="fixed"; ta.style.opacity="0";
+        document.body.appendChild(ta); ta.select();
+        ok=document.execCommand("copy");
+        ta.remove();
+      }catch{}
+    }
+    const was=b.textContent;
+    b.textContent = ok ? "복사됨" : "복사 실패";
+    b.classList.toggle("done", ok);
+    setTimeout(()=>{ b.textContent=was; b.classList.remove("done"); }, 1400);
+  });
 
   root.querySelector(".search").addEventListener("input",e=>{st.q=e.target.value; draw();});
   draw();
