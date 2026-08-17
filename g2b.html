@@ -296,6 +296,10 @@ svg{display:block; width:100%}
 
 /* 공고문에서 읽어낸 줄 — 추측이 아니라 원문에 적힌 사실입니다 */
 .card .docm{font-size:13px; color:var(--ink-3); cursor:help}
+.jo{font-size:11.5px; font-weight:800; padding:2px 7px; border-radius:5px}
+.jo.ok{background:var(--pre-bg); color:var(--pre)}
+.jo.no{background:var(--surface-3); color:var(--ink-3)}
+.jo.un{background:var(--surface-3); color:var(--ink-3); font-weight:700}
 .src{font-size:9.5px; font-weight:800; color:var(--go); background:var(--go-bg); padding:1px 4px; border-radius:3px; vertical-align:1px}
 .jud{font-size:11.5px; font-weight:800; padding:2px 7px; border-radius:5px}
 .jud.yes{background:var(--go-bg); color:var(--go)}
@@ -924,6 +928,12 @@ function moneyLine(it, kind){
   const bits=[`<span class="amt">${won(kind==="pre" ? it.budget : (it.budget ?? it.price))}</span>`];
   if(kind!=="pre"){
     if(it.winnerMethod) bits.push(esc(it.winnerMethod));
+    // 공동수급(컨소시엄) 가능 여부. 단독으로 어려운 규모를 컨소시엄으로 갈 수 있는지가
+    // 여기서 갈립니다. 값이 비어 오는 공고가 있어 "미상"을 따로 둡니다 — 모르는 것을
+    // 가능하다고 적으면 안 됩니다.
+    if(it.jointOk === true) bits.push(`<span class="jo ok" title="${esc(it.jointMethod||"공동수급 가능")}">공동수급 가능</span>`);
+    else if(it.jointOk === false) bits.push(`<span class="jo no">단독참여만</span>`);
+    else bits.push(`<span class="jo un">공동수급 미상</span>`);
     // 공고문에 적힌 배점이 있으면 그것을 씁니다. API 값과 다를 때는 공고문이 맞습니다.
     const d = it.doc?.rate;
     if(d) bits.push(`<span title="${esc(d.evidence)}">기술 ${d.tech} : 가격 ${d.price} <span class="src">공고문</span></span>`);
