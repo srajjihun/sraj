@@ -232,7 +232,7 @@ svg{display:block; width:100%}
   background:var(--surface); border:1px solid var(--line); border-radius:12px;
   padding:11px 13px; box-shadow:var(--shadow); margin-bottom:11px;
 }
-.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chips{display:flex; gap:6px; flex-wrap:wrap; flex:1 1 100%}
 .chip{
   font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:999px;
   border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
@@ -246,30 +246,53 @@ svg{display:block; width:100%}
   padding:7px 12px; min-width:200px;
 }
 .search::placeholder{color:var(--ink-4)}
-.listwrap{
+/* 정렬 버튼 — 표의 칸 제목을 누르는 방식 대신 씁니다.
+   카드에는 누를 칸 제목이 없기 때문입니다. */
+.sortbar{display:flex; align-items:center; gap:5px}
+.sortbar .lb{font-size:11.5px; font-weight:800; color:var(--ink-3); letter-spacing:.03em; margin-right:2px}
+.sortbtn{
+  font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:8px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+}
+.sortbtn:hover{border-color:var(--accent); color:var(--accent)}
+.sortbtn.on{background:var(--accent-tint); border-color:var(--accent); color:var(--accent)}
+
+/* 공고 카드 — 한 줄에 2개.
+   표에서는 칸 너비가 모자라 내용이 잘렸는데, 카드는 아래로 늘어나므로
+   공고명이 길어도 잘리지 않고 작년 수행업체 같은 줄을 더 넣을 수 있습니다. */
+.cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; align-items:stretch}
+@media (max-width:900px){ .cards{grid-template-columns:1fr} }
+.card{
+  position:relative; overflow:hidden;
   background:var(--surface); border:1px solid var(--line); border-radius:12px;
-  box-shadow:var(--shadow); overflow-x:auto;   /* 넘치면 잘리지 않고 가로로 넘깁니다 */
+  box-shadow:var(--shadow); padding:14px 16px 13px;
+  display:flex; flex-direction:column; gap:7px;
 }
-/* 창이 좁아도 제목 칸이 짓눌리지 않도록 최소폭을 둡니다.
-   그보다 좁아지면 표가 가로로 스크롤됩니다. */
-table.list{width:100%; min-width:1040px; border-collapse:collapse; font-size:13.5px; table-layout:fixed}
-table.list th{
-  background:var(--surface-3); color:var(--ink-2); font-size:11.5px; font-weight:800;
-  letter-spacing:.03em; text-align:left; padding:9px 12px;
-  border-bottom:1px solid var(--line); white-space:nowrap;
+/* 마감 임박(D-3 이내)은 카드 왼쪽에 띠를 둡니다 */
+.card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:transparent}
+.card.hot::before{background:var(--stop)}
+.card .top{display:flex; align-items:center; gap:8px}
+.card .top .due{margin-left:auto}
+.card .ttl{
+  font-size:14.5px; font-weight:700; line-height:1.45; letter-spacing:-.01em;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; min-height:2.9em;
 }
-table.list th.r{text-align:right}
-table.list th.sortable{cursor:pointer; user-select:none}
-table.list th.sortable:hover{color:var(--accent)}
-table.list th.sorted{color:var(--accent)}
-table.list th.sorted::after{content:" ▾"; font-size:9px}
-table.list th.sorted.asc::after{content:" ▴"}
-table.list td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-table.list tbody tr:nth-child(even){background:var(--surface-2)}
-table.list tbody tr:last-child td{border-bottom:0}
-table.list td.nm{white-space:normal; font-weight:650; letter-spacing:-.01em; line-height:1.45}
-table.list td.r{text-align:right}
-table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
+.card .org{font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.card .meta{display:flex; align-items:center; flex-wrap:wrap; gap:7px; font-size:12.5px; color:var(--ink-2)}
+.card .meta .dot{color:var(--ink-4)}
+.card .amt{font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums}
+.card .prev{
+  margin-top:auto; padding-top:9px; border-top:1px solid var(--line-soft);
+  display:flex; align-items:center; flex-wrap:wrap; gap:7px;
+  font-size:12.5px; color:var(--ink-2);
+}
+.card .prev .tag{
+  font-size:10.5px; font-weight:800; color:var(--ink-3);
+  background:var(--surface-3); padding:2.5px 7px; border-radius:5px;
+}
+.card .prev .co{font-weight:700; color:var(--ink)}
+.card .prev.none{color:var(--ink-3)}
 .kw{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap}
 .due{font-size:11.5px; font-weight:800; padding:2.5px 7px; border-radius:5px; background:var(--surface-3); color:var(--ink-2)}
 .due.hot{background:var(--stop-bg); color:var(--stop)}
@@ -409,8 +432,8 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
 
   <!-- ═══ 목록 화면 (사전공고 · 일반공고 · 유찰공고) — 같은 코드로 그립니다 ═══ -->
   <section class="view" id="view-pre" hidden>
-    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="사전공고 공고명 검색"></div>
-    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
+    <div class="listbar"><div class="chips"></div><div class="sortbar"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="사전공고 공고명 검색"></div>
+    <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
       공고명을 누르면 나라장터 사전규격 화면이 새 창으로 열립니다
@@ -418,8 +441,8 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
   </section>
 
   <section class="view" id="view-gen" hidden>
-    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="일반공고 공고명 검색"></div>
-    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
+    <div class="listbar"><div class="chips"></div><div class="sortbar"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="일반공고 공고명 검색"></div>
+    <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       한 번도 유찰되지 않은 정식 입찰공고입니다 · 공고명을 누르면 나라장터 원문이 새 창으로 열립니다<br>
       평가는 기술배점 : 가격배점입니다 · 마감이 지나면 자동으로 사라집니다
@@ -427,8 +450,8 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
   </section>
 
   <section class="view" id="view-re" hidden>
-    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="유찰공고 공고명 검색"></div>
-    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
+    <div class="listbar"><div class="chips"></div><div class="sortbar"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="유찰공고 공고명 검색"></div>
+    <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       1차에서 낙찰자가 없어 다시 올라온 공고입니다 · 경쟁이 약할 수 있습니다<br>
       공고명을 누르면 나라장터 원문이 새 창으로 열립니다
@@ -727,105 +750,142 @@ function dueCell(it){
   const pre = due.src==="개찰" ? "개찰 " : "";
   return `<span class="due ${d<=3?"hot":""} num">${pre}${fmtShort(due.iso)} · ${d===0?"오늘":"D-"+d}</span>`;
 }
-function rateCell(it){
-  if(it.techRate===null||it.techRate===undefined) return `<span class="rate na">미정</span>`;
-  const pr=it.priceRate??100-it.techRate;
-  return `<span class="rate" title="기술 ${it.techRate} · 가격 ${pr}">`
-    + `<span class="tech num"><span class="sr">기술 </span>${it.techRate}</span>`
-    + `<span class="sep" aria-hidden="true">:</span>`
-    + `<span class="prc num"><span class="sr">가격 </span>${pr}</span></span>`;
-}
 const won = v => v ? Math.round(v/1e6).toLocaleString()+"백만" : "—";
 
-const COL = {
-  kw:     { th:"분야",   w:"132px", sort:it=>GROUPS.indexOf((it.kw||[])[0] ?? ""),
-            td:it=>{ const g=(it.kw||[])[0];
-              return g?`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`:""; } },
-  title:  { th:"공고명",  w:"",      sort:it=>it.title||"", cls:"nm",
-            td:it=>{ const u=g2bLink(it);
-              return u?`<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
-                     :`<span class="nmplain">${esc(it.title)}</span>`; } },
-  reg:    { th:"공고일",  w:"84px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
-  rcpt:   { th:"접수일",  w:"84px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
-  due:    { th:"마감",    w:"142px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
-  opin:   { th:"의견마감", w:"142px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
-  org:    { th:"수요기관", w:"152px", sort:it=>it.org||"", cls:"dim",
-            td:it=>`<span title="${esc(it.org)}">${esc(it.org)}</span>` },
-  budget: { th:"배정예산", w:"104px",  sort:it=>it.budget ?? -1, cls:"r dim num", td:it=>won(it.budget) },
-  price:  { th:"금액",    w:"104px",  sort:it=>it.budget ?? it.price ?? -1, cls:"r dim num",
-            td:it=>won(it.budget ?? it.price) },
-  rate:   { th:"평가",    w:"150px",  sort:it=>it.techRate ?? -1, cls:"r", td:rateCell },
-};
+/* ═══ 목록 화면 — 공고 카드를 2칸으로 깝니다 ═══ */
 
-function listView(viewId, items, cols, defaultSort, countEl){
+/* 금액 · 계약방법 · 평가배점 */
+function moneyLine(it, kind){
+  const bits=[`<span class="amt">${won(kind==="pre" ? it.budget : (it.budget ?? it.price))}</span>`];
+  if(kind!=="pre"){
+    if(it.winnerMethod) bits.push(esc(it.winnerMethod));
+    if(it.techRate!==null && it.techRate!==undefined)
+      bits.push(`기술 ${it.techRate} : 가격 ${it.priceRate ?? 100-it.techRate}`);
+  }
+  return bits.join(`<span class="dot">·</span>`);
+}
+
+/* 마감 일시 · 공고일 */
+function whenLine(it, kind){
+  const due=dueOf(it);
+  const label = kind==="pre" ? "의견마감" : (due.src==="개찰" ? "개찰" : "마감");
+  const when  = due.iso ? `${due.iso}${due.time?" "+due.time:""}` : "일정 미상";
+  const reg   = it.date ? `${kind==="pre"?"접수":"공고"} ${it.date}` : "";
+  return `${label} ${when}` + (reg?`<span class="dot">·</span>${reg}`:"");
+}
+
+/* 작년 같은 사업을 누가 얼마에 했는지.
+   낙찰정보(ScsbidInfoService)에서 받아 제목·기관이 모두 같을 때만 붙입니다.
+   올해 공고는 아직 입찰 전이라 투찰업체 수는 어디까지나 작년 숫자입니다. */
+function prevLine(it){
+  const L=it.last;
+  if(!L || !L.corp) return `<div class="prev none"><span class="tag">작년</span>기록 없음</div>`;
+  const bits=[`<span class="co">${esc(L.corp)}</span>`];
+  if(L.amount)  bits.push(won(L.amount));
+  if(L.rate)    bits.push(`낙찰률 ${L.rate}%`);
+  if(L.bidders) bits.push(`${L.bidders}곳 투찰`);
+  return `<div class="prev"><span class="tag">작년</span>`+bits.join(`<span class="dot">·</span>`)+`</div>`;
+}
+
+function cardHtml(it, kind){
+  const g=(it.kw||[])[0];
+  const d=daysUntil(dueOf(it).iso);
+  const u=g2bLink(it);
+  const badge = g
+    ? `<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`
+    : `<span class="kw" style="color:var(--kw-x); background:var(--kw-x-bg)">기타</span>`;
+  const ttl = u
+    ? `<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
+    : `<span class="nmplain">${esc(it.title)}</span>`;
+  return `<article class="card${d!==null&&d<=3?" hot":""}">
+    <div class="top">${badge}${dueCell(it)}</div>
+    <h3 class="ttl">${ttl}</h3>
+    <div class="org" title="${esc(it.org)}">${esc(it.org)}</div>
+    <div class="meta">${moneyLine(it,kind)}</div>
+    <div class="meta">${whenLine(it,kind)}</div>
+    ${prevLine(it)}
+  </article>`;
+}
+
+/* 정렬 — 카드에는 누를 칸 제목이 없으므로 버튼으로 고릅니다 */
+const SORTS = [
+  { id:"due",    label:"마감순", key:it=>daysUntil(dueOf(it).iso) ?? 99999 },
+  { id:"budget", label:"예산순", key:it=>-((it.budget ?? it.price) ?? -1) },
+  { id:"date",   label:"최신순", key:it=>it.date ? -Number(it.date.replace(/-/g,"")) : 1 },
+];
+
+function cardView(viewId, items, kind, countEl){
   const root=$("#"+viewId);
   if(countEl) $(countEl).textContent=items.length;
-  const st={kw:"all", q:"", sort:defaultSort, dir:1};
+  /* 분야는 여러 개 겹쳐 고를 수 있습니다. 아무것도 안 고르면 전체입니다. */
+  const st={kw:new Set(), q:"", sort:"due"};
 
   const chips=root.querySelector(".chips");
-  const mk=(label,val)=>{
+  const all=document.createElement("button");
+  all.type="button"; all.className="chip on"; all.setAttribute("aria-pressed","true");
+  all.innerHTML=`전체 <span class="n num">${items.length}</span>`;
+  all.addEventListener("click",()=>{ st.kw.clear(); sync(); draw(); });
+  chips.appendChild(all);
+
+  const btns=[];
+  for(const g of GROUPS){
+    const n=items.filter(it=>(it.kw||[]).includes(g)).length;
     const b=document.createElement("button");
-    b.type="button";
-    b.className="chip"+(val==="all"?" on":"");
-    const n=val==="all"?items.length:items.filter(it=>(it.kw||[]).includes(val)).length;
-    b.innerHTML=`${esc(label)} <span class="n num">${n}</span>`;
-    b.setAttribute("aria-pressed", val==="all"?"true":"false");
+    b.type="button"; b.className="chip"; b.setAttribute("aria-pressed","false");
+    b.innerHTML=`${esc(g)} <span class="n num">${n}</span>`;
     b.addEventListener("click",()=>{
-      chips.querySelectorAll(".chip").forEach(x=>{x.classList.remove("on"); x.setAttribute("aria-pressed","false");});
-      b.classList.add("on"); b.setAttribute("aria-pressed","true");
-      st.kw=val; draw();
+      if(st.kw.has(g)) st.kw.delete(g); else st.kw.add(g);
+      sync(); draw();
     });
-    return b;
-  };
-  chips.appendChild(mk("전체","all"));
-  for(const g of GROUPS) chips.appendChild(mk(g,g));
+    btns.push([g,b]); chips.appendChild(b);
+  }
+  function sync(){
+    all.classList.toggle("on", st.kw.size===0);
+    all.setAttribute("aria-pressed", st.kw.size===0?"true":"false");
+    for(const [g,b] of btns){
+      const on=st.kw.has(g);
+      b.classList.toggle("on",on); b.setAttribute("aria-pressed",on?"true":"false");
+    }
+  }
 
-  root.querySelector("thead").innerHTML="<tr>"+cols.map(k=>{
-    const c=COL[k], right=(c.cls||"").includes("r");
-    return `<th class="sortable${k===defaultSort?" sorted":""}${right?" r":""}" data-sort="${k}"`
-      + (c.w?` style="width:${c.w}"`:"") + ` aria-sort="${k===defaultSort?"ascending":"none"}">${c.th}</th>`;
-  }).join("")+"</tr>";
+  const sortbar=root.querySelector(".sortbar");
+  sortbar.innerHTML=`<span class="lb">정렬</span>`;
+  for(const s of SORTS){
+    const b=document.createElement("button");
+    b.type="button"; b.className="sortbtn"+(s.id===st.sort?" on":"");
+    b.textContent=s.label;
+    b.setAttribute("aria-pressed", s.id===st.sort?"true":"false");
+    b.addEventListener("click",()=>{
+      st.sort=s.id;
+      sortbar.querySelectorAll(".sortbtn").forEach(x=>{x.classList.remove("on"); x.setAttribute("aria-pressed","false");});
+      b.classList.add("on"); b.setAttribute("aria-pressed","true");
+      draw();
+    });
+    sortbar.appendChild(b);
+  }
 
-  const tbody=root.querySelector("tbody"), empty=root.querySelector(".empty");
+  const wrap=root.querySelector(".cards"), empty=root.querySelector(".empty");
   function draw(){
     const q=st.q.trim().toLowerCase();
     const list=items.filter(it=>
-      (st.kw==="all"||(it.kw||[]).includes(st.kw)) &&
-      (!q||(it.title||"").toLowerCase().includes(q)));
-    const key=COL[st.sort].sort;
-    list.sort((a,b)=>{
-      const x=key(a), y=key(b);
-      if(typeof x==="string") return x.localeCompare(y,"ko")*st.dir;
-      return (x-y)*st.dir;
-    });
-    tbody.innerHTML=list.map(it=>"<tr>"+cols.map(k=>{
-      const c=COL[k];
-      return `<td${c.cls?` class="${c.cls}"`:""}>${c.td(it)}</td>`;
-    }).join("")+"</tr>").join("");
+      (st.kw.size===0 || (it.kw||[]).some(g=>st.kw.has(g))) &&
+      (!q || (it.title||"").toLowerCase().includes(q)));
+    const key=SORTS.find(s=>s.id===st.sort).key;
+    list.sort((a,b)=>key(a)-key(b));
+    wrap.innerHTML=list.map(it=>cardHtml(it,kind)).join("");
     empty.hidden=list.length>0;
   }
 
   root.querySelector(".search").addEventListener("input",e=>{st.q=e.target.value; draw();});
-  root.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{
-    const k=th.dataset.sort;
-    if(st.sort===k){ st.dir*=-1; } else { st.sort=k; st.dir=1; }
-    root.querySelectorAll("th.sortable").forEach(t=>{
-      t.classList.remove("sorted","asc"); t.setAttribute("aria-sort","none");
-    });
-    th.classList.add("sorted");
-    if(st.dir===-1) th.classList.add("asc");
-    th.setAttribute("aria-sort", st.dir===1?"ascending":"descending");
-    draw();
-  }));
   draw();
 }
 
 /* 사전공고 — 정식 공고 전 단계라 일정이 "의견마감"입니다 */
-listView("view-pre", PRES, ["kw","title","rcpt","opin","org","budget"], "opin", "#nav-n-pre");
+cardView("view-pre", PRES, "pre", "#nav-n-pre");
 /* 일반공고 — 한 번도 유찰되지 않은 정식 입찰공고 */
-listView("view-gen", POSTS.filter(it=>!it.reNtce), ["kw","title","reg","due","org","price","rate"], "due", "#nav-n-gen");
+cardView("view-gen", POSTS.filter(it=>!it.reNtce), "bid", "#nav-n-gen");
 /* 유찰공고 — 1차에서 낙찰자가 없어 다시 올라온 공고. 경쟁이 약할 수 있습니다 */
-listView("view-re", POSTS.filter(it=>it.reNtce), ["kw","title","reg","due","org","price","rate"], "due", "#nav-n-re");
+cardView("view-re", POSTS.filter(it=>it.reNtce), "bid", "#nav-n-re");
 
 </script>
 </body>
