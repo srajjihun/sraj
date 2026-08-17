@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-rem ── 입찰·영업 정보시스템: 나라장터 수집 스크립트 (Windows) ──
+rem -- 입찰·영업 정보시스템: 나라장터 수집 스크립트 (Windows) --
 rem 나라장터 OpenAPI에서 입찰공고·사전규격을 수집하고 g2b-live.html 을 생성합니다.
 rem
 rem 준비(최초 1회): 공공데이터포털 일반 인증키를 환경변수로 등록합니다.
