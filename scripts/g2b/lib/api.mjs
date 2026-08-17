@@ -30,6 +30,9 @@ const THROTTLE_MAX_MS = 3000; // 429를 계속 맞을 때까지 늘어나는 상
 let throttleMs = THROTTLE_MIN_MS;
 let okStreak = 0;
 let lastCallAt = 0;
+// 이번 실행에서 한 번이라도 성공했는지. 첫 호출부터 429면 순간 속도 문제일 수
+// 없으므로(아직 아무것도 안 보냈다) 하루 호출 한도를 소진한 것으로 본다.
+let everSucceeded = false;
 
 function slowDown() {
   throttleMs = Math.min(THROTTLE_MAX_MS, Math.max(500, Math.round(throttleMs * 2)));
@@ -148,6 +151,7 @@ async function fetchOnce(url, label) {
     err.httpStatus = res.status;
     throw err;
   }
+  everSucceeded = true;
   speedUpGradually();
   return res.text();
 }
@@ -173,6 +177,12 @@ async function fetchPage(service, operation, params, label) {
       text = await fetchOnce(url, label);
     } catch (err) {
       lastErr = err;
+      // 한 번도 성공하지 못한 채 429가 나면 하루 한도(개발계정 1,000회/일)를
+      // 소진한 것이다. 한도는 자정에야 초기화되므로 재시도는 시간 낭비다.
+      if (err.httpStatus === 429 && !everSucceeded) {
+        err.dailyQuota = true;
+        break;
+      }
       if (!isTransient(err) || attempt === MAX_RETRY) break;
       // 429면 앞으로의 호출 간격 자체를 늘려 같은 상황이 반복되지 않게 한다.
       if (err.httpStatus === 429) {
