@@ -112,7 +112,10 @@ if not "%RC%"=="0" goto :getfail
 echo         최신 코드를 받았습니다.
 echo.
 
-echo   [2/3] 화면을 다시 만드는 중입니다...
+echo   [2/3] 지금 키워드로 공고를 다시 걸러내는 중입니다...
+node "scripts\g2b\reclassify.mjs"
+echo.
+echo         화면을 다시 만드는 중입니다...
 node "scripts\g2b\build-page.mjs"
 if errorlevel 1 goto :buildfail
 
