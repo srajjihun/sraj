@@ -31,6 +31,22 @@ function collectBidFiles(raw) {
   return files;
 }
 
+// 공동수급 허용 여부.
+// cmmnSpldmdMethdNm 에 "불허"가 들어가면 단독 수주만 가능하고,
+// "공동이행"·"분담이행" 이면 컨소시엄 구성이 가능합니다.
+// 값이 비어 있으면 공고문을 봐야 하므로 판정을 보류(null)합니다.
+function jointAllowed(raw) {
+  const m = text(raw.cmmnSpldmdMethdNm);
+  if (m) {
+    if (m.includes("불허")) return false;
+    if (m.includes("이행") || m.includes("허용")) return true;
+  }
+  const y = text(raw.cmmnCntrctYn);
+  if (y === "Y") return true;
+  if (y === "N") return false;
+  return null; // 미상
+}
+
 // 사전규격: 파일명 필드가 없어 URL만 옵니다.
 function collectPrespecFiles(raw) {
   const files = [];
@@ -75,6 +91,12 @@ export function normalizeBid(raw, kind = "용역") {
     arsltCmpt: text(raw.arsltCmptYn) === "Y", // 실적경쟁
     indstrytyLmt: text(raw.indstrytyLmtYn) === "Y", // 업종(면허)제한
     rgnLmt: text(raw.rgnLmtYn) === "Y", // 지역제한 (내용은 공고문에만 있음)
+
+    // 공동수급(컨소시엄) — 지분 참여 시 지분율만큼 실적증명이 발급되므로
+    // 신설법인이 자기 이름으로 실적을 쌓을 수 있는지가 여기서 갈린다.
+    jointOk: jointAllowed(raw),
+    jointMethod: text(raw.cmmnSpldmdMethdNm), // 공동이행 / 분담이행 / (없음)공동수급불허
+    jointRgnLmt: text(raw.cmmnSpldmdCorpRgnLmtYn) === "Y", // 공동수급 구성원 지역제한
 
     categoryNo: text(raw.pubPrcrmntClsfcNo),
     category: text(raw.pubPrcrmntClsfcNm),

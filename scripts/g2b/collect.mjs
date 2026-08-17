@@ -74,20 +74,38 @@ function daysSince(dateStr, now) {
   return (now.getTime() - t) / 86400000;
 }
 
+// nkoneps resultCode "07" = 입력범위값 초과. 과거로 갈수록 반복해서 나면
+// (창 크기가 아니라) 이 오퍼레이션이 조회를 허용하는 과거 기간의 한계에
+// 도달했다는 뜻이다. 재시도해도 소용없고, 그 뒤로 더 과거 구간도 계속
+// 같은 오류가 나므로 그 지점에서 멈추는 게 맞다.
+function isRangeLimit(err) {
+  return err.g2bCode === "07";
+}
+
 async function collectBids(days) {
   const store = await loadJson(RAW_BID, {});
   let added = 0;
+  let earliestReached = null; // 실제로 받아낸 가장 오래된 날짜 (YYYY-MM-DD)
 
   for (const [kind, op] of Object.entries(BID_OPS)) {
     for (const region of REGIONS) {
       for (const w of windows(days)) {
         const label = `${kind}·지역${region} ${w.bgn.slice(4, 8)}`;
-        const items = await fetchAll("BID", op, {
-          inqryDiv: 1, // 공고게시일시 기준
-          inqryBgnDt: w.bgn,
-          inqryEndDt: w.end,
-          prtcptLmtRgnCd: region,
-        }, { label });
+        let items;
+        try {
+          items = await fetchAll("BID", op, {
+            inqryDiv: 1, // 공고게시일시 기준
+            inqryBgnDt: w.bgn,
+            inqryEndDt: w.end,
+            prtcptLmtRgnCd: region,
+          }, { label });
+        } catch (err) {
+          if (isRangeLimit(err)) {
+            console.log(`  ${label}: 조회 가능 기간의 한계에 도달해 더 과거는 건너뜁니다`);
+            break; // 이 kind·region 의 남은(더 과거) 구간은 시도해도 계속 같은 오류다
+          }
+          throw err; // 그 외 오류는 main()의 안전장치로 넘긴다
+        }
 
         for (const raw of items) {
           const it = normalizeBid(raw, kind);
@@ -98,24 +116,39 @@ async function collectBids(days) {
           if (!prev) added += 1;
         }
         console.log(`  ${label}: ${items.length}건`);
+
+        // 구간마다 저장합니다. 다음 구간에서 오류가 나도 지금까지 받은 건 남습니다.
+        await saveJson(RAW_BID, store);
+        const bgnDate = `${w.bgn.slice(0, 4)}-${w.bgn.slice(4, 6)}-${w.bgn.slice(6, 8)}`;
+        if (!earliestReached || bgnDate < earliestReached) earliestReached = bgnDate;
       }
     }
   }
 
-  await saveJson(RAW_BID, store);
-  return { store, added };
+  return { store, added, earliestReached };
 }
 
 async function collectPrespecs(days) {
   const store = await loadJson(RAW_PRE, {});
   let added = 0;
+  let earliestReached = null;
 
   for (const w of windows(days)) {
-    const items = await fetchAll("PRESPEC", PRE_OP, {
-      inqryDiv: 1, // 접수일시 기준
-      inqryBgnDt: w.bgn,
-      inqryEndDt: w.end,
-    }, { label: `사전규격 ${w.bgn.slice(4, 8)}` });
+    const label = `사전규격 ${w.bgn.slice(4, 8)}`;
+    let items;
+    try {
+      items = await fetchAll("PRESPEC", PRE_OP, {
+        inqryDiv: 1, // 접수일시 기준
+        inqryBgnDt: w.bgn,
+        inqryEndDt: w.end,
+      }, { label });
+    } catch (err) {
+      if (isRangeLimit(err)) {
+        console.log(`  ${label}: 조회 가능 기간의 한계에 도달해 더 과거는 건너뜁니다`);
+        break;
+      }
+      throw err;
+    }
 
     for (const raw of items) {
       const it = normalizePrespec(raw);
@@ -124,11 +157,14 @@ async function collectPrespecs(days) {
       store[it.bidNo] = { ...prev, ...it, firstSeenAt: prev?.firstSeenAt ?? new Date().toISOString() };
       if (!prev) added += 1;
     }
-    console.log(`  사전규격: ${items.length}건`);
+    console.log(`  ${label}: ${items.length}건`);
+
+    await saveJson(RAW_PRE, store);
+    const bgnDate = `${w.bgn.slice(0, 4)}-${w.bgn.slice(4, 6)}-${w.bgn.slice(6, 8)}`;
+    if (!earliestReached || bgnDate < earliestReached) earliestReached = bgnDate;
   }
 
-  await saveJson(RAW_PRE, store);
-  return { store, added };
+  return { store, added, earliestReached };
 }
 
 // 원본 저장소 → 키워드 필터 → 화면용 posts.json
@@ -174,19 +210,31 @@ async function main() {
   const failures = [];
   let bidStore = await loadJson(RAW_BID, {});
   let preStore = await loadJson(RAW_PRE, {});
+  let earliestBid = null;
+  let earliestPre = null;
 
   try {
-    ({ store: bidStore } = await collectBids(days));
+    ({ store: bidStore, earliestReached: earliestBid } = await collectBids(days));
   } catch (err) {
     console.error(`[경고] 입찰공고 수집 실패: ${err.message}`);
     failures.push("입찰공고");
   }
   try {
-    ({ store: preStore } = await collectPrespecs(days));
+    ({ store: preStore, earliestReached: earliestPre } = await collectPrespecs(days));
   } catch (err) {
     console.error(`[경고] 사전규격 수집 실패: ${err.message}`);
     failures.push("사전규격");
   }
+
+  // 요청한 기간보다 덜 받았으면(조회 가능 기간의 한계) 정직하게 알립니다.
+  const requestedFrom = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+  if (earliestBid) {
+    console.log(`[범위] 입찰공고 실제 수집 범위: ${earliestBid} ~ 오늘`);
+    if (earliestBid > requestedFrom) {
+      console.log(`       (요청한 ${requestedFrom} 까지는 못 받았습니다 — 나라장터가 그 이전 데이터를 제공하지 않습니다)`);
+    }
+  }
+  if (earliestPre) console.log(`[범위] 사전규격 실제 수집 범위: ${earliestPre} ~ 오늘`);
 
   // 이전 posts.json 의 firstSeenAt 보존은 raw 저장소가 담당하므로 여기선 그대로 씁니다.
   const { posts, prespecs } = buildPosts(bidStore, preStore, config);

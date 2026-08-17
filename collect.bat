@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-rem ── 모집·신청 레이더: PC 수집 스크립트 (Windows) ──
+rem -- 모집·신청 레이더: PC 수집 스크립트 (Windows) --
 rem GitHub 서버(해외 IP)에서 접속이 차단되는 영등포구청/기업마당/정부24를
 rem 포함해 4개 소스를 이 PC(한국 IP)에서 수집하고 저장소에 푸시한다.
 rem 사용법: collect-silent.vbs 로 실행하면 창 없이 조용히 동작한다.
@@ -28,7 +28,7 @@ git add data\ydp-posts.json data\seoul-posts.json data\bizinfo-posts.json data\g
 git diff --cached --quiet || git commit -m "chore: 모집/신청 공고 갱신 (PC)" >> "%LOG%" 2>&1
 git push >> "%LOG%" 2>&1
 
-rem ── 나라장터 입찰·영업 정보시스템 ──
+rem -- 나라장터 입찰·영업 정보시스템 --
 rem 인증키(G2B_SERVICE_KEY)가 등록돼 있을 때만 동작한다.
 rem 최초 등록은 G2B-설치.bat 을 한 번 실행하면 된다.
 rem 수집 결과는 g2b-live.html 로만 남고 저장소에는 올리지 않는다(사내 정보).
