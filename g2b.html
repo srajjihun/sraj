@@ -340,8 +340,8 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
     <a class="on" href="#" data-view="dash"><span class="ic">▦</span>대시보드</a>
     <span class="split"></span>
     <a href="#" data-view="pre"><span class="ic">📋</span>사전공고<span class="n num" id="nav-n-pre"></span></a>
-    <a href="#" title="준비 중입니다"><span class="ic">📄</span>일반공고<span class="soon">준비중</span></a>
-    <a href="#" title="준비 중입니다"><span class="ic">🔁</span>유찰공고<span class="soon">준비중</span></a>
+    <a href="#" data-view="gen"><span class="ic">📄</span>일반공고<span class="n num" id="nav-n-gen"></span></a>
+    <a href="#" data-view="re"><span class="ic">🔁</span>유찰공고<span class="n num" id="nav-n-re"></span></a>
     <span class="split"></span>
     <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
@@ -405,31 +405,34 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
   </p>
   </section>
 
-  <!-- ═══ 사전공고 ═══ -->
+  <!-- ═══ 목록 화면 (사전공고 · 일반공고 · 유찰공고) — 같은 코드로 그립니다 ═══ -->
   <section class="view" id="view-pre" hidden>
-    <div class="listbar">
-      <div class="chips" id="pre-chips"></div>
-      <input class="search" id="pre-q" type="search" placeholder="공고명 검색" aria-label="사전공고 공고명 검색">
-    </div>
-    <div class="listwrap">
-      <table class="list">
-        <thead><tr>
-          <th class="sortable" data-sort="kw" style="width:110px">분야</th>
-          <th class="sortable" data-sort="title">공고명</th>
-          <th class="sortable" data-sort="reg" style="width:82px">접수일</th>
-          <th class="sortable sorted" data-sort="due" style="width:150px">의견마감</th>
-          <th class="sortable" data-sort="org" style="width:170px">수요기관</th>
-          <th class="r sortable" data-sort="budget" style="width:94px">배정예산</th>
-        </tr></thead>
-        <tbody id="pre-rows"></tbody>
-      </table>
-      <div class="empty" id="pre-empty" hidden>조건에 맞는 사전공고가 없습니다.</div>
-    </div>
+    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="사전공고 공고명 검색"></div>
+    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
     <p class="foot">
       사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
-      공고명을 누르면 규격서가 새 창으로 열립니다 · 나라장터가 링크를 주지 않는 건은 밑줄 없이 표시됩니다
+      공고명을 누르면 나라장터 사전규격 화면이 새 창으로 열립니다
     </p>
   </section>
+
+  <section class="view" id="view-gen" hidden>
+    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="일반공고 공고명 검색"></div>
+    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
+    <p class="foot">
+      한 번도 유찰되지 않은 정식 입찰공고입니다 · 공고명을 누르면 나라장터 원문이 새 창으로 열립니다<br>
+      평가는 기술배점 : 가격배점입니다 · 마감이 지나면 자동으로 사라집니다
+    </p>
+  </section>
+
+  <section class="view" id="view-re" hidden>
+    <div class="listbar"><div class="chips"></div><input class="search" type="search" placeholder="공고명 검색" aria-label="유찰공고 공고명 검색"></div>
+    <div class="listwrap"><table class="list"><thead></thead><tbody></tbody></table><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div></div>
+    <p class="foot">
+      1차에서 낙찰자가 없어 다시 올라온 공고입니다 · 경쟁이 약할 수 있습니다<br>
+      공고명을 누르면 나라장터 원문이 새 창으로 열립니다
+    </p>
+  </section>
+
 </main>
 </div>
 
@@ -691,7 +694,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
 /* ═══ 화면 전환 ═══ */
 (function(){
   const links=[...document.querySelectorAll(".nav a[data-view]")];
-  const titles={dash:"대시보드", pre:"사전공고"};
+  const titles={dash:"대시보드", pre:"사전공고", gen:"일반공고", re:"유찰공고"};
   function show(v){
     document.querySelectorAll(".view").forEach(el=>{ el.hidden = el.id!=="view-"+v; });
     links.forEach(a=>a.classList.toggle("on", a.dataset.view===v));
@@ -701,19 +704,68 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   links.forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); show(a.dataset.view); }));
 })();
 
-/* ═══ 사전공고 목록 ═══
-   사전규격은 정식 공고 전 단계라 "의견마감"이 일정입니다.
-   나라장터가 상세 URL 을 주지 않아 규격서 파일로만 연결됩니다. */
-(function(){
-  $("#nav-n-pre").textContent=PRES.length;
-  const st={kw:"all", q:"", sort:"due", dir:1};
+/* ═══ 목록 화면 공통 ═══
+   사전공고·일반공고·유찰공고가 같은 코드를 씁니다.
+   화면마다 따로 짜면 정렬·필터 규칙이 갈려 서로 다른 말을 하게 됩니다. */
 
-  const chips=$("#pre-chips");
+/* 나라장터 링크.
+   입찰공고는 API 가 상세 URL(bidNtceDtlUrl)을 주므로 그대로 씁니다.
+   사전규격은 상세 URL 을 주지 않아 등록번호로 조회 화면을 엽니다. */
+function g2bLink(it){
+  if(it.type!=="pre") return it.url || it.files?.[0]?.url || "";
+  const no=String(it.bidNo||"").trim();
+  return no
+    ? "https://www.g2b.go.kr/ep/preparation/prestd/preStdDtl.do?preStdRegNo="+encodeURIComponent(no)
+    : "https://www.g2b.go.kr/";
+}
+
+function dueCell(it){
+  const due=dueOf(it), d=daysUntil(due.iso);
+  if(d===null) return `<span class="due">일정 미상</span>`;
+  const pre = due.src==="개찰" ? "개찰 " : "";
+  return `<span class="due ${d<=3?"hot":""} num">${pre}${fmtShort(due.iso)} · ${d===0?"오늘":"D-"+d}</span>`;
+}
+function rateCell(it){
+  if(it.techRate===null||it.techRate===undefined) return `<span class="rate na">미정</span>`;
+  const pr=it.priceRate??100-it.techRate;
+  return `<span class="rate" title="기술 ${it.techRate} · 가격 ${pr}">`
+    + `<span class="tech num"><span class="sr">기술 </span>${it.techRate}</span>`
+    + `<span class="sep" aria-hidden="true">:</span>`
+    + `<span class="prc num"><span class="sr">가격 </span>${pr}</span></span>`;
+}
+const won = v => v ? Math.round(v/1e6).toLocaleString()+"백만" : "—";
+
+const COL = {
+  kw:     { th:"분야",   w:"110px", sort:it=>GROUPS.indexOf((it.kw||[])[0] ?? ""),
+            td:it=>{ const g=(it.kw||[])[0];
+              return g?`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`:""; } },
+  title:  { th:"공고명",  w:"",      sort:it=>it.title||"", cls:"nm",
+            td:it=>{ const u=g2bLink(it);
+              return u?`<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
+                     :`<span class="nmplain">${esc(it.title)}</span>`; } },
+  reg:    { th:"공고일",  w:"82px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
+  rcpt:   { th:"접수일",  w:"82px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
+  due:    { th:"마감",    w:"152px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
+  opin:   { th:"의견마감", w:"152px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
+  org:    { th:"수요기관", w:"170px", sort:it=>it.org||"", cls:"dim",
+            td:it=>`<span title="${esc(it.org)}">${esc(it.org)}</span>` },
+  budget: { th:"배정예산", w:"94px",  sort:it=>it.budget ?? -1, cls:"r dim num", td:it=>won(it.budget) },
+  price:  { th:"금액",    w:"94px",  sort:it=>it.budget ?? it.price ?? -1, cls:"r dim num",
+            td:it=>won(it.budget ?? it.price) },
+  rate:   { th:"평가",    w:"86px",  sort:it=>it.techRate ?? -1, cls:"r", td:rateCell },
+};
+
+function listView(viewId, items, cols, defaultSort, countEl){
+  const root=$("#"+viewId);
+  if(countEl) $(countEl).textContent=items.length;
+  const st={kw:"all", q:"", sort:defaultSort, dir:1};
+
+  const chips=root.querySelector(".chips");
   const mk=(label,val)=>{
     const b=document.createElement("button");
-    b.className="chip"+(val==="all"?" on":"");
     b.type="button";
-    const n=val==="all"?PRES.length:PRES.filter(it=>(it.kw||[]).includes(val)).length;
+    b.className="chip"+(val==="all"?" on":"");
+    const n=val==="all"?items.length:items.filter(it=>(it.kw||[]).includes(val)).length;
     b.innerHTML=`${esc(label)} <span class="n num">${n}</span>`;
     b.setAttribute("aria-pressed", val==="all"?"true":"false");
     b.addEventListener("click",()=>{
@@ -726,68 +778,52 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   chips.appendChild(mk("전체","all"));
   for(const g of GROUPS) chips.appendChild(mk(g,g));
 
+  root.querySelector("thead").innerHTML="<tr>"+cols.map(k=>{
+    const c=COL[k], right=(c.cls||"").includes("r");
+    return `<th class="sortable${k===defaultSort?" sorted":""}${right?" r":""}" data-sort="${k}"`
+      + (c.w?` style="width:${c.w}"`:"") + ` aria-sort="${k===defaultSort?"ascending":"none"}">${c.th}</th>`;
+  }).join("")+"</tr>";
+
+  const tbody=root.querySelector("tbody"), empty=root.querySelector(".empty");
   function draw(){
     const q=st.q.trim().toLowerCase();
-    const list=PRES.filter(it=>
+    const list=items.filter(it=>
       (st.kw==="all"||(it.kw||[]).includes(st.kw)) &&
       (!q||(it.title||"").toLowerCase().includes(q)));
-
-    // 정렬 기준값을 컬럼마다 하나로 뽑고, 비교는 한 곳에서 합니다.
-    const keyOf={
-      kw:    it => GROUPS.indexOf((it.kw||[])[0] ?? "") ,   // 분야는 화면의 그룹 순서대로
-      title: it => it.title||"",
-      reg:   it => it.date||"",
-      due:   it => daysUntil(dueOf(it).iso) ?? 9999,        // 일정 미상은 항상 뒤로
-      org:   it => it.org||"",
-      budget:it => it.budget ?? -1,
-    }[st.sort];
+    const key=COL[st.sort].sort;
     list.sort((a,b)=>{
-      const x=keyOf(a), y=keyOf(b);
+      const x=key(a), y=key(b);
       if(typeof x==="string") return x.localeCompare(y,"ko")*st.dir;
       return (x-y)*st.dir;
     });
-
-    $("#pre-rows").innerHTML=list.map(it=>{
-      const d=daysUntil(dueOf(it).iso);
-      const due = d===null
-        ? `<span class="due">일정 미상</span>`
-        : `<span class="due ${d<=3?"hot":""} num">${fmtShort(dueOf(it).iso)} · ${d===0?"오늘":"D-"+d}</span>`;
-      const g=(it.kw||[])[0];
-      const kw = g ? `<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>` : "";
-      const amt = it.budget ? `${Math.round(it.budget/1e6).toLocaleString()}백만` : "—";
-      // 사전규격은 나라장터가 상세 URL 을 주지 않아 규격서 파일이 유일한 링크입니다.
-      const u=openUrl(it);
-      const nm = u
-        ? `<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
-        : `<span class="nmplain" title="나라장터가 이 건의 링크를 제공하지 않습니다">${esc(it.title)}</span>`;
-      return `<tr>
-        <td>${kw}</td>
-        <td class="nm">${nm}</td>
-        <td class="dim num">${fmtShort(it.date)}</td>
-        <td>${due}</td>
-        <td class="dim" title="${esc(it.org)}">${esc(it.org)}</td>
-        <td class="r dim num">${amt}</td>
-      </tr>`;}).join("");
-    $("#pre-empty").hidden=list.length>0;
+    tbody.innerHTML=list.map(it=>"<tr>"+cols.map(k=>{
+      const c=COL[k];
+      return `<td${c.cls?` class="${c.cls}"`:""}>${c.td(it)}</td>`;
+    }).join("")+"</tr>").join("");
+    empty.hidden=list.length>0;
   }
 
-  $("#pre-q").addEventListener("input",e=>{st.q=e.target.value; draw();});
-  document.querySelectorAll("#view-pre th.sortable").forEach(th=>{
-    th.setAttribute("aria-sort", th.classList.contains("sorted")?"ascending":"none");
-    th.addEventListener("click",()=>{
-      const k=th.dataset.sort;
-      if(st.sort===k){ st.dir*=-1; } else { st.sort=k; st.dir=1; }
-      document.querySelectorAll("#view-pre th.sortable").forEach(t=>{
-        t.classList.remove("sorted","asc"); t.setAttribute("aria-sort","none");
-      });
-      th.classList.add("sorted");
-      if(st.dir===-1) th.classList.add("asc");
-      th.setAttribute("aria-sort", st.dir===1?"ascending":"descending");
-      draw();
+  root.querySelector(".search").addEventListener("input",e=>{st.q=e.target.value; draw();});
+  root.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{
+    const k=th.dataset.sort;
+    if(st.sort===k){ st.dir*=-1; } else { st.sort=k; st.dir=1; }
+    root.querySelectorAll("th.sortable").forEach(t=>{
+      t.classList.remove("sorted","asc"); t.setAttribute("aria-sort","none");
     });
-  });
+    th.classList.add("sorted");
+    if(st.dir===-1) th.classList.add("asc");
+    th.setAttribute("aria-sort", st.dir===1?"ascending":"descending");
+    draw();
+  }));
   draw();
-})();
+}
+
+/* 사전공고 — 정식 공고 전 단계라 일정이 "의견마감"입니다 */
+listView("view-pre", PRES, ["kw","title","rcpt","opin","org","budget"], "opin", "#nav-n-pre");
+/* 일반공고 — 한 번도 유찰되지 않은 정식 입찰공고 */
+listView("view-gen", POSTS.filter(it=>!it.reNtce), ["kw","title","reg","due","org","price","rate"], "due", "#nav-n-gen");
+/* 유찰공고 — 1차에서 낙찰자가 없어 다시 올라온 공고. 경쟁이 약할 수 있습니다 */
+listView("view-re", POSTS.filter(it=>it.reNtce), ["kw","title","reg","due","org","price","rate"], "due", "#nav-n-re");
 
 </script>
 </body>
