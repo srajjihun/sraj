@@ -26,7 +26,7 @@ if "%WORDS%"=="" (
 
 echo.
 echo   최신 키워드 설정을 받는 중입니다...
-git pull >nul 2>&1
+call "%~dp0코드받기.bat"
 
 if not exist "logs" mkdir "logs"
 node "scripts\g2b\word-check.mjs" %WORDS% > "logs\word-check.txt" 2>&1

@@ -1,0 +1,57 @@
+@echo off
+rem ============================================================
+rem  최신 코드 받기 — 다른 .bat 들이 call 로 부르는 공용 루틴입니다.
+rem  이 파일만 따로 실행하셔도 됩니다.
+rem
+rem  왜 git pull 을 안 쓰는가:
+rem    이 PC 와 GitHub Actions 가 같은 data\*.json 을 서로 커밋·푸시해서
+rem    로컬과 원격이 갈라졌습니다. 그러면 git pull 은 영영 실패하는데
+rem    모든 .bat 이 그 오류를 >nul 로 숨기고 있어서, 새 코드가 몇 번을
+rem    올려도 PC 에 도착하지 않았습니다.
+rem
+rem    이제 PC 는 아무것도 커밋·푸시하지 않습니다. 그래서 "원격 상태로
+rem    맞추기"만 하면 되고, 갈라져 있어도 그 한 번으로 복구됩니다.
+rem
+rem  덮어써지지 않는 것 (git 이 추적하지 않는 파일들):
+rem    data\g2b\        수집 데이터
+rem    g2b-live.html    만들어진 화면
+rem    config\회사정보.md  회사 내부 정보
+rem
+rem  git 이 없거나 이 폴더가 clone 이 아니면 화면-새로고침.bat 을 쓰세요.
+rem  그쪽은 git 없이 GitHub 에서 ZIP 으로 받습니다.
+rem ============================================================
+
+where git >nul 2>&1
+if errorlevel 1 (
+  echo         git 이 설치돼 있지 않습니다 - 코드 받기를 건너뜁니다.
+  echo         화면-새로고침.bat 을 쓰시면 git 없이 받을 수 있습니다.
+  exit /b 1
+)
+
+if not exist ".git" (
+  echo         이 폴더는 git 저장소가 아닙니다 - 코드 받기를 건너뜁니다.
+  echo         화면-새로고침.bat 을 쓰시면 git 없이 받을 수 있습니다.
+  exit /b 1
+)
+
+set "BR="
+for /f %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BR=%%b"
+if not defined BR (
+  echo         현재 브랜치를 알 수 없습니다 - 코드 받기를 건너뜁니다.
+  exit /b 1
+)
+
+git fetch origin %BR%
+if errorlevel 1 (
+  echo         [경고] GitHub 에 연결하지 못했습니다. 예전 코드로 계속합니다.
+  exit /b 1
+)
+
+git reset --hard FETCH_HEAD
+if errorlevel 1 (
+  echo         [경고] 코드를 맞추지 못했습니다. 위 메시지를 알려 주세요.
+  exit /b 1
+)
+
+echo         최신 코드로 맞췄습니다. ^(브랜치 %BR%^)
+exit /b 0

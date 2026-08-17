@@ -6,3 +6,7 @@ node_modules/
 company/
 data/g2b/
 g2b-live.html
+
+# 회사 내부 정보 — 예시 파일(회사정보.예시.md)만 커밋합니다.
+# 실제 파일은 각 PC 에 남고 업데이트로 덮어써지지 않습니다.
+config/회사정보.md

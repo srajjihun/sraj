@@ -2,9 +2,12 @@
 //
 // 형식은 "항목: 값" 한 줄씩입니다. 값이 비면 그 항목은 없는 것으로 봅니다.
 // 사용자가 직접 손으로 고치는 파일이라 형식이 조금 틀려도 죽지 않게 씁니다.
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 
 const CONFIG = new URL("../../../config/회사정보.md", import.meta.url);
+// 예시 파일은 저장소에 커밋되고, 실제 파일(회사정보.md)은 각 PC 에만 남습니다.
+// 업데이트가 회사 정보를 덮어쓰지 않게 하기 위해서입니다.
+const SAMPLE = new URL("../../../config/회사정보.예시.md", import.meta.url);
 
 // "1,200,000,000" / "12억" / "3천만" → 숫자
 function money(v) {
@@ -71,7 +74,15 @@ export async function loadCompany() {
   try {
     return parseCompany(await readFile(CONFIG, "utf8"));
   } catch (err) {
-    if (err.code === "ENOENT") return parseCompany("");
-    throw err;
+    if (err.code !== "ENOENT") throw err;
+  }
+  // 처음 실행이면 예시 파일을 복사해 둡니다 — 어디에 적어야 하는지 보이도록.
+  try {
+    const sample = await readFile(SAMPLE, "utf8");
+    await writeFile(CONFIG, sample, "utf8");
+    console.log("[회사정보] config/회사정보.md 를 만들었습니다. 열어서 채우시면 예측점수가 정확해집니다.");
+    return parseCompany(sample);
+  } catch {
+    return parseCompany("");
   }
 }

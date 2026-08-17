@@ -30,7 +30,7 @@ if "%G2B_SERVICE_KEY%"=="" (
 pause
 echo.
 
-git pull --ff-only 2>nul
+call "%~dp0코드받기.bat"
 
 node "scripts\g2b\award.mjs"
 if errorlevel 1 (
