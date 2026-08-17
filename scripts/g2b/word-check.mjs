@@ -6,7 +6,7 @@
 // 실행: 단어확인.bat 더블클릭
 //       또는 node scripts\g2b\word-check.mjs 판촉 광고 유통
 import { readFile } from "node:fs/promises";
-import { loadKeywords, excludedBy as excludedByConfig } from "./lib/keywords.mjs";
+import { loadKeywords, excludedBy as excludedByConfig, matchGroups } from "./lib/keywords.mjs";
 
 const RAW_BID = new URL("../../data/g2b/raw/bid.json", import.meta.url);
 const RAW_PRE = new URL("../../data/g2b/raw/prespec.json", import.meta.url);
@@ -31,10 +31,10 @@ function hay(it) {
 // 으로 세면 증가분이 항상 0이 되어 버립니다. 그러면 "이 단어를 빼면 무엇을
 // 잃는가"라는 진짜 질문에 답할 수 없습니다.
 function matchedGroups(it, ignore) {
-  const h = hay(it);
-  return Object.entries(CONFIG.groups)
-    .filter(([, ws]) => ws.some((w) => w !== ignore && h.includes(w)))
-    .map(([g]) => g);
+  const groups = Object.fromEntries(
+    Object.entries(CONFIG.groups).map(([g, ws]) => [g, ws.filter((w) => w !== ignore)])
+  );
+  return matchGroups(it, { ...CONFIG, groups });
 }
 
 // 제외 예외(기관명 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.
