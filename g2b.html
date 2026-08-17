@@ -168,9 +168,9 @@ svg{display:block; width:100%}
 .ftable .sched{white-space:nowrap; font-size:12.5px}
 .ftable .sched b{font-weight:700}
 .rate{display:inline-flex; align-items:center; gap:0; font-size:11px; font-weight:800; white-space:nowrap}
-.rate .tech{background:var(--seq-4); color:#fff; padding:2.5px 6px; border-radius:5px 0 0 5px}
-.rate .sep{padding:0 3px; color:var(--ink-3); font-weight:700}
-.rate .prc{background:var(--surface-3); color:var(--ink-2); padding:2.5px 6px; border-radius:0 5px 5px 0}
+.rate .tech{background:var(--seq-4); color:#fff; padding:2.5px 5px; border-radius:5px 0 0 5px}
+.rate .sep{padding:0 2px; color:var(--ink-3); font-weight:700}
+.rate .prc{background:var(--surface-3); color:var(--ink-2); padding:2.5px 5px; border-radius:0 5px 5px 0}
 .rate.na{font-weight:700; color:var(--ink-3)}
 .kind{display:inline-block; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px; white-space:nowrap; border:1px solid}
 .k-pre{color:var(--pre); background:var(--pre-bg); border-color:var(--pre-line)}
@@ -248,9 +248,11 @@ svg{display:block; width:100%}
 .search::placeholder{color:var(--ink-4)}
 .listwrap{
   background:var(--surface); border:1px solid var(--line); border-radius:12px;
-  box-shadow:var(--shadow); overflow:hidden;
+  box-shadow:var(--shadow); overflow-x:auto;   /* 넘치면 잘리지 않고 가로로 넘깁니다 */
 }
-table.list{width:100%; border-collapse:collapse; font-size:13.5px; table-layout:fixed}
+/* 창이 좁아도 제목 칸이 짓눌리지 않도록 최소폭을 둡니다.
+   그보다 좁아지면 표가 가로로 스크롤됩니다. */
+table.list{width:100%; min-width:1040px; border-collapse:collapse; font-size:13.5px; table-layout:fixed}
 table.list th{
   background:var(--surface-3); color:var(--ink-2); font-size:11.5px; font-weight:800;
   letter-spacing:.03em; text-align:left; padding:9px 12px;
@@ -262,7 +264,7 @@ table.list th.sortable:hover{color:var(--accent)}
 table.list th.sorted{color:var(--accent)}
 table.list th.sorted::after{content:" ▾"; font-size:9px}
 table.list th.sorted.asc::after{content:" ▴"}
-table.list td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap}
+table.list td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 table.list tbody tr:nth-child(even){background:var(--surface-2)}
 table.list tbody tr:last-child td{border-bottom:0}
 table.list td.nm{white-space:normal; font-weight:650; letter-spacing:-.01em; line-height:1.45}
@@ -565,9 +567,9 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     const pr=it.priceRate??100-it.techRate;
     // 색만으로 기술/가격을 구분하면 화면낭독기에는 "9010" 으로 읽힙니다.
     return `<span class="rate" title="기술 ${it.techRate} · 가격 ${pr}">`
-      + `<span class="tech num"><span class="sr">기술 </span>${it.techRate}</span>`
+      + `<span class="tech num">기술 ${it.techRate}</span>`
       + `<span class="sep" aria-hidden="true">:</span>`
-      + `<span class="prc num"><span class="sr">가격 </span>${pr}</span></span>`;
+      + `<span class="prc num">가격 ${pr}</span></span>`;
   };
   // 링크가 없는 행은 data-url 을 아예 달지 않습니다 — 커서·호버·키보드 모두 그에 맞게 꺼집니다.
   const row = it => { const u=openUrl(it); return `<tr ${u?`data-url="${esc(u)}" tabindex="0" role="link" aria-label="${esc(it.title)} 원문 열기"`:`class="nolink"`}>
@@ -736,23 +738,23 @@ function rateCell(it){
 const won = v => v ? Math.round(v/1e6).toLocaleString()+"백만" : "—";
 
 const COL = {
-  kw:     { th:"분야",   w:"110px", sort:it=>GROUPS.indexOf((it.kw||[])[0] ?? ""),
+  kw:     { th:"분야",   w:"132px", sort:it=>GROUPS.indexOf((it.kw||[])[0] ?? ""),
             td:it=>{ const g=(it.kw||[])[0];
               return g?`<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>`:""; } },
   title:  { th:"공고명",  w:"",      sort:it=>it.title||"", cls:"nm",
             td:it=>{ const u=g2bLink(it);
               return u?`<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
                      :`<span class="nmplain">${esc(it.title)}</span>`; } },
-  reg:    { th:"공고일",  w:"82px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
-  rcpt:   { th:"접수일",  w:"82px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
-  due:    { th:"마감",    w:"152px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
-  opin:   { th:"의견마감", w:"152px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
-  org:    { th:"수요기관", w:"170px", sort:it=>it.org||"", cls:"dim",
+  reg:    { th:"공고일",  w:"84px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
+  rcpt:   { th:"접수일",  w:"84px",  sort:it=>it.date||"", cls:"dim num", td:it=>fmtShort(it.date) },
+  due:    { th:"마감",    w:"142px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
+  opin:   { th:"의견마감", w:"142px", sort:it=>daysUntil(dueOf(it).iso) ?? 9999, td:dueCell },
+  org:    { th:"수요기관", w:"152px", sort:it=>it.org||"", cls:"dim",
             td:it=>`<span title="${esc(it.org)}">${esc(it.org)}</span>` },
-  budget: { th:"배정예산", w:"94px",  sort:it=>it.budget ?? -1, cls:"r dim num", td:it=>won(it.budget) },
-  price:  { th:"금액",    w:"94px",  sort:it=>it.budget ?? it.price ?? -1, cls:"r dim num",
+  budget: { th:"배정예산", w:"104px",  sort:it=>it.budget ?? -1, cls:"r dim num", td:it=>won(it.budget) },
+  price:  { th:"금액",    w:"104px",  sort:it=>it.budget ?? it.price ?? -1, cls:"r dim num",
             td:it=>won(it.budget ?? it.price) },
-  rate:   { th:"평가",    w:"86px",  sort:it=>it.techRate ?? -1, cls:"r", td:rateCell },
+  rate:   { th:"평가",    w:"150px",  sort:it=>it.techRate ?? -1, cls:"r", td:rateCell },
 };
 
 function listView(viewId, items, cols, defaultSort, countEl){
