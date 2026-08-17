@@ -56,8 +56,6 @@ export function parseCompany(text) {
     directProduce: list(raw["직접생산확인"]),
     licenses: list(raw["업종등록"]),
     certs: list(raw["인증"]),
-    minBudget: money(raw["최소사업비"]),
-    maxBudget: money(raw["최대사업비"]),
   };
 
   // 몇 개나 채워졌는지 — 화면에서 "정보 부족" 안내를 띄우는 데 씁니다.

@@ -5,6 +5,7 @@
 // 브라우저에서 g2b-live.html 을 더블클릭하면 열립니다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { loadCompany } from "./lib/company.mjs";
 
 const TEMPLATE = new URL("../../g2b.html", import.meta.url);
 const DATA = new URL("../../data/g2b/posts.json", import.meta.url);
@@ -16,20 +17,30 @@ const END = "<!--G2B_DATA_END-->";
 async function main() {
   const html = await readFile(TEMPLATE, "utf8");
 
-  let data;
+  let payload;
   try {
-    data = await readFile(DATA, "utf8");
-    JSON.parse(data); // 손상된 파일을 심지 않도록 검증
+    payload = JSON.parse(await readFile(DATA, "utf8"));
   } catch (err) {
     throw new Error(`data/g2b/posts.json 을 읽지 못했습니다 (${err.message}). 먼저 collect.mjs 를 실행하세요.`);
   }
+
+  // 예측점수는 화면에서 계산합니다. 회사 정보를 같이 심어 두면
+  // config/회사정보.md 만 고치고 이 스크립트를 다시 돌려도 점수가 갱신됩니다.
+  // (수집을 다시 할 필요가 없습니다)
+  payload.company = await loadCompany();
+  console.log(
+    payload.company.filled
+      ? `[회사정보] ${payload.company.filled}개 항목 반영 — 예측점수를 계산합니다`
+      : `[회사정보] config/회사정보.md 가 비어 있습니다 — 예측점수는 공고 정보만으로 잠정 계산합니다`
+  );
+  const data = JSON.stringify(payload);
 
   const s = html.indexOf(START);
   const e = html.indexOf(END);
   if (s === -1 || e === -1) throw new Error("g2b.html 에서 데이터 마커를 찾지 못했습니다.");
 
   // </script> 조기 종료 방지
-  const safe = data.trim().replace(/<\/script/gi, "<\\/script");
+  const safe = data.replace(/<\/script/gi, "<\\/script");
   const block = `${START}\n<script id="g2b-data" type="application/json">\n${safe}\n</script>\n${END}`;
   const out = html.slice(0, s) + block + html.slice(e + END.length);
 
