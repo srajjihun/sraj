@@ -239,6 +239,53 @@ async function main() {
     console.log(`   · ${c.w.padEnd(12)} ${String(c.n).padStart(4)}건  예: ${(ex?.title ?? "").slice(0, 40)}`);
   }
 
+  /* ══════════════════════════════════════════════════════════════
+     조달분류코드 후보.
+
+     키워드는 공고 제목에만 의존합니다. 그런데 발주기관이 제목을 짧게
+     쓰면("○○사업 운영 용역") 우리 분야인데도 한 단어도 안 걸립니다.
+     조달분류코드는 발주기관이 직접 붙인 분류라 제목보다 정확합니다.
+     우리가 이미 잡은 공고들이 어떤 코드를 쓰는지 역으로 찾습니다.
+     ══════════════════════════════════════════════════════════════ */
+  const byCode = new Map();
+  for (const it of all) {
+    const code = it.categoryNo;
+    if (!code) continue;
+    const rec = byCode.get(code) ?? { name: it.category || "", ours: 0, gain: 0, sample: "" };
+    if (!excludedBy(it).length) {
+      if (matchedGroups(it).length) rec.ours += 1;
+      else {
+        rec.gain += 1;
+        if (!rec.sample) rec.sample = it.title ?? "";
+      }
+    }
+    byCode.set(code, rec);
+  }
+
+  console.log(`\n\n■ 조달분류코드 후보 — 제목에 우리 단어가 없어도 잡을 수 있는 것`);
+  line();
+  console.log(`   발주기관이 붙인 분류라 제목보다 정확합니다.`);
+  console.log(`   "적중률"은 그 코드의 공고 중 이미 우리 키워드에 걸린 비율입니다.`);
+  console.log(`   넣으려면 config/g2b-keywords.md 의 # 조달분류코드 아래에 코드를 적으세요.`);
+
+  const codeCands = [...byCode.entries()]
+    .filter(([, r]) => r.ours + r.gain >= 5 && r.gain >= 3 && r.ours / (r.ours + r.gain) >= 0.5)
+    .sort((a, b) => b[1].gain - a[1].gain)
+    .slice(0, 15);
+
+  if (!codeCands.length) {
+    console.log(`\n   후보가 없습니다. (원본에 조달분류코드가 없거나, 코드로 더 잡을 것이 없습니다)`);
+  } else {
+    for (const [code, r] of codeCands) {
+      const pct = Math.round((r.ours / (r.ours + r.gain)) * 100);
+      console.log(
+        `\n   · ${code}  ${r.name.slice(0, 24)}` +
+          `\n     적중률 ${String(pct).padStart(3)}% (이미 잡은 것 ${r.ours}건) · 넣으면 새로 ${r.gain}건`
+      );
+      console.log(`     예: ${r.sample.slice(0, 46)}`);
+    }
+  }
+
   line("═");
   console.log(`이 결과를 캡처하거나 파일(logs/keyword-report.txt)을 올려 주시면`);
   console.log(`키워드를 다듬어 확정하겠습니다.`);
