@@ -9,7 +9,7 @@
 //
 // 실행: 키워드-검증.bat 더블클릭 (또는 node scripts\g2b\keyword-report.mjs)
 import { readFile } from "node:fs/promises";
-import { loadKeywords } from "./lib/keywords.mjs";
+import { loadKeywords, excludedBy as excludedByConfig } from "./lib/keywords.mjs";
 
 const RAW_BID = new URL("../../data/g2b/raw/bid.json", import.meta.url);
 const RAW_PRE = new URL("../../data/g2b/raw/prespec.json", import.meta.url);
@@ -37,9 +37,9 @@ function matchedGroups(it) {
     .map(([g]) => g);
 }
 
+// 제외 예외(기관명 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.
 function excludedBy(it) {
-  const t = it.title ?? "";
-  return PROPOSED.exclude.filter((w) => t.includes(w));
+  return excludedByConfig(it, PROPOSED);
 }
 
 function sample(arr, n) {
