@@ -493,10 +493,20 @@ const p2 = n => String(n).padStart(2,"0");
 
 function parseDay(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null; }
 function daysUntil(iso){ const t=parseDay(iso); return t===null?null:Math.round((t-todayMs)/DAY); }
+/* 언제까지인지 판단하는 기준일.
+   입찰마감일시가 비어 오는 공고가 있는데, 그런 건에도 개찰일시는 대개 들어 있습니다.
+   개찰은 마감 뒤에 하므로 개찰일로도 지났는지 판정할 수 있습니다.
+   (normalize.mjs 의 opening 은 "YYYY-MM-DD HH:mm" 형식이라 앞 10자가 날짜입니다) */
+function dueOf(it){
+  if(it.deadline) return { iso:it.deadline, time:it.deadlineTime||"", src:"마감" };
+  const op=(it.opening||"").trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(op)) return { iso:op.slice(0,10), time:op.slice(11,16), src:"개찰" };
+  return { iso:"", time:"", src:"" };
+}
+
 /* 마감이 지난 공고는 화면에서 완전히 뺍니다.
-   한 곳에서 걸러야 표와 차트가 서로 다른 숫자를 말하지 않습니다.
-   마감일이 아예 없는 건(사전규격 일부 등)은 "지났다"고 볼 수 없으므로 남깁니다. */
-const isExpired = it => { const d=daysUntil(it.deadline); return d!==null && d<0; };
+   한 곳에서 걸러야 표와 차트가 서로 다른 숫자를 말하지 않습니다. */
+const isExpired = it => { const d=daysUntil(dueOf(it).iso); return d!==null && d<0; };
 const POSTS = RAW_POSTS.filter(it=>!isExpired(it));
 const PRES  = RAW_PRES.filter(it=>!isExpired(it));
 const ALL   = [...PRES, ...POSTS];
@@ -556,7 +566,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     if(!it.qlfctDate) return false;
     const q=daysUntil(it.qlfctDate);
     if(q===null||q<0||q>7) return false;
-    return !it.deadline || it.qlfctDate<=it.deadline;
+    const due=dueOf(it).iso; return !due || it.qlfctDate<=due;
   }).sort((a,b)=>(a.qlfctDate<b.qlfctDate?-1:1));
 
   if(!rows.length){
@@ -568,7 +578,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   box.className="alertcard";
   box.innerHTML=`<h2>⚠ 자격등록 마감 임박 <span class="why">지나면 입찰 자체가 불가능합니다</span><span class="cnt num">${rows.length}건</span></h2>
     <div class="qlist">${rows.slice(0,5).map(it=>{
-      const q=daysUntil(it.qlfctDate), d=daysUntil(it.deadline);
+      const q=daysUntil(it.qlfctDate), d=daysUntil(dueOf(it).iso);
       return `<div class="qrow" data-url="${esc(openUrl(it))}">
         <span class="t" title="${esc(it.title)}">${esc(it.title)}</span>
         <span class="q num">자격 ${q===0?"오늘":"D-"+q} ${it.qlfctTime?esc(it.qlfctTime):""}</span>
@@ -584,10 +594,10 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
 (function(){
   const body=$("#focus-body");
   const scored=POSTS.filter(it=>it.techRate!==null&&it.techRate!==undefined)
-    .sort((a,b)=>(b.techRate-a.techRate)||((daysUntil(a.deadline)??999)-(daysUntil(b.deadline)??999)))
+    .sort((a,b)=>(b.techRate-a.techRate)||((daysUntil(dueOf(a).iso)??999)-(daysUntil(dueOf(b).iso)??999)))
     .slice(0,6);
   const noScore=[...POSTS.filter(it=>it.techRate===null||it.techRate===undefined), ...PRES]
-    .sort((a,b)=>(daysUntil(a.deadline)??999)-(daysUntil(b.deadline)??999))
+    .sort((a,b)=>(daysUntil(dueOf(a).iso)??999)-(daysUntil(dueOf(b).iso)??999))
     .slice(0,4);
 
   if(!scored.length&&!noScore.length){
@@ -597,10 +607,11 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   const kindTag = it => it.type==="pre" ? `<span class="kind k-pre">📋 사전</span>`
     : it.reNtce ? `<span class="kind k-re">🔁 유찰</span>` : `<span class="kind k-gen">일반</span>`;
   const sched = it => {
-    const d=daysUntil(it.deadline);
+    const due=dueOf(it);
+    const d=daysUntil(due.iso);
     if(d===null) return `<span class="sched num">일정 미상</span>`;
-    const pre=it.type==="pre"?"의견 ":"";
-    return `<span class="sched num">${pre}<b>${fmtShort(it.deadline)}</b>${it.deadlineTime?" "+esc(it.deadlineTime):""} · ${d===0?"오늘":"D-"+d}</span>`;
+    const pre=it.type==="pre"?"의견 ":(due.src==="개찰"?"개찰 ":"");
+    return `<span class="sched num">${pre}<b>${fmtShort(due.iso)}</b>${due.time?" "+esc(due.time):""} · ${d===0?"오늘":"D-"+d}</span>`;
   };
   const rate = it => (it.techRate===null||it.techRate===undefined)
     ? `<span class="rate na">미정</span>`
@@ -636,7 +647,7 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
   const box=$("#cal");
   const byDay=new Map();
   for(const it of ALL){
-    const t=parseDay(it.deadline); if(t===null) continue;
+    const t=parseDay(dueOf(it).iso); if(t===null) continue;
     if(t<todayMs) continue;
     byDay.set(t,(byDay.get(t)||0)+1);
   }
@@ -703,7 +714,7 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
     {k:"일정 미상", f:d=>d===null},
   ];
   const live2=ALL;
-  const ns=bands.map(b=>live2.filter(it=>b.f(daysUntil(it.deadline))).length);
+  const ns=bands.map(b=>live2.filter(it=>b.f(daysUntil(dueOf(it).iso))).length);
   const max=Math.max(1,...ns);
   // 급한 쪽이 진하도록 램프를 뒤집습니다. 일정 미상은 중립색.
   const col=i=>i===4?"var(--seq-0)":SEQ[4-i];
@@ -871,10 +882,11 @@ const state={kw:"all", q:"", sort:"dday", dir:1, joint:false, norec:false, rec:f
 
 /* ═══ 전체 목록 ═══ */
 function ddayInfo(it){
-  const d=daysUntil(it.deadline);
-  const label = it.type==="pre" ? "의견 " : "";
+  const due=dueOf(it);
+  const d=daysUntil(due.iso);
+  const label = it.type==="pre" ? "의견 " : (due.src==="개찰" ? "개찰 " : "");
   if(d===null) return {d:9999, html:`<span class="dday">일정 미상</span>`};
-  const txt=`${label}${fmtShort(it.deadline)}${it.deadlineTime?" "+esc(it.deadlineTime):""}`;
+  const txt=`${label}${fmtShort(due.iso)}${due.time?" "+esc(due.time):""}`;
   if(d<0) return {d:9999, html:`<span class="dday past num">${txt} · 마감</span>`};
   return {d, html:`<span class="dday ${d<=3?"hot":""} num">${txt} · ${d===0?"오늘":"D-"+d}</span>`};
 }
