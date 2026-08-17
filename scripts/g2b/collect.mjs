@@ -36,7 +36,7 @@ const REGIONS = ["00", "11"];
 
 const DEFAULT_DAYS = 3;
 const WINDOW_DAYS = 30; // 조회범위 제한(1개월)에 맞춰 창을 쪼갭니다
-const DEADLINE_GRACE_DAYS = 1; // 마감 후 이만큼 지나면 목록에서 정리
+const DEADLINE_GRACE_DAYS = 0; // 마감일이 지나면 바로 목록에서 정리 (마감 당일은 남습니다)
 const MAX_AGE_DAYS = 30; // 마감일을 모르는 건 등록일 기준으로 정리
 const PRE_LINGER_DAYS = 7; // 의견마감 후 이만큼 지난 사전규격은 정리
 

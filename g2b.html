@@ -480,11 +480,10 @@ const $ = s => document.querySelector(s);
 let DATA;
 try { DATA = JSON.parse($("#g2b-data").textContent); }
 catch { DATA = { generatedAt:null, keywordGroups:[], failures:[], posts:[], prespecs:[] }; }
-const POSTS = Array.isArray(DATA.posts) ? DATA.posts : [];
-const PRES  = Array.isArray(DATA.prespecs) ? DATA.prespecs : [];
+const RAW_POSTS = Array.isArray(DATA.posts) ? DATA.posts : [];
+const RAW_PRES  = Array.isArray(DATA.prespecs) ? DATA.prespecs : [];
 const GROUPS = Array.isArray(DATA.keywordGroups) && DATA.keywordGroups.length
   ? DATA.keywordGroups : ["창업지원","커머스","수출·해외진출","마케팅·홍보","소상공인","기업교육"];
-const ALL = [...PRES, ...POSTS];
 
 /* ═══ 공통 ═══ */
 const DAY = 86400000;
@@ -494,6 +493,15 @@ const p2 = n => String(n).padStart(2,"0");
 
 function parseDay(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null; }
 function daysUntil(iso){ const t=parseDay(iso); return t===null?null:Math.round((t-todayMs)/DAY); }
+/* 마감이 지난 공고는 화면에서 완전히 뺍니다.
+   한 곳에서 걸러야 표와 차트가 서로 다른 숫자를 말하지 않습니다.
+   마감일이 아예 없는 건(사전규격 일부 등)은 "지났다"고 볼 수 없으므로 남깁니다. */
+const isExpired = it => { const d=daysUntil(it.deadline); return d!==null && d<0; };
+const POSTS = RAW_POSTS.filter(it=>!isExpired(it));
+const PRES  = RAW_PRES.filter(it=>!isExpired(it));
+const ALL   = [...PRES, ...POSTS];
+const HIDDEN = (RAW_POSTS.length-POSTS.length)+(RAW_PRES.length-PRES.length);
+
 function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
 function fmtPrice(v){
   if(v===null||v===undefined) return "—";
@@ -521,8 +529,6 @@ function hoverTip(root, sel, fn){
 const isJoint     = it => it.type!=="pre" && it.jointOk===true;
 const needsRecord = it => it.type!=="pre" && it.arsltCmpt===true;
 const openUrl = it => it.url || it.files?.[0]?.url || "";
-/* 아직 마감되지 않은 것만 화면에 올립니다 */
-const live = it => { const d=daysUntil(it.deadline); return d===null || d>=0; };
 
 /* ═══ 상단 ═══ */
 (function(){
@@ -531,6 +537,7 @@ const live = it => { const d=daysUntil(it.deadline); return d===null || d>=0; };
   if(DATA.generatedAt){
     const kst=new Date(new Date(DATA.generatedAt).getTime()+9*3600000);
     let html=`마지막 수집 <b>${kst.getUTCFullYear()}.${p2(kst.getUTCMonth()+1)}.${p2(kst.getUTCDate())} ${p2(kst.getUTCHours())}:${p2(kst.getUTCMinutes())}</b>`;
+    if(HIDDEN) html+=` · 마감된 <b>${HIDDEN}건</b> 숨김`;
     if(DATA.failures?.length) html+=` · <span class="bad">${esc(DATA.failures.join(", "))} 수집 실패</span>`;
     el.innerHTML=html;
     $("#side-foot").innerHTML=`<span class="${DATA.failures?.length?"dotbad":"dotok"}"></span>`+
@@ -576,11 +583,10 @@ const live = it => { const d=daysUntil(it.deadline); return d===null || d>=0; };
 /* ═══ 2행 · 주목할 공고 ═══ */
 (function(){
   const body=$("#focus-body");
-  const scored=POSTS.filter(it=>live(it)&&it.techRate!==null&&it.techRate!==undefined)
+  const scored=POSTS.filter(it=>it.techRate!==null&&it.techRate!==undefined)
     .sort((a,b)=>(b.techRate-a.techRate)||((daysUntil(a.deadline)??999)-(daysUntil(b.deadline)??999)))
     .slice(0,6);
-  const noScore=[...POSTS.filter(it=>live(it)&&(it.techRate===null||it.techRate===undefined)),
-                 ...PRES.filter(live)]
+  const noScore=[...POSTS.filter(it=>it.techRate===null||it.techRate===undefined), ...PRES]
     .sort((a,b)=>(daysUntil(a.deadline)??999)-(daysUntil(b.deadline)??999))
     .slice(0,4);
 
@@ -631,7 +637,7 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
   const byDay=new Map();
   for(const it of ALL){
     const t=parseDay(it.deadline); if(t===null) continue;
-    if(t<todayMs-7*DAY) continue;
+    if(t<todayMs) continue;
     byDay.set(t,(byDay.get(t)||0)+1);
   }
   if(!byDay.size){ box.innerHTML=`<div class="placeholder">마감일이 있는 공고가 없습니다.</div>`; return; }
@@ -696,7 +702,7 @@ $("#focus-more").addEventListener("click",()=>$("#tablecard").scrollIntoView({be
     {k:"D-15 이상",f:d=>d!==null&&d>=15},
     {k:"일정 미상", f:d=>d===null},
   ];
-  const live2=ALL.filter(live);
+  const live2=ALL;
   const ns=bands.map(b=>live2.filter(it=>b.f(daysUntil(it.deadline))).length);
   const max=Math.max(1,...ns);
   // 급한 쪽이 진하도록 램프를 뒤집습니다. 일정 미상은 중립색.
