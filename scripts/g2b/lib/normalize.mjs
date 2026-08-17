@@ -61,7 +61,10 @@ function collectPrespecFiles(raw) {
 export function normalizeBid(raw, kind = "용역") {
   const notice = splitDt(raw.bidNtceDt);
   const close = splitDt(raw.bidClseDt);
-  const opening = splitDt(raw.opengDt);
+  // 입찰마감일시가 비어 오는 공고가 있습니다. 그런 건에도 개찰일시는 대개 들어 있고,
+  // 개찰은 마감 뒤에 하므로 "지났는지" 판정에 쓸 수 있습니다.
+  // 재입찰 개찰일시(rbidOpengDt)까지 받아둡니다 — 둘 다 비는 경우가 드물게 있습니다.
+  const opening = splitDt(raw.opengDt || raw.rbidOpengDt);
   const qlfct = splitDt(raw.bidQlfctRgstDt);
 
   return {
