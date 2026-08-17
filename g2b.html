@@ -430,7 +430,7 @@ catch { DATA = { generatedAt:null, keywordGroups:[], failures:[], posts:[], pres
 const POSTS = Array.isArray(DATA.posts) ? DATA.posts : [];
 const PRES = Array.isArray(DATA.prespecs) ? DATA.prespecs : [];
 const GROUPS = Array.isArray(DATA.keywordGroups) && DATA.keywordGroups.length
-  ? DATA.keywordGroups : ["창업지원","커머스·유통","수출·해외진출","마케팅·홍보","소상공인","기업교육"];
+  ? DATA.keywordGroups : ["창업지원","커머스","수출·해외진출","마케팅·홍보","소상공인","기업교육"];
 const ALL = [...PRES, ...POSTS];
 
 /* ═══ 공통 ═══ */
