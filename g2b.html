@@ -77,6 +77,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .nav a .ic{width:17px; text-align:center; font-size:14px; flex-shrink:0}
 .nav a:hover{background:var(--nav-2); color:var(--nav-ink)}
 .nav a.on{background:var(--accent); color:#fff}
+.nav .n{margin-left:auto; font-size:11px; font-weight:800; color:var(--nav-dim)}
+.nav a.on .n{color:#fff}
 .nav .soon{
   margin-left:auto; font-size:9.5px; font-weight:800; letter-spacing:.05em;
   background:rgba(255,255,255,.13); color:var(--nav-dim); padding:2px 6px; border-radius:4px;
@@ -97,14 +99,6 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .topbar .when{margin-left:auto; font-size:12.5px; color:var(--ink-3)}
 .topbar .when b{color:var(--ink-2); font-weight:700}
 .topbar .when .bad{color:var(--stop); font-weight:700}
-
-.notice{
-  display:flex; gap:9px; align-items:baseline; flex-wrap:wrap;
-  background:var(--warn-bg); border:1px solid var(--warn-line); color:var(--warn);
-  font-size:12.5px; font-weight:600; border-radius:9px; padding:9px 13px; margin-bottom:14px;
-}
-.notice b{font-weight:800}
-.notice .later{color:var(--ink-3); font-weight:500}
 
 .setup{background:var(--surface); border:1px dashed var(--line); border-radius:12px; padding:28px 26px; margin-bottom:16px}
 .setup h2{font-size:16px; font-weight:800; margin-bottom:9px}
@@ -213,6 +207,7 @@ svg{display:block; width:100%}
 .rankbar .who{font-weight:700; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .rankbar .amt{color:var(--ink-2); font-weight:700; white-space:nowrap; font-size:12px}
 .rankbar .track{height:10px; background:var(--surface-3); border-radius:4px; overflow:hidden}
+.rankbar .fill{height:100%; border-radius:4px}
 
 /* ─── 4행 : 참여 조건 ─── */
 .cond{display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin-bottom:16px}
@@ -230,6 +225,59 @@ svg{display:block; width:100%}
 .condcard.hold .v{color:var(--warn)} .condcard.hold .fill{background:var(--warn)}
 .condcard.team .v{color:var(--pre)} .condcard.team .fill{background:var(--pre)}
 .condcard.solo .v{color:var(--ink-2)} .condcard.solo .fill{background:var(--ink-3)}
+
+/* ═══════════ 목록 화면 (사전공고 등) ═══════════ */
+.listbar{
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:11px 13px; box-shadow:var(--shadow); margin-bottom:11px;
+}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{
+  font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:999px;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-2);
+}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+.chip .n{font-weight:600; opacity:.7; margin-left:4px; font-size:11.5px}
+.search{
+  margin-left:auto; font:inherit; font-size:13px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+  padding:7px 12px; min-width:200px;
+}
+.search::placeholder{color:var(--ink-4)}
+.listwrap{
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+table.list{width:100%; border-collapse:collapse; font-size:13.5px; table-layout:fixed}
+table.list th{
+  background:var(--surface-3); color:var(--ink-2); font-size:11.5px; font-weight:800;
+  letter-spacing:.03em; text-align:left; padding:9px 12px;
+  border-bottom:1px solid var(--line); white-space:nowrap;
+}
+table.list th.r{text-align:right}
+table.list th.sortable{cursor:pointer; user-select:none}
+table.list th.sortable:hover{color:var(--accent)}
+table.list th.sorted{color:var(--accent)}
+table.list th.sorted::after{content:" ▾"; font-size:9px}
+table.list th.sorted.asc::after{content:" ▴"}
+table.list td{padding:9px 12px; border-bottom:1px solid var(--line-soft); vertical-align:middle; white-space:nowrap}
+table.list tbody tr:nth-child(even){background:var(--surface-2)}
+table.list tbody tr:last-child td{border-bottom:0}
+table.list td.nm{white-space:normal; font-weight:650; letter-spacing:-.01em; line-height:1.45}
+table.list td.r{text-align:right}
+table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
+.kw{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap}
+.due{font-size:11.5px; font-weight:800; padding:2.5px 7px; border-radius:5px; background:var(--surface-3); color:var(--ink-2)}
+.due.hot{background:var(--stop-bg); color:var(--stop)}
+.filelink{
+  font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-tint);
+  border:1px solid transparent; padding:5px 11px; border-radius:7px; text-decoration:none; display:inline-block;
+}
+.filelink:hover{border-color:var(--accent)}
+.nofile{font-size:12px; color:var(--ink-4)}
+.empty{padding:40px; text-align:center; color:var(--ink-3); font-size:13.5px}
 
 .tip{
   position:fixed; z-index:50; pointer-events:none; opacity:0; transition:opacity .1s;
@@ -290,8 +338,12 @@ svg{display:block; width:100%}
     </div>
   </div>
   <nav class="nav">
-    <a class="on" href="#"><span class="ic">▦</span>대시보드</a>
-    <a href="#" title="준비 중입니다"><span class="ic">☰</span>공고 목록<span class="soon">준비중</span></a>
+    <a class="on" href="#" data-view="dash"><span class="ic">▦</span>대시보드</a>
+    <span class="split"></span>
+    <a href="#" data-view="pre"><span class="ic">📋</span>사전공고<span class="n num" id="nav-n-pre"></span></a>
+    <a href="#" title="준비 중입니다"><span class="ic">📄</span>일반공고<span class="soon">준비중</span></a>
+    <a href="#" title="준비 중입니다"><span class="ic">🔁</span>유찰공고<span class="soon">준비중</span></a>
+    <span class="split"></span>
     <a href="#" title="준비 중입니다"><span class="ic">◔</span>시장 리포트<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">⚔</span>경쟁사 분석<span class="soon">2차</span></a>
     <a href="#" title="준비 중입니다"><span class="ic">🏛</span>기관 프로파일<span class="soon">2차</span></a>
@@ -310,12 +362,6 @@ svg{display:block; width:100%}
     <span class="when num" id="when"></span>
   </div>
 
-  <div class="notice" id="profile-notice">
-    <b>회사 프로필 미등록</b>
-    <span>실적·행정서류를 등록하면 공고별 자격 판정과 예상 점수가 자동 산출됩니다.</span>
-    <span class="later">현재는 수집·분류까지 제공됩니다.</span>
-  </div>
-
   <div class="setup" id="setup" hidden>
     <h2>아직 수집된 데이터가 없습니다</h2>
     <ol>
@@ -325,6 +371,8 @@ svg{display:block; width:100%}
       <li>생성된 <code>g2b-live.html</code> 을 열면 이 화면에 데이터가 표시됩니다.</li>
     </ol>
   </div>
+
+  <section class="view" id="view-dash">
 
   <!-- 주목할 공고 -->
   <section class="focus">
@@ -354,9 +402,36 @@ svg{display:block; width:100%}
   <div class="cond" id="cond"></div>
 
   <p class="foot">
-    매일 아침 자동 수집됩니다 · 원문 링크가 있는 행을 클릭하면 나라장터가 새 창으로 열립니다<br>
-    사전규격은 나라장터가 상세 링크를 주지 않아 열리지 않습니다 · 전체 공고 목록은 별도 페이지로 준비 중입니다
+    매일 아침 자동 수집됩니다 · 원문 링크가 있는 행을 클릭하면 나라장터가 새 창으로 열립니다
   </p>
+  </section>
+
+  <!-- ═══ 사전공고 ═══ -->
+  <section class="view" id="view-pre" hidden>
+    <div class="listbar">
+      <div class="chips" id="pre-chips"></div>
+      <input class="search" id="pre-q" type="search" placeholder="공고명 검색" aria-label="사전공고 공고명 검색">
+    </div>
+    <div class="listwrap">
+      <table class="list">
+        <thead><tr>
+          <th style="width:104px">분야</th>
+          <th>공고명</th>
+          <th class="sortable sorted" data-sort="due" style="width:150px">의견마감</th>
+          <th style="width:170px">수요기관</th>
+          <th class="r sortable" data-sort="budget" style="width:88px">배정예산</th>
+          <th class="sortable" data-sort="reg" style="width:76px">접수일</th>
+          <th style="width:78px">규격서</th>
+        </tr></thead>
+        <tbody id="pre-rows"></tbody>
+      </table>
+      <div class="empty" id="pre-empty" hidden>조건에 맞는 사전공고가 없습니다.</div>
+    </div>
+    <p class="foot">
+      사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
+      나라장터가 사전규격 상세 링크를 주지 않아 규격서 파일로만 연결됩니다
+    </p>
+  </section>
 </main>
 </div>
 
@@ -594,6 +669,99 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
       <div class="track"><div class="fill" style="width:${Math.min(100,c.n/base*100)}%"></div></div>
       <div class="d">${c.d}</div>
     </div>`).join("");
+})();
+
+/* ═══ 화면 전환 ═══ */
+(function(){
+  const links=[...document.querySelectorAll(".nav a[data-view]")];
+  const titles={dash:"대시보드", pre:"사전공고"};
+  function show(v){
+    document.querySelectorAll(".view").forEach(el=>{ el.hidden = el.id!=="view-"+v; });
+    links.forEach(a=>a.classList.toggle("on", a.dataset.view===v));
+    document.querySelector(".topbar h1").textContent=titles[v]||"대시보드";
+    window.scrollTo({top:0});
+  }
+  links.forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); show(a.dataset.view); }));
+})();
+
+/* ═══ 사전공고 목록 ═══
+   사전규격은 정식 공고 전 단계라 "의견마감"이 일정입니다.
+   나라장터가 상세 URL 을 주지 않아 규격서 파일로만 연결됩니다. */
+(function(){
+  $("#nav-n-pre").textContent=PRES.length;
+  const st={kw:"all", q:"", sort:"due", dir:1};
+
+  const chips=$("#pre-chips");
+  const mk=(label,val)=>{
+    const b=document.createElement("button");
+    b.className="chip"+(val==="all"?" on":"");
+    b.type="button";
+    const n=val==="all"?PRES.length:PRES.filter(it=>(it.kw||[]).includes(val)).length;
+    b.innerHTML=`${esc(label)} <span class="n num">${n}</span>`;
+    b.setAttribute("aria-pressed", val==="all"?"true":"false");
+    b.addEventListener("click",()=>{
+      chips.querySelectorAll(".chip").forEach(x=>{x.classList.remove("on"); x.setAttribute("aria-pressed","false");});
+      b.classList.add("on"); b.setAttribute("aria-pressed","true");
+      st.kw=val; draw();
+    });
+    return b;
+  };
+  chips.appendChild(mk("전체","all"));
+  for(const g of GROUPS) chips.appendChild(mk(g,g));
+
+  function draw(){
+    const q=st.q.trim().toLowerCase();
+    const list=PRES.filter(it=>
+      (st.kw==="all"||(it.kw||[]).includes(st.kw)) &&
+      (!q||(it.title||"").toLowerCase().includes(q)));
+
+    list.sort((a,b)=>{
+      if(st.sort==="budget"){ return ((a.budget??-1)-(b.budget??-1))*st.dir; }
+      if(st.sort==="reg"){ const x=a.date||"", y=b.date||""; return (x<y?-1:x>y?1:0)*st.dir; }
+      const x=daysUntil(dueOf(a).iso)??9999, y=daysUntil(dueOf(b).iso)??9999;
+      return (x-y)*st.dir;
+    });
+
+    $("#pre-rows").innerHTML=list.map(it=>{
+      const d=daysUntil(dueOf(it).iso);
+      const due = d===null
+        ? `<span class="due">일정 미상</span>`
+        : `<span class="due ${d<=3?"hot":""} num">${fmtShort(dueOf(it).iso)} · ${d===0?"오늘":"D-"+d}</span>`;
+      const g=(it.kw||[])[0];
+      const kw = g ? `<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>` : "";
+      const f=it.files?.[0];
+      const file = f?.url
+        ? `<a class="filelink" href="${esc(f.url)}" target="_blank" rel="noopener">규격서 ↗</a>`
+        : `<span class="nofile">없음</span>`;
+      const amt = it.budget ? `${Math.round(it.budget/1e6).toLocaleString()}백만` : "—";
+      return `<tr>
+        <td>${kw}</td>
+        <td class="nm">${esc(it.title)}</td>
+        <td>${due}</td>
+        <td class="dim" title="${esc(it.org)}">${esc(it.org)}</td>
+        <td class="r dim num">${amt}</td>
+        <td class="dim num">${fmtShort(it.date)}</td>
+        <td>${file}</td>
+      </tr>`;}).join("");
+    $("#pre-empty").hidden=list.length>0;
+  }
+
+  $("#pre-q").addEventListener("input",e=>{st.q=e.target.value; draw();});
+  document.querySelectorAll("#view-pre th.sortable").forEach(th=>{
+    th.setAttribute("aria-sort", th.classList.contains("sorted")?"ascending":"none");
+    th.addEventListener("click",()=>{
+      const k=th.dataset.sort;
+      if(st.sort===k){ st.dir*=-1; } else { st.sort=k; st.dir=1; }
+      document.querySelectorAll("#view-pre th.sortable").forEach(t=>{
+        t.classList.remove("sorted","asc"); t.setAttribute("aria-sort","none");
+      });
+      th.classList.add("sorted");
+      if(st.dir===-1) th.classList.add("asc");
+      th.setAttribute("aria-sort", st.dir===1?"ascending":"descending");
+      draw();
+    });
+  });
+  draw();
 })();
 
 </script>
