@@ -119,6 +119,45 @@ async function main() {
   for (const it of sample(unmatched, 20))
     console.log(`   · ${(it.title ?? "").slice(0, 48)}`);
 
+  /* ── 단어 발굴: 공고명에 실제로 자주 나오는 단어를 데이터에서 셉니다 ── */
+  const STOP = new Set([
+    "용역","사업","운영","지원","위탁","선정","공고","입찰","제안","계약","협상",
+    "관련","위한","대상","대한","통한","기반","활용","연간","단가","재공고","긴급",
+    "제작","개발","조사","연구","평가","분석","계획","수립","실시","추진","업무",
+    "협상에","의한","의하","일반","제한","경쟁","전자","방식","분야","기타",
+  ]);
+  const tokenize = (t) =>
+    String(t ?? "")
+      .replace(/[\[\]()「」『』『·,~〈〉<>‘’'"“”]/g, " ")
+      .split(/\s+/)
+      .map((w) => w.replace(/^[0-9]{1,4}년?도?$|^제?[0-9]+[차회기]$/g, ""))
+      .filter((w) => w.length >= 2 && !/^[0-9.]+$/.test(w) && !STOP.has(w));
+
+  const covered = (word) =>
+    Object.values(PROPOSED.groups).some((ws) => ws.some((k) => word.includes(k)));
+
+  const freqAll = new Map();
+  const freqUn = new Map();
+  for (const it of all) for (const w of tokenize(it.title)) freqAll.set(w, (freqAll.get(w) ?? 0) + 1);
+  for (const it of unmatched) for (const w of tokenize(it.title)) freqUn.set(w, (freqUn.get(w) ?? 0) + 1);
+
+  console.log(`\n\n■ 단어 발굴 — 공고명에 실제로 자주 나오는 단어`);
+  line();
+  console.log(`   (✓ = 제안 키워드에 이미 걸림)`);
+  const topAll = [...freqAll.entries()].sort((a, b) => b[1] - a[1]).slice(0, 40);
+  console.log(`\n   [전체 공고 기준 상위 40]`);
+  console.log("   " + topAll.map(([w, n]) => `${covered(w) ? "✓" : " "}${w}(${n})`).join("  "));
+
+  const cand = [...freqUn.entries()]
+    .filter(([w]) => !covered(w))
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 25);
+  console.log(`\n   [미수집 공고에서만 자주 나오는 단어 — 키워드 추가 후보]`);
+  for (const [w, n] of cand) {
+    const ex = unmatched.find((it) => (it.title ?? "").includes(w));
+    console.log(`   · ${w} (${n}건)  예: ${(ex?.title ?? "").slice(0, 34)}`);
+  }
+
   line("═");
   console.log(`이 결과를 캡처하거나 파일(logs/keyword-report.txt)을 올려 주시면`);
   console.log(`키워드를 다듬어 확정하겠습니다.`);
