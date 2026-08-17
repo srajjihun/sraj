@@ -23,7 +23,7 @@ async function loadStore(url, name) {
 }
 
 function hay(it) {
-  return `${it.title ?? ""} ${it.category ?? ""} ${it.categoryMid ?? ""} ${it.categoryLarge ?? ""}`;
+  return it.title ?? ""; // 공고명만 봅니다 (조달분류명 매칭은 오탐이 많아 껐습니다)
 }
 
 // 검사 중인 단어는 빼고 매칭합니다.

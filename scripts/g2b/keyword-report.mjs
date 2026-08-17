@@ -27,7 +27,7 @@ async function loadStore(url, name) {
 }
 
 function hay(it) {
-  return `${it.title ?? ""} ${it.category ?? ""} ${it.categoryMid ?? ""} ${it.categoryLarge ?? ""}`;
+  return it.title ?? ""; // 공고명만 봅니다 (조달분류명 매칭은 오탐이 많아 껐습니다)
 }
 
 // 수집 예외(직무역량 안의 "무역" 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.
@@ -35,15 +35,10 @@ function matchedGroups(it) {
   return matchGroups(it, PROPOSED);
 }
 
-// 어떤 단어 때문에 잡혔는지. 제목에 없으면 조달분류명에서 걸린 것이므로
-// 그 사실까지 알려줍니다 — 제목만 보면 왜 잡혔는지 알 수 없는 건이 있습니다.
+// 어떤 단어 때문에 잡혔는지.
 function matchedWord(it, group) {
-  const title = it.title ?? "";
   const words = PROPOSED.groups[group] ?? [];
-  const inTitle = words.find((w) => title.includes(w));
-  if (inTitle) return inTitle;
-  const inCat = words.find((w) => hay(it).includes(w));
-  return inCat ? `${inCat}·분류명` : "?";
+  return words.find((w) => hay(it).includes(w)) ?? "?";
 }
 
 // 제외 예외(기관명 등)까지 반영하려면 수집기와 같은 판정을 써야 합니다.

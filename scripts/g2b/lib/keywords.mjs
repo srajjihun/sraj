@@ -69,7 +69,9 @@ export async function loadKeywords(path = CONFIG_PATH) {
 
 // 항목(제목+분류명)에 매칭되는 키워드 그룹 목록을 돌려줍니다. 빈 배열이면 미매칭.
 export function matchGroups(item, config) {
-  const hay = `${item.title ?? ""} ${item.category ?? ""} ${item.categoryMid ?? ""} ${item.categoryLarge ?? ""}`;
+  // 공고명만 봅니다. 조달분류명(예: "광고및홍보서비스")은 업종 코드라서
+  // 달력·자료집·애니메이션 제작이 전부 같은 칸에 들어옵니다 — 오탐의 최대 원인이었습니다.
+  const hay = item.title ?? "";
   const kwAllow = config.kwAllow ?? [];
   // 수집어가 엉뚱한 말 안에서만 걸린 경우를 걸러냅니다.
   // 예: "무역"은 "직무역량"(직-무역-량) 안에도 있어 HRD 공고가 수출 그룹으로
