@@ -30,6 +30,22 @@ cmd /c call "%TEMP%\sraj-updater.bat" & exit /b
 cd /d "%SRAJ_HOME%"
 if errorlevel 1 goto :nohome
 
+rem -- 이 파일이 sraj 폴더 안에 있는지 확인합니다.
+rem    다운로드 폴더에서 그냥 실행하면 엉뚱한 곳에 코드를 풀어 놓게 됩니다.
+if not exist "scripts\g2b\build-page.mjs" (
+  if not exist "g2b.html" (
+    echo.
+    echo   [멈춤] 이 파일이 sraj 폴더 밖에 있습니다.
+    echo          지금 위치: %SRAJ_HOME%
+    echo.
+    echo   이 파일을 sraj 폴더 안으로 옮긴 뒤 다시 실행해 주세요.
+    echo   ^(다른 .bat 파일들과 같은 곳입니다^)
+    echo.
+    pause
+    exit /b 1
+  )
+)
+
 echo.
 echo   ================================================
 echo     화면 새로고침
