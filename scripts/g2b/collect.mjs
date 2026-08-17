@@ -38,7 +38,7 @@ const DEFAULT_DAYS = 3;
 const WINDOW_DAYS = 30; // 조회범위 제한(1개월)에 맞춰 창을 쪼갭니다
 const DEADLINE_GRACE_DAYS = 0; // 마감일이 지나면 바로 목록에서 정리 (마감 당일은 남습니다)
 const MAX_AGE_DAYS = 30; // 마감일을 모르는 건 등록일 기준으로 정리
-const PRE_LINGER_DAYS = 7; // 의견마감 후 이만큼 지난 사전규격은 정리
+const PRE_GRACE_DAYS = 0; // 의견마감일이 지나면 바로 정리 (마감 당일은 남습니다)
 
 async function loadJson(url, fallback) {
   try {
@@ -262,8 +262,11 @@ export function buildPosts(bidStore, preStore, config, now = new Date()) {
     const kw = matchGroups(it, config);
     if (!kw.length) continue;
     if (it.bidNtceNoList.length) continue; // 정식 공고로 전환된 건은 공고 쪽에서 보임
-    const age = daysSince(it.deadline || it.date, now);
-    if (age !== null && age > PRE_LINGER_DAYS) continue;
+    // 의견마감이 지나면 바로 버립니다. 의견마감이 아예 없는 건은 버릴 근거가 없으므로
+    // 접수일 기준으로 오래된 것만 정리합니다.
+    const ref = it.deadline || null;
+    const age = ref ? daysSince(ref, now) : daysSince(it.date, now);
+    if (age !== null && age > (ref ? PRE_GRACE_DAYS : MAX_AGE_DAYS)) continue;
     prespecs.push({ ...it, kw });
   }
 

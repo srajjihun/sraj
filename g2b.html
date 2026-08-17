@@ -271,12 +271,11 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
 .kw{font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap}
 .due{font-size:11.5px; font-weight:800; padding:2.5px 7px; border-radius:5px; background:var(--surface-3); color:var(--ink-2)}
 .due.hot{background:var(--stop-bg); color:var(--stop)}
-.filelink{
-  font-size:12px; font-weight:700; color:var(--accent); background:var(--accent-tint);
-  border:1px solid transparent; padding:5px 11px; border-radius:7px; text-decoration:none; display:inline-block;
-}
-.filelink:hover{border-color:var(--accent)}
-.nofile{font-size:12px; color:var(--ink-4)}
+.nmlink{color:var(--ink); text-decoration:none}
+.nmlink:hover{color:var(--accent); text-decoration:underline}
+.nmlink .ext{color:var(--ink-4); font-weight:700}
+.nmlink:hover .ext{color:var(--accent)}
+.nmplain{color:var(--ink-2)}
 .empty{padding:40px; text-align:center; color:var(--ink-3); font-size:13.5px}
 
 .tip{
@@ -415,13 +414,12 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
     <div class="listwrap">
       <table class="list">
         <thead><tr>
-          <th style="width:104px">분야</th>
-          <th>공고명</th>
+          <th class="sortable" data-sort="kw" style="width:110px">분야</th>
+          <th class="sortable" data-sort="title">공고명</th>
+          <th class="sortable" data-sort="reg" style="width:82px">접수일</th>
           <th class="sortable sorted" data-sort="due" style="width:150px">의견마감</th>
-          <th style="width:170px">수요기관</th>
-          <th class="r sortable" data-sort="budget" style="width:88px">배정예산</th>
-          <th class="sortable" data-sort="reg" style="width:76px">접수일</th>
-          <th style="width:78px">규격서</th>
+          <th class="sortable" data-sort="org" style="width:170px">수요기관</th>
+          <th class="r sortable" data-sort="budget" style="width:94px">배정예산</th>
         </tr></thead>
         <tbody id="pre-rows"></tbody>
       </table>
@@ -429,7 +427,7 @@ table.list td.dim{color:var(--ink-2); overflow:hidden; text-overflow:ellipsis}
     </div>
     <p class="foot">
       사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
-      나라장터가 사전규격 상세 링크를 주지 않아 규격서 파일로만 연결됩니다
+      공고명을 누르면 규격서가 새 창으로 열립니다 · 나라장터가 링크를 주지 않는 건은 밑줄 없이 표시됩니다
     </p>
   </section>
 </main>
@@ -472,10 +470,26 @@ function dueOf(it){
 /* 마감이 지난 공고는 화면에서 완전히 뺍니다.
    한 곳에서 걸러야 표와 차트가 서로 다른 숫자를 말하지 않습니다. */
 const isExpired = it => { const d=daysUntil(dueOf(it).iso); return d!==null && d<0; };
-const POSTS = RAW_POSTS.filter(it=>!isExpired(it));
-const PRES  = RAW_PRES.filter(it=>!isExpired(it));
+
+/* 나라장터에는 민간기업이 수요기관인 건도 올라옵니다(수출바우처 수행기업 등).
+   공공기관 발주만 보고 싶지만 API 에 공공/민간 구분 필드가 없습니다.
+   수요기관 코드(dminsttCd)도 재단법인이 민간과 같은 대역을 씁니다.
+
+   기관명 형태로 "공공기관처럼 생겼는가"를 판정해 봤지만, 이름이 특이한
+   공공기관이 조용히 사라지는 쪽이 민간 몇 건이 남는 것보다 위험합니다.
+   그래서 확실한 것만 봅니다 — 회사 표기가 있는 곳만 뺍니다.
+   재단법인·(재)는 공공 출연기관이 많아 건드리지 않습니다.
+   "모트"처럼 표기가 없는 민간사는 남습니다. 보이면 이름을 알려주세요. */
+const PRIVATE_ORG = /주식회사|㈜|\(주\)|\(유\)|유한회사|유한책임회사|합자회사|합명회사/;
+const isPrivate = it => PRIVATE_ORG.test(it.org||"");
+
+const drop = it => isExpired(it) || isPrivate(it);
+const POSTS = RAW_POSTS.filter(it=>!drop(it));
+const PRES  = RAW_PRES.filter(it=>!drop(it));
 const ALL   = [...PRES, ...POSTS];
-const HIDDEN = (RAW_POSTS.length-POSTS.length)+(RAW_PRES.length-PRES.length);
+const RAW_ALL = [...RAW_PRES, ...RAW_POSTS];
+const HIDDEN_EXPIRED = RAW_ALL.filter(isExpired).length;
+const HIDDEN_PRIVATE = RAW_ALL.filter(it=>!isExpired(it)&&isPrivate(it)).length;
 
 function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -507,7 +521,10 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   if(DATA.generatedAt){
     const kst=new Date(new Date(DATA.generatedAt).getTime()+9*3600000);
     let html=`마지막 수집 <b>${kst.getUTCFullYear()}.${p2(kst.getUTCMonth()+1)}.${p2(kst.getUTCDate())} ${p2(kst.getUTCHours())}:${p2(kst.getUTCMinutes())}</b>`;
-    if(HIDDEN) html+=` · 마감된 <b>${HIDDEN}건</b> 숨김`;
+    const hid=[];
+    if(HIDDEN_EXPIRED) hid.push(`마감 <b>${HIDDEN_EXPIRED}</b>`);
+    if(HIDDEN_PRIVATE) hid.push(`민간발주 <b>${HIDDEN_PRIVATE}</b>`);
+    if(hid.length) html+=` · ${hid.join(" · ")}건 숨김`;
     if(DATA.failures?.length) html+=` · <span class="bad">${esc(DATA.failures.join(", "))} 수집 실패</span>`;
     el.innerHTML=html;
     $("#side-foot").innerHTML=`<span class="${DATA.failures?.length?"dotbad":"dotok"}"></span>`+
@@ -715,10 +732,18 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
       (st.kw==="all"||(it.kw||[]).includes(st.kw)) &&
       (!q||(it.title||"").toLowerCase().includes(q)));
 
+    // 정렬 기준값을 컬럼마다 하나로 뽑고, 비교는 한 곳에서 합니다.
+    const keyOf={
+      kw:    it => GROUPS.indexOf((it.kw||[])[0] ?? "") ,   // 분야는 화면의 그룹 순서대로
+      title: it => it.title||"",
+      reg:   it => it.date||"",
+      due:   it => daysUntil(dueOf(it).iso) ?? 9999,        // 일정 미상은 항상 뒤로
+      org:   it => it.org||"",
+      budget:it => it.budget ?? -1,
+    }[st.sort];
     list.sort((a,b)=>{
-      if(st.sort==="budget"){ return ((a.budget??-1)-(b.budget??-1))*st.dir; }
-      if(st.sort==="reg"){ const x=a.date||"", y=b.date||""; return (x<y?-1:x>y?1:0)*st.dir; }
-      const x=daysUntil(dueOf(a).iso)??9999, y=daysUntil(dueOf(b).iso)??9999;
+      const x=keyOf(a), y=keyOf(b);
+      if(typeof x==="string") return x.localeCompare(y,"ko")*st.dir;
       return (x-y)*st.dir;
     });
 
@@ -729,19 +754,19 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
         : `<span class="due ${d<=3?"hot":""} num">${fmtShort(dueOf(it).iso)} · ${d===0?"오늘":"D-"+d}</span>`;
       const g=(it.kw||[])[0];
       const kw = g ? `<span class="kw" style="color:var(--kw-${kwIdx(g)}); background:var(--kw-${kwIdx(g)}-bg)">${esc(g)}</span>` : "";
-      const f=it.files?.[0];
-      const file = f?.url
-        ? `<a class="filelink" href="${esc(f.url)}" target="_blank" rel="noopener">규격서 ↗</a>`
-        : `<span class="nofile">없음</span>`;
       const amt = it.budget ? `${Math.round(it.budget/1e6).toLocaleString()}백만` : "—";
+      // 사전규격은 나라장터가 상세 URL 을 주지 않아 규격서 파일이 유일한 링크입니다.
+      const u=openUrl(it);
+      const nm = u
+        ? `<a class="nmlink" href="${esc(u)}" target="_blank" rel="noopener">${esc(it.title)}<span class="ext" aria-hidden="true"> ↗</span></a>`
+        : `<span class="nmplain" title="나라장터가 이 건의 링크를 제공하지 않습니다">${esc(it.title)}</span>`;
       return `<tr>
         <td>${kw}</td>
-        <td class="nm">${esc(it.title)}</td>
+        <td class="nm">${nm}</td>
+        <td class="dim num">${fmtShort(it.date)}</td>
         <td>${due}</td>
         <td class="dim" title="${esc(it.org)}">${esc(it.org)}</td>
         <td class="r dim num">${amt}</td>
-        <td class="dim num">${fmtShort(it.date)}</td>
-        <td>${file}</td>
       </tr>`;}).join("");
     $("#pre-empty").hidden=list.length>0;
   }
