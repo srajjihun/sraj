@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>모집·신청 레이더</title>
 <meta name="description" content="영등포구청·서울시·기업마당·정부24의 모집/신청 공고를 매일 자동 수집해 한 표에서 보여주는 페이지">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231266F1'/%3E%3Cpath d='M32 14l14 18-14 18-14-18z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
@@ -30,7 +30,7 @@ body{
 /* ── header ── */
 .topbar{display:flex; align-items:center; gap:14px; margin-bottom:14px; flex-wrap:wrap}
 .logo{display:flex; align-items:center; gap:10px}
-.logo-mark{width:32px; height:32px; border-radius:9px; background:var(--brand); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800}
+.logo-mark{width:36px; height:27px; display:block; flex:none}
 .logo-name{font-size:20px; font-weight:800; letter-spacing:-.02em; color:var(--ink)}
 .stats{display:flex; gap:7px; align-items:center; font-size:13.5px; flex-wrap:wrap}
 .stat{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 14px; color:var(--ink-2)}
@@ -130,7 +130,24 @@ td.org{color:var(--ink-2); max-width:170px; overflow:hidden; text-overflow:ellip
 <div class="wrap">
 
   <div class="topbar">
-    <div class="logo"><div class="logo-mark">◈</div><div class="logo-name">모집·신청 레이더</div></div>
+    <div class="logo">
+      <svg class="logo-mark" viewBox="0 0 100 76" role="img" aria-label="모집·신청 레이더 로고">
+        <defs>
+          <radialGradient id="lamp" gradientUnits="userSpaceOnUse" cx="50" cy="47" r="40">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="14%" stop-color="#DCF1FF"/>
+            <stop offset="34%" stop-color="#5EB2FB"/>
+            <stop offset="66%" stop-color="#0F7CF2"/>
+            <stop offset="100%" stop-color="#0566EE"/>
+          </radialGradient>
+          <path id="wing" d="M 22.2,5.4 C 13.2,1.6 4.6,5.4 0.8,13.6 C 3.2,32.5 8.4,56.5 13.8,69.4 C 15.4,73.2 19.4,74.4 22.4,72.0 C 25.2,69.8 26.9,68.0 26.8,64.8 L 24.6,11.2 C 24.5,7.9 24.0,6.2 22.2,5.4 Z"/>
+        </defs>
+        <use href="#wing" fill="url(#lamp)"/>
+        <use href="#wing" fill="url(#lamp)" transform="translate(100,0) scale(-1,1)"/>
+        <path fill="url(#lamp)" d="M 30.6,6.2 C 30.6,2.3 39.2,0 50,0 C 60.8,0 69.4,2.3 69.4,6.2 L 68.6,68.6 C 68.6,72.6 66.4,74.8 62.4,74.8 L 37.6,74.8 C 33.6,74.8 31.4,72.6 31.4,68.6 Z"/>
+      </svg>
+      <div class="logo-name">모집·신청 레이더</div>
+    </div>
     <div class="stats">
       <span class="stat">전체 <b id="st-total">–</b></span>
       <span class="stat">최근 7일 <b id="st-new">–</b></span>
