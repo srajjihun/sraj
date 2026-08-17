@@ -57,8 +57,15 @@ async function main() {
   const all = [...bids, ...pres];
   if (!all.length) return;
 
-  console.log(`키워드 제안안 검증 리포트`);
+  console.log(`키워드 검증 리포트`);
   console.log(`원본: 입찰공고 ${bids.length}건 + 사전규격 ${pres.length}건 = ${all.length}건`);
+
+  // 어느 설정으로 돌렸는지 반드시 남깁니다. 이게 없으면 코드를 안 받은 채
+  // 예전 설정으로 돌린 결과를 새 결과로 착각합니다.
+  const gnames = Object.keys(PROPOSED.groups);
+  const kcount = Object.values(PROPOSED.groups).flat().length;
+  console.log(`설정: ${gnames.length}개 그룹 · 수집 ${kcount}개 · 제외 ${PROPOSED.exclude.length}개`);
+  for (const g of gnames) console.log(`      [${g}] ${PROPOSED.groups[g].join(" ")}`);
   line("═");
 
   const kept = [];       // 수집될 것
@@ -78,7 +85,7 @@ async function main() {
     else unmatched.push(it);
   }
 
-  console.log(`\n■ 수집 예상: ${kept.length}건  (지금 1,285건 → 제안안 적용 시)`);
+  console.log(`\n■ 수집 예상: ${kept.length}건`);
   line();
   for (const g of Object.keys(PROPOSED.groups)) {
     const rows = kept.filter((k) => k.groups[0] === g); // 첫 매칭 그룹 기준
