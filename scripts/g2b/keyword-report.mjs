@@ -101,43 +101,105 @@ async function main() {
   for (const it of sample(unmatched, 20))
     console.log(`   · ${(it.title ?? "").slice(0, 48)}`);
 
-  /* ── 단어 발굴: 공고명에 실제로 자주 나오는 단어를 데이터에서 셉니다 ── */
+  /* ══════════════════════════════════════════════════════════════
+     키워드 발굴 — 우리 사업분야에서 "유독" 자주 쓰이는 단어를 찾습니다.
+
+     단순 빈도로는 "운영·지원" 같은 일반어만 나옵니다. 그래서 특이도를 씁니다.
+       특이도 = (그 단어가 나온 우리 분야 공고 수) ÷ (그 단어가 나온 전체 공고 수)
+     특이도가 높다 = 그 단어가 나오면 대체로 우리 분야다 = 좋은 키워드 후보
+     ══════════════════════════════════════════════════════════════ */
   const STOP = new Set([
     "용역","사업","운영","지원","위탁","선정","공고","입찰","제안","계약","협상",
     "관련","위한","대상","대한","통한","기반","활용","연간","단가","재공고","긴급",
     "제작","개발","조사","연구","평가","분석","계획","수립","실시","추진","업무",
     "협상에","의한","의하","일반","제한","경쟁","전자","방식","분야","기타",
+    "지역","전국","국내","해외","공동","통합","종합","신규","기존","우수","주요",
+    "이하","이상","외","및","등","제","년","년도","차","회","기","호","안","내",
   ]);
-  const tokenize = (t) =>
-    String(t ?? "")
-      .replace(/[\[\]()「」『』『·,~〈〉<>‘’'"“”]/g, " ")
+  // 꼬리말을 뗀 어간도 후보에 넣습니다. "육성사업" → "육성사업", "육성"
+  const TAILS = ["사업","용역","운영","지원","관리","계획","서비스","프로그램","구축","제작","개발","교육","사업자","기관"];
+  function variants(word) {
+    const out = [word];
+    for (const t of TAILS) {
+      if (word.length > t.length + 1 && word.endsWith(t)) out.push(word.slice(0, -t.length));
+    }
+    return out;
+  }
+  const tokenize = (t) => {
+    const raw = String(t ?? "")
+      .replace(/[\[\]()「」『』·,~〈〉<>‘’'"“”\/|:;!?&#*+=_%]/g, " ")
       .split(/\s+/)
       .map((w) => w.replace(/^[0-9]{1,4}년?도?$|^제?[0-9]+[차회기]$/g, ""))
-      .filter((w) => w.length >= 2 && !/^[0-9.]+$/.test(w) && !STOP.has(w));
+      .filter((w) => w.length >= 2 && !/^[0-9.]+$/.test(w));
+    const set = new Set();
+    for (const w of raw) for (const v of variants(w)) if (v.length >= 2 && !STOP.has(v)) set.add(v);
+    return set; // 한 공고 안에서 같은 단어는 1회로 셉니다
+  };
 
-  const covered = (word) =>
-    Object.values(PROPOSED.groups).some((ws) => ws.some((k) => word.includes(k)));
+  const isKeyword = (w) =>
+    Object.values(PROPOSED.groups).some((ws) => ws.some((k) => w.includes(k) || k.includes(w)));
 
-  const freqAll = new Map();
-  const freqUn = new Map();
-  for (const it of all) for (const w of tokenize(it.title)) freqAll.set(w, (freqAll.get(w) ?? 0) + 1);
-  for (const it of unmatched) for (const w of tokenize(it.title)) freqUn.set(w, (freqUn.get(w) ?? 0) + 1);
+  // 제외어를 통과한 공고만 후보 발굴 대상으로 삼습니다 (노이즈에서 단어를 배우지 않도록)
+  const pool = all.filter((it) => !excludedBy(it).length);
+  const poolTokens = pool.map((it) => ({ it, ws: tokenize(it.title) }));
 
-  console.log(`\n\n■ 단어 발굴 — 공고명에 실제로 자주 나오는 단어`);
+  const freqPool = new Map();
+  for (const { ws } of poolTokens) for (const w of ws) freqPool.set(w, (freqPool.get(w) ?? 0) + 1);
+
+  console.log(`\n\n■ 키워드 발굴 — 우리 사업분야에서 유독 자주 쓰이는 단어`);
   line();
-  console.log(`   (✓ = 제안 키워드에 이미 걸림)`);
-  const topAll = [...freqAll.entries()].sort((a, b) => b[1] - a[1]).slice(0, 40);
-  console.log(`\n   [전체 공고 기준 상위 40]`);
-  console.log("   " + topAll.map(([w, n]) => `${covered(w) ? "✓" : " "}${w}(${n})`).join("  "));
+  console.log(`   특이도 = 그 단어가 나온 공고 중 우리 분야가 차지하는 비율`);
+  console.log(`   높을수록 그 단어만 넣어도 우리 분야가 잡힌다는 뜻입니다.`);
+  console.log(`   추가하려면 config/g2b-keywords.md 의 해당 그룹에 한 줄 넣으면 됩니다.`);
 
-  const cand = [...freqUn.entries()]
-    .filter(([w]) => !covered(w))
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 25);
-  console.log(`\n   [미수집 공고에서만 자주 나오는 단어 — 키워드 추가 후보]`);
-  for (const [w, n] of cand) {
-    const ex = unmatched.find((it) => (it.title ?? "").includes(w));
-    console.log(`   · ${w} (${n}건)  예: ${(ex?.title ?? "").slice(0, 34)}`);
+  const MIN_HITS = Math.max(3, Math.round(pool.length / 2000)); // 데이터가 커지면 기준도 올라갑니다
+  for (const [g, words] of Object.entries(PROPOSED.groups)) {
+    const seed = poolTokens.filter(({ it }) => {
+      const h = hay(it);
+      return words.some((w) => h.includes(w));
+    });
+    if (!seed.length) { console.log(`\n   [${g}] 수집 0건 — 발굴할 표본이 없습니다`); continue; }
+
+    const freqSeed = new Map();
+    for (const { ws } of seed) for (const w of ws) freqSeed.set(w, (freqSeed.get(w) ?? 0) + 1);
+
+    const cands = [...freqSeed.entries()]
+      .filter(([w, n]) => n >= MIN_HITS && !isKeyword(w))
+      .map(([w, n]) => ({ w, n, all: freqPool.get(w) ?? n, lift: n / (freqPool.get(w) ?? n) }))
+      .filter((c) => c.lift >= 0.4)
+      .sort((a, b) => b.lift * Math.log(1 + b.n) - a.lift * Math.log(1 + a.n))
+      .slice(0, 12);
+
+    console.log(`\n   [${g}] 수집 ${seed.length}건에서 발굴`);
+    if (!cands.length) { console.log(`      추가할 만한 단어가 없습니다 (현재 키워드로 충분)`); continue; }
+    for (const c of cands) {
+      const ex = seed.find(({ it }) => (it.title ?? "").includes(c.w))?.it;
+      const pct = Math.round(c.lift * 100);
+      console.log(
+        `      · ${c.w.padEnd(12)} 우리 ${String(c.n).padStart(4)}건 / 전체 ${String(c.all).padStart(5)}건` +
+        ` · 특이도 ${String(pct).padStart(3)}%`
+      );
+      console.log(`        예: ${(ex?.title ?? "").slice(0, 44)}`);
+    }
+  }
+
+  /* ── 미수집 공고에서만 자주 나오는 단어 (놓친 시장 후보) ── */
+  const unTokens = unmatched.map((it) => ({ it, ws: tokenize(it.title) }));
+  const freqUn = new Map();
+  for (const { ws } of unTokens) for (const w of ws) freqUn.set(w, (freqUn.get(w) ?? 0) + 1);
+  const missed = [...freqUn.entries()]
+    .filter(([w, n]) => n >= MIN_HITS * 2 && !isKeyword(w))
+    .map(([w, n]) => ({ w, n, lift: n / (freqPool.get(w) ?? n) }))
+    .filter((c) => c.lift >= 0.7)
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 20);
+
+  console.log(`\n\n■ 미수집 공고에만 나오는 단어 — 놓친 시장이 있는지`);
+  line();
+  if (!missed.length) console.log(`   눈에 띄는 단어가 없습니다.`);
+  for (const c of missed) {
+    const ex = unmatched.find((it) => (it.title ?? "").includes(c.w));
+    console.log(`   · ${c.w.padEnd(12)} ${String(c.n).padStart(4)}건  예: ${(ex?.title ?? "").slice(0, 40)}`);
   }
 
   line("═");
