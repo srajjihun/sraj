@@ -470,7 +470,7 @@ svg{display:block; width:100%}
     <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       사전규격은 정식 공고 전에 규격을 공개하고 의견을 받는 단계입니다 · 의견마감 전에 미리 준비할 수 있습니다<br>
-      공고명을 누르면 나라장터 사전규격 화면이 새 창으로 열립니다
+      공고명을 누르면 규격서 파일이 열립니다 · 나라장터에서 직접 찾으실 때는 카드에 적힌 사전규격 번호로 검색하세요
     </p>
   </section>
 
@@ -889,12 +889,16 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
 /* 나라장터 링크.
    입찰공고는 API 가 상세 URL(bidNtceDtlUrl)을 주므로 그대로 씁니다.
    사전규격은 상세 URL 을 주지 않아 등록번호로 조회 화면을 엽니다. */
+/* 공고명을 누르면 어디로 가는가.
+   일반·유찰·긴급공고는 API 가 원문 주소(bidNtceDtlUrl)를 주므로 그대로 씁니다.
+
+   사전규격은 API 가 상세 주소를 주지 않습니다. 예전에는 주소 형식을 짐작해
+   만들어 붙였는데 실제로 열리지 않았습니다. 짐작한 주소를 계속 쓰면 매번
+   "페이지를 연결할 수 없음"이 뜨므로, 확실히 열리는 규격서 파일로 보냅니다.
+   (규격서 주소는 API 가 직접 준 값이라 반드시 열립니다) */
 function g2bLink(it){
   if(it.type!=="pre") return it.url || it.files?.[0]?.url || "";
-  const no=String(it.bidNo||"").trim();
-  return no
-    ? "https://www.g2b.go.kr/ep/preparation/prestd/preStdDtl.do?preStdRegNo="+encodeURIComponent(no)
-    : "https://www.g2b.go.kr/";
+  return it.files?.[0]?.url || "";
 }
 
 function dueCell(it){
@@ -927,8 +931,9 @@ function whenLine(it, kind){
   const label = kind==="pre" ? "의견마감" : (due.src==="개찰" ? "개찰" : "마감");
   const when  = due.iso ? `${due.iso}${due.time?" "+due.time:""}` : "일정 미상";
   const reg   = it.date ? `${kind==="pre"?"접수":"공고"} ${it.date}` : "";
+  const no    = kind==="pre" && it.bidNo ? `<span class="dot">·</span>사전규격 <span class="num">${esc(it.bidNo)}</span>` : "";
   // 언제 올라온 공고인지를 먼저 읽고, 그다음 언제까지인지를 봅니다.
-  return (reg?`${reg}<span class="dot">·</span>`:"") + `${label} ${when}`;
+  return (reg?`${reg}<span class="dot">·</span>`:"") + `${label} ${when}` + no;
 }
 
 /* 작년 같은 사업을 누가 얼마에 했는지.
