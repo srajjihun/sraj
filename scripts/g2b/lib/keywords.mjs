@@ -4,6 +4,7 @@
 //   # 수집 키워드   → ## 그룹명 아래 한 줄에 단어 하나
 //   # 제외 키워드   → 한 줄에 단어 하나
 //   # 제외 예외     → 한 줄에 하나. 제외어가 이 말 안에서만 걸렸으면 살립니다
+//   # 제외 해제     → "조건어 → 무시할제외어 무시할제외어" 형식
 //   # 조달분류코드  → "코드  설명" 형식 (첫 토큰만 코드로 사용)
 import { readFile } from "node:fs/promises";
 
@@ -14,9 +15,10 @@ export async function loadKeywords(path = CONFIG_PATH) {
   const groups = {}; // { 그룹명: [단어...] }
   const exclude = [];
   const allow = []; // 제외 예외
+  const release = []; // 제외 해제 조건 [{ when, words }]
   const codes = [];
 
-  let section = null; // "collect" | "exclude" | "allow" | "codes"
+  let section = null; // "collect" | "exclude" | "allow" | "release" | "codes"
   let currentGroup = null;
 
   for (const rawLine of text.split("\n")) {
@@ -24,7 +26,9 @@ export async function loadKeywords(path = CONFIG_PATH) {
     if (!line) continue;
 
     if (/^#\s*수집/.test(line)) { section = "collect"; currentGroup = null; continue; }
-    if (/^#\s*제외\s*예외/.test(line)) { section = "allow"; continue; } // 제외보다 먼저 봐야 합니다
+    // 아래 두 줄은 "# 제외" 보다 먼저 봐야 합니다 (앞부분이 같습니다)
+    if (/^#\s*제외\s*예외/.test(line)) { section = "allow"; continue; }
+    if (/^#\s*제외\s*해제/.test(line)) { section = "release"; continue; }
     if (/^#\s*제외/.test(line)) { section = "exclude"; continue; }
     if (/^#\s*조달분류/.test(line)) { section = "codes"; continue; }
     if (/^##\s+/.test(line)) {
@@ -43,13 +47,20 @@ export async function loadKeywords(path = CONFIG_PATH) {
     if (section === "collect" && currentGroup) groups[currentGroup].push(line);
     else if (section === "exclude") exclude.push(line);
     else if (section === "allow") allow.push(line);
+    else if (section === "release") {
+      // "수출 → 행사 전시회 상담회"
+      const [left, right] = line.split(/→|->/);
+      const when = (left ?? "").trim();
+      const words = (right ?? "").trim().split(/\s+/).filter(Boolean);
+      if (when && words.length) release.push({ when, words });
+    }
     else if (section === "codes") {
       const code = line.split(/\s+/)[0];
       if (/^\d{4,}$/.test(code)) codes.push(code);
     }
   }
 
-  return { groups, exclude, allow, codes };
+  return { groups, exclude, allow, release, codes };
 }
 
 // 항목(제목+분류명)에 매칭되는 키워드 그룹 목록을 돌려줍니다. 빈 배열이면 미매칭.
@@ -87,13 +98,29 @@ function matchedOutsideAllowlist(title, word, allow) {
   return false;
 }
 
+// 제외 해제 조건: 제목에 조건어가 있으면 그 제외어들을 무시합니다.
+//
+// 예: 수출지원사업의 표준 형태가 "해외 전시회 참가지원"·"수출상담회"·
+//     "무역사절단"입니다. 발주기관이 기업을 해외에 내보내는 사업이지
+//     행사 기획이 아닌데, 행사·전시회·상담회 제외어가 전부 죽였습니다.
+//     "수출 → 행사 전시회 상담회" 를 적어두면 수출 맥락에서만 풀립니다.
+function releasedWords(title, release) {
+  const out = new Set();
+  for (const r of release) {
+    if (title.includes(r.when)) for (const w of r.words) out.add(w);
+  }
+  return out;
+}
+
 /** 제목에 걸린 제외어 목록. 비어 있으면 통과입니다. */
 export function excludedBy(item, config) {
   const title = item.title ?? "";
   const allow = config.allow ?? [];
-  return config.exclude.filter((w) =>
-    allow.length ? matchedOutsideAllowlist(title, w, allow) : title.includes(w)
-  );
+  const freed = releasedWords(title, config.release ?? []);
+  return config.exclude.filter((w) => {
+    if (freed.has(w)) return false;
+    return allow.length ? matchedOutsideAllowlist(title, w, allow) : title.includes(w);
+  });
 }
 
 export function isExcluded(item, config) {
