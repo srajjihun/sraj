@@ -104,6 +104,26 @@ async function main() {
       console.log(`   · [${matchedWord(it, g)}] ${(it.title ?? "").slice(0, 44)}`);
   }
 
+  /* ── 키워드별 기여 ──
+     어느 단어가 몇 건을 끌어오는지 보여줍니다. 갑자기 커진 단어가
+     오탐의 근원인 경우가 많아, 다음에 손볼 곳을 바로 찾을 수 있습니다. */
+  console.log(`\n\n■ 키워드별 건수 — 어느 단어가 얼마나 끌어오는지`);
+  line();
+  console.log(`   0건이면 빼도 되는 단어이고, 유독 큰 단어는 오탐을 의심해 보세요.`);
+  for (const g of Object.keys(PROPOSED.groups)) {
+    // 첫 매칭만 세면 "창업 경진대회"가 창업으로만 잡혀 경진대회가 0으로
+    // 보입니다. 오탐의 근원을 찾으려면 걸린 단어를 전부 세야 합니다.
+    const counts = new Map(PROPOSED.groups[g].map((w) => [w, 0]));
+    for (const { it, groups } of kept) {
+      if (!groups.includes(g)) continue;
+      const h = hay(it);
+      for (const w of PROPOSED.groups[g]) if (h.includes(w)) counts.set(w, counts.get(w) + 1);
+    }
+    const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    console.log(`\n   [${g}]`);
+    console.log(`      ${rows.map(([w, n]) => `${w} ${n}`).join(" · ")}`);
+  }
+
   console.log(`\n\n■ 제외어가 걸러낸 것 (키워드에는 걸렸던 건): ${killed.length}건`);
   line();
   const topKills = [...killCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
