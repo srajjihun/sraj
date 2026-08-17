@@ -208,6 +208,12 @@ svg{display:block; width:100%}
 .chip:hover{border-color:var(--accent)}
 .chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
 .chip .n{font-weight:600; opacity:.65; margin-left:3px; font-size:11.5px}
+/* 두 조건은 성격이 달라 색도 분리합니다 —
+   공동수급(초록)은 실적을 얻는 경로, 실적요건 없음(청록)은 진입 문턱이 낮음 */
+.chip.toggle{border-style:dashed; margin-left:6px}
+.chip.toggle.on{border-style:solid; color:#fff}
+.chip.toggle.t-joint.on{background:var(--go); border-color:var(--go)}
+.chip.toggle.t-norec.on{background:var(--pre); border-color:var(--pre)}
 .search{
   margin-left:auto; font:inherit; font-size:13px; color:var(--ink);
   background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
@@ -238,6 +244,8 @@ td.title .t{font-weight:650; letter-spacing:-.01em; line-height:1.4; color:var(-
 td.title .s{display:block; font-size:11.5px; color:var(--ink-3); margin-top:2px}
 td.title .s .alert{color:var(--stop); font-weight:700}
 td.title .s .flag{color:var(--warn); font-weight:700}
+td.title .s .ok{color:var(--go); font-weight:700}
+td.title .s .dimflag{color:var(--ink-3)}
 td.r{text-align:right}
 td.dim{color:var(--ink-2)}
 .badge-new{
@@ -375,6 +383,12 @@ td.dim{color:var(--ink-2)}
 
   <section class="tablecard">
     <div class="tablebar" id="tablebar">
+      <button class="chip toggle t-joint" id="tg-joint" title="공동수급으로 지분 참여하면 지분율만큼 실적증명이 발급됩니다">
+        🤝 공동수급 가능 <span class="n num" id="n-joint"></span>
+      </button>
+      <button class="chip toggle t-norec" id="tg-norec" title="기존 실적을 요구하지 않아 실적이 없어도 들어갈 수 있습니다">
+        실적요건 없음 <span class="n num" id="n-norec"></span>
+      </button>
       <input class="search" id="q" type="search" placeholder="🔍 공고명 검색">
     </div>
     <div class="tbl-scroll">
@@ -427,12 +441,14 @@ const todayStr = new Date(todayMs).toISOString().slice(0, 10);
 function parseDay(iso){ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||""); return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null; }
 function daysUntil(iso){ const t=parseDay(iso); return t===null?null:Math.round((t-todayMs)/DAY); }
 function fmtShort(iso){ const m=/^\d{4}-(\d{2})-(\d{2})/.exec(iso||""); return m?`${m[1]}.${m[2]}`:""; }
-function fmtPrice(v){ // 원 → 억 표기
+function fmtPrice(v){ // 원 → 억/천만 표기
   if(v===null||v===undefined) return "—";
   const eok=v/1e8;
-  if(eok>=10) return eok.toFixed(0)+"억";
+  if(eok>=10) return Math.round(eok)+"억";
   if(eok>=1) return eok.toFixed(1)+"억";
-  return Math.round(v/1e7)/1+"천만";
+  // 1억 미만은 천만 단위. 반올림 결과가 10이 되면 1억으로 올립니다.
+  const cheon=Math.round(v/1e7);
+  return cheon>=10 ? "1.0억" : cheon+"천만";
 }
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
@@ -440,6 +456,12 @@ const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
 const tip=$("#tip");
 function tipShow(x,y,html){tip.innerHTML=html; tip.style.left=x+"px"; tip.style.top=y+"px"; tip.classList.add("show");}
 function tipHide(){tip.classList.remove("show");}
+
+/* ── 두 가지 조건은 성격이 다르므로 따로 봅니다 ──
+   공동수급  : 지분 참여하면 지분율만큼 실적증명이 발급됨 → 실적을 "얻는" 경로
+   실적요건  : 기존 실적을 요구함 → 실적이 "있어야" 들어갈 수 있는 문턱      */
+const isJoint     = it => it.type!=="pre" && it.jointOk===true;   // 공동수급 가능
+const needsRecord = it => it.type!=="pre" && it.arsltCmpt===true; // 실적 요구
 
 /* ═══ 상단 정보 ═══ */
 (function(){
@@ -470,9 +492,9 @@ function tipHide(){tip.classList.remove("show");}
     {k:"오늘 신규", v:`${newCount}<small>건</small>`, d:`전체 대기 ${ALL.length}건`},
     {k:"마감 임박 D-3", v:`${dueSoon}<small>건</small>`, d:dueSoon?"자격등록 마감을 확인하세요":"해당 없음", hot:dueSoon>0},
     {k:"공고", v:`${POSTS.length}<small>건</small>`, d:"수집 키워드 기준"},
+    {k:"공동수급 가능", v:`${POSTS.filter(isJoint).length}<small>건</small>`, d:"지분 참여로 실적 확보"},
+    {k:"실적요건 있음", v:`${POSTS.filter(needsRecord).length}<small>건</small>`, d:"기존 실적을 요구"},
     {k:"사전규격", v:`${PRES.length}<small>건</small>`, d:"정식 공고 전 단계"},
-    {k:"유찰률", v:null, d:"낙찰 데이터 축적 중"},
-    {k:"평균 경쟁", v:null, d:"낙찰 데이터 축적 중"},
   ];
   $("#kpis").innerHTML = tiles.map(t=>`
     <div class="kpi ${t.hot?"hot":""}">
@@ -567,7 +589,7 @@ function tipHide(){tip.classList.remove("show");}
 })();
 
 /* ═══ 표 ═══ */
-const state={kw:"all", q:"", sort:"dday", dir:1};
+const state={kw:"all", q:"", sort:"dday", dir:1, joint:false, norec:false};
 
 function ddayInfo(it){
   const d=daysUntil(it.deadline);
@@ -589,13 +611,24 @@ function subLine(it){
       parts.push(`<span class="alert">참가자격등록 마감 ${fmtShort(it.qlfctDate)}${it.qlfctTime?" "+it.qlfctTime:""} — 입찰 마감보다 앞섭니다</span>`);
     }
     if(it.reNtce) parts.push(`<span class="flag">🔁 재공고 — 1차 유찰 가능성</span>`);
+    // 공동수급 — 지분 참여 시 지분율만큼 실적증명이 발급되는 "실적 확보" 경로
+    if(it.jointOk===true){
+      const how=it.jointMethod?` ${esc(it.jointMethod.replace(/^\(없음\)/,""))}`:"";
+      parts.push(`<span class="ok">🤝 공동수급 가능${how}</span>`);
+    } else if(it.jointOk===false){
+      parts.push(`<span class="dimflag">공동수급 불허</span>`);
+    }
+    // 실적요건 — 기존 실적을 요구하는 "진입 문턱"
+    parts.push(it.arsltCmpt
+      ? `<span class="flag">📄 실적요건 있음</span>`
+      : `<span class="ok">실적요건 없음</span>`);
+
     const m=[];
     if(it.winnerMethod) m.push(esc(it.winnerMethod.split("-")[0]));
     if(it.techRate!==null&&it.techRate!==undefined&&it.priceRate!==null&&it.priceRate!==undefined) m.push(`기술 ${it.techRate}:${it.priceRate}`);
     if(m.length) parts.push(m.join(" · "));
     const f=[];
     if(it.rgnLmt) f.push("지역제한 — 공고문 확인 필요");
-    if(it.arsltCmpt) f.push("실적경쟁");
     if(it.indstrytyLmt) f.push("업종제한");
     if(f.length) parts.push(`<span class="flag">${f.join(" · ")}</span>`);
   }
@@ -607,6 +640,8 @@ function render(){
   const q=state.q.trim().toLowerCase();
   let list=ALL.filter(it=>
     (state.kw==="all"||(it.kw||[]).includes(state.kw)) &&
+    (!state.joint||isJoint(it)) &&
+    (!state.norec||(it.type!=="pre"&&!needsRecord(it))) &&
     (!q||(it.title||"").toLowerCase().includes(q)));
 
   const withD=list.map(it=>({it, dd:ddayInfo(it)}));
@@ -660,6 +695,18 @@ function render(){
   bar.insertBefore(frag,bar.firstChild);
 })();
 
+$("#n-joint").textContent=ALL.filter(isJoint).length;
+$("#n-norec").textContent=ALL.filter(it=>it.type!=="pre"&&!needsRecord(it)).length;
+$("#tg-joint").addEventListener("click",e=>{
+  state.joint=!state.joint;
+  e.currentTarget.classList.toggle("on",state.joint);
+  render();
+});
+$("#tg-norec").addEventListener("click",e=>{
+  state.norec=!state.norec;
+  e.currentTarget.classList.toggle("on",state.norec);
+  render();
+});
 $("#q").addEventListener("input",e=>{state.q=e.target.value; render();});
 document.querySelectorAll("th.sortable").forEach(th=>th.addEventListener("click",()=>{
   const k=th.dataset.sort;
