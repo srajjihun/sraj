@@ -1,15 +1,13 @@
 @echo off
 chcp 65001 >nul
-rem -- 입찰·영업 정보시스템: 나라장터 수집 스크립트 (Windows) --
-rem 나라장터 OpenAPI에서 입찰공고·사전규격을 수집하고 g2b-live.html 을 생성합니다.
+rem -- G2B (nara-jangteo) collector --
 rem
-rem 준비(최초 1회): 공공데이터포털 일반 인증키를 환경변수로 등록합니다.
-rem   setx G2B_SERVICE_KEY "여기에인증키"
+rem IMPORTANT: keep this file 100%% ASCII. See scripts\g2b\say.mjs for why.
 rem
-rem 사용법:
-rem   collect-g2b.bat        ← 최근 3일 (매일 아침용)
-rem   collect-g2b.bat 30     ← 최근 30일 (첫 실행·백필용)
-rem 작업 스케줄러에 등록하면 매일 자동으로 수집됩니다.
+rem Usage:
+rem   collect-g2b.bat        last 3 days (daily run)
+rem   collect-g2b.bat 30     last 30 days (first run / backfill)
+rem Register it in the Windows task scheduler for a daily collect.
 
 cd /d "%~dp0"
 
@@ -17,22 +15,21 @@ if not exist "logs" mkdir "logs"
 set "LOG=logs\g2b.log"
 
 echo. >> "%LOG%"
-echo ===== %DATE% %TIME% G2B 수집 시작 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% g2b collect start ===== >> "%LOG%"
 
 if "%G2B_SERVICE_KEY%"=="" (
-  echo [오류] G2B_SERVICE_KEY 가 설정되지 않았습니다. >> "%LOG%"
-  echo [오류] G2B_SERVICE_KEY 가 설정되지 않았습니다.
-  echo        setx G2B_SERVICE_KEY "인증키"  실행 후 새 창에서 다시 시도하세요.
+  echo [ERROR] G2B_SERVICE_KEY is not set >> "%LOG%"
+  node "scripts\g2b\say.mjs" nokey
   exit /b 1
 )
 
-rem 부팅 직후에는 네트워크가 아직 안 잡혔을 수 있어 잠시 대기합니다
+rem Right after boot the network may not be up yet.
 ping -n 11 127.0.0.1 >nul
 
-node "scripts\g2b\collect.mjs" %1 >> "%LOG%" 2>&1 || echo [경고] 수집 중 오류 발생 >> "%LOG%"
-node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [경고] 페이지 생성 실패 >> "%LOG%"
+node "scripts\g2b\collect.mjs" %1 >> "%LOG%" 2>&1 || echo [WARN] collect failed >> "%LOG%"
+node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [WARN] page build failed >> "%LOG%"
 
-echo ===== %DATE% %TIME% G2B 수집 종료 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% g2b collect end ===== >> "%LOG%"
 
-rem 로그가 무한정 커지지 않도록 1MB 넘으면 비웁니다
+rem Keep the log from growing without bound.
 for %%F in ("%LOG%") do if %%~zF GTR 1048576 type nul > "%LOG%"

@@ -1,58 +1,56 @@
 @echo off
 chcp 65001 >nul
-rem -- 모집·신청 레이더: PC 수집 스크립트 (Windows) --
-rem GitHub 서버(해외 IP)에서 접속이 차단되는 영등포구청/기업마당/정부24를
-rem 포함해 4개 소스를 이 PC(한국 IP)에서 수집하고 저장소에 푸시한다.
-rem 사용법: collect-silent.vbs 로 실행하면 창 없이 조용히 동작한다.
-rem        (직접 실행해도 되며, 그때는 진행 상황이 창에 보인다)
+rem -- daily collector, run by the Windows task scheduler --
+rem
+rem IMPORTANT: keep this file 100%% ASCII. See scripts\g2b\say.mjs for why.
+rem Nobody watches this window (collect-silent.vbs runs it hidden), so the
+rem log lines below stay English on purpose - they are for diagnosis.
+rem
+rem Collects the four sources that GitHub Actions cannot reach from a
+rem foreign IP (ydp / seoul / bizinfo / govkr) plus G2B,
+rem from this PC on a Korean IP.
 
 cd /d "%~dp0"
 
-rem 실행 기록은 logs\collect.log 에 남긴다 (최근 실행분 위주로 확인용)
 if not exist "logs" mkdir "logs"
 set "LOG=logs\collect.log"
 
 echo. >> "%LOG%"
-echo ===== %DATE% %TIME% 수집 시작 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% collect start ===== >> "%LOG%"
 
-rem 부팅 직후에는 네트워크가 아직 안 잡혔을 수 있어 잠시 대기
+rem Right after boot the network may not be up yet.
 ping -n 16 127.0.0.1 >nul
 
-rem -- 최신 코드 받기 --
-rem 예전에는 여기서 git pull --ff-only 를 썼는데, 로컬과 원격이 한 번 갈라지면
-rem 영영 실패하고 그 오류가 로그에만 남아 아무도 모릅니다. 실제로 그 일이
-rem 있었습니다 — 이 PC 와 GitHub Actions 가 같은 data\*.json 을 서로 커밋·푸시해서
-rem 갈라졌고, 그 뒤로 모든 .bat 의 git pull 이 조용히 실패했습니다.
-rem
-rem 그래서 (1) 이 PC 는 이제 아무것도 커밋·푸시하지 않고
-rem        (2) 원격 상태로 맞추기만 합니다. 갈라져 있어도 복구됩니다.
-rem data\g2b\ 와 g2b-live.html, config\회사정보.md 는 git 이 추적하지 않으므로
-rem 이 명령의 영향을 받지 않습니다.
-rem 브랜치를 고정값으로 씁니다 (지금 체크아웃된 브랜치를 믿지 않습니다).
-rem 이 저장소가 무관한 다른 브랜치에 가 있던 적이 있어, 그 상태에서
-rem "지금 브랜치 그대로 맞추기"는 계속 엉뚱한 브랜치로만 맞춰졌습니다.
+rem -- pull latest code --
+rem This used to be `git pull --ff-only`. Once local and remote diverged it
+rem failed forever and the error only went to the log, so nobody noticed.
+rem That actually happened: this PC and GitHub Actions both pushed the same
+rem data\*.json. Now (1) this PC commits nothing and (2) we only match the
+rem remote, which repairs a diverged clone on the next run.
+rem data\g2b\, g2b-live.html and config\ are untracked, so they survive.
+rem The branch is pinned - trusting the checked-out branch once left this
+rem clone syncing to an unrelated branch every single run.
 set "BR=claude/g2b-bidding-collector-y605rn"
 git fetch origin %BR% >> "%LOG%" 2>&1
-git checkout -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [경고] 최신 코드를 받지 못했습니다 >> "%LOG%"
+git checkout -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
 
 for %%s in (ydp seoul bizinfo govkr) do (
-  node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [경고] %%s 수집 실패 >> "%LOG%"
+  node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [WARN] %%s collect failed >> "%LOG%"
 )
 
-rem 수집 결과(data\*.json)는 PC 에서 올리지 않습니다.
-rem GitHub Actions(ydp-monitor.yml)가 같은 파일을 갱신하므로, 양쪽에서 밀면
-rem 반드시 갈라집니다. 저장소 쪽은 Actions 에 맡깁니다.
+rem Results (data\*.json) are NOT pushed from this PC. GitHub Actions
+rem (ydp-monitor.yml) updates the same files; pushing from both sides
+rem guarantees a divergence. The repository side is left to Actions.
 
-rem -- 나라장터 입찰·영업 정보시스템 --
-rem 인증키(G2B_SERVICE_KEY)가 등록돼 있을 때만 동작한다.
-rem 최초 등록은 G2B-설치.bat 을 한 번 실행하면 된다.
-rem 수집 결과는 g2b-live.html 로만 남고 저장소에는 올리지 않는다(사내 정보).
+rem -- G2B (nara-jangteo) --
+rem Only runs once G2B_SERVICE_KEY is registered (the setup .bat does that).
+rem Output stays in g2b-live.html and is never pushed (company-internal).
 if not "%G2B_SERVICE_KEY%"=="" (
-  node "scripts\g2b\collect.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 수집 실패 >> "%LOG%"
-  node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 화면 생성 실패 >> "%LOG%"
+  node "scripts\g2b\collect.mjs" >> "%LOG%" 2>&1 || echo [WARN] g2b collect failed >> "%LOG%"
+  node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [WARN] g2b page build failed >> "%LOG%"
 )
 
-echo ===== %DATE% %TIME% 수집 종료 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% collect end ===== >> "%LOG%"
 
-rem 로그가 무한정 커지지 않도록 1MB 넘으면 비운다
+rem Keep the log from growing without bound.
 for %%F in ("%LOG%") do if %%~zF GTR 1048576 type nul > "%LOG%"
