@@ -233,15 +233,22 @@ svg{display:block; width:100%}
 .donutlg .p{color:var(--ink-3); font-weight:700; width:42px; text-align:right; white-space:nowrap}
 /* 금액을 줄에 바로 적습니다. 마우스를 올려야만 보이면 한눈에 못 비교합니다. */
 .donutlg .w{color:var(--ink-2); font-weight:700; width:60px; text-align:right; white-space:nowrap}
-.donutfoot{margin-top:14px; font-size:13px; color:var(--ink-3)}
+.donutfoot{margin-top:auto; padding-top:14px; font-size:13px; color:var(--ink-3)}
 /* 주목할 공고 표는 좁은 화면에서 가로로 넘칩니다. 잘라내지 않고 그 안에서만
    가로로 밀 수 있게 합니다 — 페이지 전체가 가로로 흔들리면 못 씁니다. */
 .focus{overflow-x:auto}
 
 /* ─── 4행 : 참여 조건 ─── */
-/* 도넛과 참여 조건을 나란히 놓습니다. 참여 조건은 오른쪽에서 2×2 로 접힙니다. */
-.distrow{display:grid; grid-template-columns:1.1fr 1fr; gap:11px; margin-bottom:16px; align-items:start}
-.cond{display:grid; grid-template-columns:repeat(2,1fr); gap:11px}
+/* 도넛과 참여 조건을 나란히 놓습니다. 참여 조건은 오른쪽에서 2×2 로 접힙니다.
+   두 칸의 높이를 맞춥니다. align-items:start 로 두었더니 내용이 짧은 쪽이
+   위로 붙어 아래가 비고, 두 상자의 밑선이 어긋나 보였습니다.
+   카드 넉 장도 두 줄을 반씩 나눠 가지게 해서 넷의 크기를 같게 합니다 —
+   설명 글이 한 줄인 카드와 두 줄인 카드의 높이가 달랐습니다. */
+.distrow{display:grid; grid-template-columns:1.1fr 1fr; gap:11px; margin-bottom:16px; align-items:stretch}
+.cond{display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:11px}
+/* 도넛 칸은 남는 높이를 그림이 가져가고, 합계는 맨 아래에 붙습니다. */
+#p-dist{display:flex; flex-direction:column}
+#v-dist{flex:1; display:flex; flex-direction:column; justify-content:center}
 .condcard{
   background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);
   padding:13px 15px; text-align:left;
