@@ -18,7 +18,7 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { loadCompany } from "./lib/company.mjs";
-import { itemNames } from "./lib/require.mjs";
+import { itemNames, itemKey } from "./lib/require.mjs";
 
 const DATA = new URL("../../data/g2b/", import.meta.url);
 
@@ -112,9 +112,33 @@ async function main() {
   if (have.length) have.forEach((r) => console.log(line(r)));
   else console.log("  (없음)");
 
-  console.log("\n── 없어서 감점되는 인증 (많은 순) ──");
-  if (miss.length) miss.forEach((r) => console.log(line(r)));
-  else console.log("  (없음)");
+  /* 미보유를 한 덩어리로 보여주면 "이것들을 받으면 되겠다"로 읽힙니다.
+     그런데 여성기업·장애인기업은 대표자가 여성·장애인이어야 하고,
+     소기업·소상공인은 기업 규모 문제라 서류로 해결되는 것이 아닙니다.
+     받을 수 있는 것과 없는 것을 갈라 놓아야 판단이 섭니다. */
+  const CANNOT = new Map([
+    ["여성기업", "대표자가 여성이어야 함"],
+    ["장애인기업", "대표자가 장애인이어야 함"],
+    ["중증장애인생산품", "생산시설 지정 필요"],
+    ["사회적기업", "취약계층 고용·이윤 재투자 요건"],
+    ["사회적경제기업", "조직 형태 요건"],
+    ["사회적협동조합", "조직 형태 요건"],
+    ["마을기업", "조직 형태 요건"],
+    ["자활기업", "조직 형태 요건"],
+    ["소기업", "우리는 중기업 — 규모 요건"],
+    ["소상공인", "우리는 중기업 — 규모 요건"],
+  ]);
+  const canGet = miss.filter((r) => !CANNOT.has(r.term));
+  const cannot = miss.filter((r) => CANNOT.has(r.term));
+
+  console.log("\n── 없어서 감점되는 인증 · 받을 수 있는 것 ──");
+  if (canGet.length) canGet.forEach((r) => console.log(line(r)));
+  else console.log("  (없음 — 받을 만한 인증이 더 없다는 뜻입니다)");
+
+  if (cannot.length) {
+    console.log("\n── 없어서 감점되지만 우리 조건으로는 못 받는 것 ──");
+    cannot.forEach((r) => console.log(`${line(r)}\n${"".padEnd(18)}${CANNOT.get(r.term)}`));
+  }
 
   // 한 번도 안 나온 인증 — 받을 이유가 없다는 근거가 됩니다.
   const zero = [...held].filter((h) => !rows.some((r) => norm(r.term) === h));
@@ -153,7 +177,7 @@ async function main() {
      품목과 맞춰 봅니다. 이게 "어느 품목을 더 받아야 하나"의 답입니다.
      원문 한 줄만 저장해 두므로 품목이 다른 줄에 있으면 안 잡힙니다 —
      그래서 확정이 아니라 단서로 보여줍니다. */
-  const ours = new Set((company.directProduce ?? []).map(norm));
+  const ours = new Set((company.directProduce ?? []).map(itemKey));
 
   /* 품목 이름은 공고문을 읽는 시점(require.mjs)에 본문 전체를 보고 뽑아
      docs.json 에 저장합니다. 리포트는 그것을 씁니다.
@@ -165,25 +189,33 @@ async function main() {
     const hasDirect = (d.credits ?? []).some((c) => c.term === "직접생산확인");
     if (!hasDirect) continue;
     const b = budget.get(bidNo) ?? 0;
-    const names = d.directItems
+    // 저장된 이름도 한 번 더 걸러냅니다. 예전 규칙으로 저장된 기록에는
+    // "및대행서비스" 처럼 앞이 잘린 껍데기가 들어 있습니다(실측 5건·3건).
+    // itemNames 를 다시 태우면 그런 것은 걸러지고 온전한 이름만 남습니다.
+    const raw = d.directItems
       ? d.directItems.map((i) => i.name)
-      : itemNames((d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence ?? "");
+      : [(d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence ?? ""];
+    const names = [...new Set(raw.flatMap((s) => itemNames(s)))];
     for (const name of names) {
-      const cur = items.get(name) ?? { n: 0, list: [] };
+      // "국제행사기획및대행서비스" 와 "국제행사기획대행서비스" 는 같은 품목입니다.
+      const key = itemKey(name);
+      const cur = items.get(key) ?? { n: 0, list: [], names: new Map() };
       cur.n += 1;
       cur.list.push(b);
-      items.set(name, cur);
+      cur.names.set(name, (cur.names.get(name) ?? 0) + 1);
+      items.set(key, cur);
     }
     if (!names.length) noName += 1;
   }
   if (items.size) {
     const list = [...items.entries()]
-      .map(([name, v]) => ({
-        name,
+      .map(([key, v]) => ({
+        // 여러 표기 중 가장 많이 쓰인 것을 대표로 보여줍니다.
+        name: [...v.names.entries()].sort((a, b) => b[1] - a[1])[0][0],
         n: v.n,
         mid: median(v.list),
         sum: v.list.reduce((a, b) => a + b, 0),
-        have: ours.has(norm(name)),
+        have: ours.has(key),
       }))
       .sort((a, b) => b.n - a.n);
     console.log("\n── 직접생산확인: 공고가 요구한 품목 ──");

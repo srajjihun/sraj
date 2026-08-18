@@ -246,8 +246,20 @@ const ITEM_PARTS = [
   "기획", "영상", "홍보", "및",
 ].sort((a, b) => b.length - a.length);
 
-// 앞이 잘려 뜻이 없어진 이름들. 세면 오히려 판단을 흐립니다.
-const GENERIC_ITEM = /^(대행|운영|기획|제작|관리|위탁)?서비스$/;
+/* 품목 이름은 반드시 "무엇에 대한" 서비스인지로 시작합니다(축제·전시회·동영상…).
+   앞이 잘리면 "및대행서비스" "기획및대행서비스" 같은 껍데기가 남는데, 이걸
+   품목으로 세면 없는 품목이 있는 것처럼 보입니다(실측 5건·3건).
+   첫 낱말이 주제어가 아니면 이름을 못 뽑은 것으로 처리합니다. */
+const ITEM_TOPICS = new Set([
+  "전시홍보관", "기타행사", "국제행사", "전시부스", "동영상", "박람회", "전시회",
+  "홍보관", "이벤트", "시상식", "디자인", "마케팅", "축제", "행사", "회의", "전시",
+  "국제", "기타", "부스", "광고", "공연", "영상", "홍보", "인쇄",
+]);
+
+/* 같은 품목을 "국제행사기획및대행서비스" 로도, "국제행사기획대행서비스" 로도
+   씁니다. 그대로 두면 보유 품목인데 "없음"으로 잡힙니다(실측 2건·1건).
+   비교할 때는 "및"과 띄어쓰기를 지운 형태를 씁니다. */
+export const itemKey = (s) => String(s ?? "").replace(/[\s및]/g, "");
 
 export function itemNames(line) {
   const out = [];
@@ -264,8 +276,8 @@ export function itemNames(line) {
       end = j - part.length;
     }
     if (!chunks.length) continue;
-    const name = chunks.join("") + "서비스";
-    if (!GENERIC_ITEM.test(name)) out.push(name);
+    if (!ITEM_TOPICS.has(chunks[0])) continue;
+    out.push(chunks.join("") + "서비스");
   }
   return [...new Set(out)];
 }
