@@ -572,7 +572,7 @@ table.prof .sub2{font-size:12.5px; color:var(--ink-3); font-weight:600}
   <section class="focus">
     <div class="focus-head">
       <h2>주목할 공고</h2>
-      <span class="sub">예측점수 높은 순 · 참가 불가로 확인된 공고는 빼고 · 마감이 지나면 자동으로 사라집니다</span>
+      <span class="sub">예측점수 높은 순 · 참가 불가로 확인된 공고는 삭제 · 마감이 지나면 자동으로 사라집니다</span>
     </div>
     <div id="focus-body"></div>
   </section>
@@ -979,18 +979,20 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
       <td><span class="tt" title="${esc(it.title)}">${esc(it.title)}</span></td>
       <td>${sched(it)}</td>
       <td><span class="org" title="${esc(it.org)}">${esc(it.org)}</span></td>
+      <td class="r num bud">${억(it.budget ?? it.price)}</td>
       <td class="r">${rate(it)}</td>
     </tr>`; };
 
   body.innerHTML=`<table class="ftable">
     <thead><tr>
       <th style="width:78px">구분</th><th>공고명</th>
-      <th style="width:170px">일정</th><th style="width:140px">발주처</th>
+      <th style="width:170px">일정</th><th style="width:132px">발주처</th>
+      <th class="r" style="width:82px">예산</th>
       <th class="r" style="width:72px">예측</th>
     </tr></thead>
     <tbody>
       ${scored.map(row).join("")}
-      ${noScore.length?`<tr class="divider"><td colspan="5">배점 미정 — 사전규격이거나 배점이 공개되지 않은 공고</td></tr>`:""}
+      ${noScore.length?`<tr class="divider"><td colspan="6">배점 미정 — 사전규격이거나 배점이 공개되지 않은 공고</td></tr>`:""}
       ${noScore.map(row).join("")}
     </tbody></table>`;
   const open = tr => { if(tr.dataset.url) window.open(tr.dataset.url,"_blank","noopener"); };
