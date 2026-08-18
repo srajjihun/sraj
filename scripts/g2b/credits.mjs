@@ -153,21 +153,62 @@ async function main() {
      원문 한 줄만 저장해 두므로 품목이 다른 줄에 있으면 안 잡힙니다 —
      그래서 확정이 아니라 단서로 보여줍니다. */
   const ours = new Set((company.directProduce ?? []).map(norm));
+
+  /* 품목 이름 뽑기.
+     처음에는 한글이 죽 붙은 덩어리(/[가-힣]{2,20}서비스/)만 찾았습니다.
+     그랬더니 「행사기획 및 대행서비스」처럼 띄어쓰기가 든 이름에서 앞이
+     잘려 "대행서비스 27건 70.7억" 이라는 가짜 1위가 만들어졌습니다.
+     공백을 허용하도록 넓혀 봤더니 이번엔 "본 용역은 축제기획및대행서비스"
+     에서 "용역은축제기획및…" 처럼 앞 낱말까지 빨려 들어갔습니다.
+
+     그래서 자유롭게 찾지 않고, 품목 이름에 실제로 쓰이는 낱말만 목록으로
+     두고 "서비스" 에서 거꾸로 훑습니다. 목록에 없는 낱말을 만나면 멈춥니다.
+     목록에 없는 품목은 못 찾겠지만, 없는 것을 지어내지는 않습니다. */
+  const PARTS = [
+    "전시홍보관", "기타행사", "국제행사", "전시부스", "동영상", "박람회", "전시회",
+    "홍보관", "이벤트", "시상식", "디자인", "마케팅", "축제", "행사", "회의", "전시",
+    "국제", "기타", "부스", "설치", "제작", "광고", "인쇄", "운영", "공연", "대행",
+    "기획", "영상", "홍보", "및",
+  ].sort((a, b) => b.length - a.length);
+
+  // 앞이 잘려 뜻이 없어진 이름들. 세면 오히려 판단을 흐립니다.
+  const GENERIC = /^(대행|운영|기획|제작|관리|위탁)?서비스$/;
+
+  function itemNames(line) {
+    const out = [];
+    let at = -1;
+    while ((at = line.indexOf("서비스", at + 1)) >= 0) {
+      const chunks = [];
+      let end = at;
+      for (let guard = 0; guard < 8; guard += 1) {
+        let j = end;
+        while (j > 0 && /\s/.test(line[j - 1])) j -= 1;
+        const part = PARTS.find((v) => j >= v.length && line.slice(j - v.length, j) === v);
+        if (!part) break;
+        chunks.unshift(part);
+        end = j - part.length;
+      }
+      if (!chunks.length) continue;
+      const name = chunks.join("") + "서비스";
+      if (!GENERIC.test(name)) out.push(name);
+    }
+    return [...new Set(out)];
+  }
+
   const items = new Map();
+  let noName = 0;
   for (const [bidNo, d] of read) {
     const ev = (d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence;
     if (!ev) continue;
     const b = budget.get(bidNo) ?? 0;
-    const seen = new Set();
-    for (const m of ev.matchAll(/([가-힣]{2,20}서비스)/g)) {
-      const name = m[1];
-      if (seen.has(name)) continue;
-      seen.add(name);
+    const names = itemNames(ev);
+    for (const name of names) {
       const cur = items.get(name) ?? { n: 0, list: [] };
       cur.n += 1;
       cur.list.push(b);
       items.set(name, cur);
     }
+    if (!names.length) noName += 1;
   }
   if (items.size) {
     const list = [...items.entries()]
@@ -190,6 +231,9 @@ async function main() {
     const gap = list.filter((r) => !r.have);
     if (gap.length) {
       console.log(`\n  → 없는 품목 ${gap.length}종, 합쳐서 ${gap.reduce((a, r) => a + r.n, 0)}건`);
+    }
+    if (noName) {
+      console.log(`  → 품목 이름을 못 뽑은 공고 ${noName}건 (원문 한 줄만 저장해서 이름이 다른 줄에 있는 경우)`);
     }
   }
   console.log(`\n  우리 보유 품목: ${(company.directProduce ?? []).join(", ") || "(없음)"}`);
