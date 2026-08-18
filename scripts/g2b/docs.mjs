@@ -148,20 +148,28 @@ async function main() {
     // 봐서 153건 중 63건이 이름 미상이었습니다. 품목을 모르면 우리가 들어갈
     // 수 있는지 판단이 안 되므로 이 건들은 다시 읽습니다.
     if (d.ok && !d.directItems && (d.credits ?? []).some((c) => c.term === "직접생산확인")) return true;
+    // "중소기업" 안의 "소기업" 을 소기업 가점으로 잘못 저장한 건들.
+    // 그대로 두면 예측점수에서 계속 감점됩니다. 규칙을 고쳤으니 다시 읽습니다.
+    // (오탐이 든 건만 골라 다시 읽습니다 — 잘 읽힌 360건은 건드리지 않습니다)
+    if (d.ok && (d.credits ?? []).some((c) => c.term === "소기업")) return true;
     if ((d.tries ?? 1) >= 2) return false;
     return (d.kinds ?? []).some((k) => k.note && RETRYABLE.test(k.kind ?? ""));
   };
   const stale = withFiles.filter((it) => store[it.bidNo] && needsRetry(store[it.bidNo])).sort(byBudget);
 
-  // 다시 읽을 자리를 따로 떼어 둡니다.
-  //   처음에는 "안 읽은 것 먼저, 남으면 다시 읽기"로 했는데, 안 읽은 공고가
-  //   300건 넘게 남아 있어서 다시 읽기 차례가 영영 오지 않았습니다(0건).
-  //   그러면 한글이 막혀 HWP 를 못 읽은 채 저장된 100건이 그대로 남습니다.
-  //   그래서 매번 3분의 1은 다시 읽기에 씁니다.
-  const staleShare = limit === Infinity ? stale.length : Math.max(1, Math.floor(limit / 3));
-  const pickStale = stale.slice(0, staleShare);
-  const room = limit === Infinity ? Infinity : Math.max(0, limit - pickStale.length);
-  const pickFresh = fresh.slice(0, room === Infinity ? undefined : room);
+  /* 다시 읽을 자리를 따로 떼어 둡니다.
+     처음에는 "안 읽은 것 먼저, 남으면 다시 읽기"로 했는데, 안 읽은 공고가
+     300건 넘게 남아 있어서 다시 읽기 차례가 영영 오지 않았습니다(0건).
+     그래서 3분의 1을 다시 읽기 몫으로 남깁니다. */
+  // 새로 읽을 것에 자리를 먼저 주되,
+  // 그리고 새로 읽을 게 그만큼 없으면 남는 자리를 다시 읽기가 다 씁니다 —
+  // 예전에는 그 처리가 없어서, 62건을 다시 읽어야 하는데 한 번에 6건씩만
+  // 줄어들었습니다(20건 중 3분의 1). 그 속도면 열 번을 돌려야 합니다.
+  const keepForStale = limit === Infinity ? Infinity : Math.max(1, Math.floor(limit / 3));
+  const freshRoom = limit === Infinity ? Infinity : Math.max(0, limit - Math.min(keepForStale, stale.length));
+  const pickFresh = fresh.slice(0, freshRoom === Infinity ? undefined : freshRoom);
+  const staleRoom = limit === Infinity ? stale.length : Math.max(0, limit - pickFresh.length);
+  const pickStale = stale.slice(0, staleRoom);
   const todo = [...pickFresh, ...pickStale];
 
   console.log(
