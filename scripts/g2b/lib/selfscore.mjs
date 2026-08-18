@@ -25,11 +25,37 @@ const EXCLUDED = new Set(["정성", "가격"]);
 
 const norm = (s) => String(s ?? "").replace(/\s+/g, "").toUpperCase();
 
-/** 실적 항목 채점. 심사표에 등급이 적혀 있으면 그것을 그대로 씁니다. */
-function scoreRecord(item, company, budget) {
+const 억 = (v) => `${Math.round((v / 1e8) * 10) / 10}억`;
+
+/**
+ * 실적 항목 채점.
+ *
+ * 심사표에 등급이 적혀 있으면 그것을 그대로 씁니다. 등급에는 두 가지가
+ * 있습니다 — 금액 등급("5억 이상 10점")과 건수 등급("3건 이상 10점").
+ * 예전에는 금액 등급만 봤고, 그나마도 "가장 큰 실적 한 건" 으로만 따졌습니다.
+ * 실적DB 를 건별로 들고 있으니 건수도 셀 수 있습니다.
+ *
+ * 금액 등급을 단일 최대 실적으로 판정하는 것은 보수적인 선택입니다. 공고에
+ * 따라 누적 금액을 뜻할 수도 있는데, 그때는 우리가 더 유리해집니다.
+ * 낮게 잡아 놓치는 편이 높게 잡아 헛수고하는 것보다 낫습니다. 그래서 근거
+ * 문구에 "단일 최대" 라고 밝혀 둡니다.
+ */
+function scoreRecord(item, company, budget, records) {
   const mine = company?.maxRecord ?? null;
   if (!mine) return { got: null, why: "우리 실적 미입력" };
 
+  // ① 건수 등급 — 실적DB 가 있어야 셀 수 있습니다.
+  if (item.countTiers?.length && records?.ok) {
+    const years = item.years ?? 3;
+    const min = item.countAmount ?? 0;
+    const have = min ? records.countAtLeast(min, years) : records.since(years).length;
+    const hit = item.countTiers.find((t) => have >= t.min);
+    const got = hit ? Math.min(hit.score, item.score) : 0;
+    const what = min ? `${억(min)} 이상 ` : "";
+    return { got, why: `최근 ${years}년 ${what}${have}건 — ${hit ? `${hit.min}건 이상 등급 ${got}점` : "최저 등급 미달"}` };
+  }
+
+  // ② 금액 등급
   if (item.tiers?.length) {
     const hit = item.tiers.find((t) => mine >= t.min);
     const got = hit ? Math.min(hit.score, item.score) : 0;
@@ -37,16 +63,23 @@ function scoreRecord(item, company, budget) {
     return {
       got,
       why: hit
-        ? `${Math.round(hit.min / 1e8 * 10) / 10}억 이상 등급 — ${got}점`
-        : `최저 등급 ${Math.round(need / 1e8 * 10) / 10}억에 미달`,
+        ? `단일 최대 ${억(mine)} → ${억(hit.min)} 이상 등급 ${got}점`
+        : `단일 최대 ${억(mine)} · 최저 등급 ${억(need)}에 미달`,
     };
   }
 
-  // 등급을 못 읽었으면 사업 규모 대비 비율로 봅니다.
+  // ③ 등급을 못 읽었으면 사업 규모 대비 비율로 봅니다.
   if (!budget) return { got: null, why: "사업금액 미상" };
   const r = mine / budget;
   const ratio = r >= 3 ? 1 : r >= 1.5 ? 0.9 : r >= 1 ? 0.8 : r >= 0.7 ? 0.65 : r >= 0.5 ? 0.5 : 0.3;
-  return { got: Math.round(item.score * ratio * 10) / 10, why: `사업금액의 ${Math.round(r * 100)}% 수준 실적` };
+  // 이 사업 규모를 넘는 실적이 몇 건이나 되는지도 같이 말합니다.
+  // "8억짜리 하나 있음" 과 "이 규모 이상을 6건 했음" 은 전혀 다른 이야기입니다.
+  const over = records?.ok ? records.countAtLeast(budget, 3) : null;
+  return {
+    got: Math.round(item.score * ratio * 10) / 10,
+    why: `단일 최대 ${억(mine)} (사업금액의 ${Math.round(r * 100)}%)`
+      + (over === null ? "" : ` · 최근 3년 이 규모 이상 ${over}건`),
+  };
 }
 
 /** 신인도 항목 채점. 이 공고가 인정하는 인증 중 우리가 가진 비율입니다. */
@@ -104,7 +137,7 @@ export function judgeBlocked(doc, company) {
  * 공고 하나를 자가채점합니다.
  * @returns {{mode, pct, got, max, unknown, items, blocked, blockWhy}|null}
  */
-export function selfScore(doc, company, budget) {
+export function selfScore(doc, company, budget, records) {
   const table = doc?.scoreTable;
   const { blocked, why: blockWhy } = judgeBlocked(doc, company);
   if (!table?.items?.length) {
@@ -124,7 +157,7 @@ export function selfScore(doc, company, budget) {
     if (!SCORABLE.has(it.kind)) { unknown += it.score; unknownKinds.add(it.kind); continue; }
 
     const r =
-      it.kind === "실적" ? scoreRecord(it, company, budget)
+      it.kind === "실적" ? scoreRecord(it, company, budget, records)
       : it.kind === "신인도" ? scoreCredit(it, company, doc.credits)
       : scoreRegion(it, company, doc.region);
 

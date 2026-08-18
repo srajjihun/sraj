@@ -3,6 +3,7 @@
 // 형식은 "항목: 값" 한 줄씩입니다. 값이 비면 그 항목은 없는 것으로 봅니다.
 // 사용자가 직접 손으로 고치는 파일이라 형식이 조금 틀려도 죽지 않게 씁니다.
 import { readFile, writeFile } from "node:fs/promises";
+import { loadRecords } from "./records.mjs";
 
 const CONFIG = new URL("../../../config/회사정보.md", import.meta.url);
 // 예시 파일은 저장소에 커밋되고, 실제 파일(회사정보.md)은 각 PC 에만 남습니다.
@@ -78,9 +79,29 @@ export function parseCompany(text) {
   return profile;
 }
 
+/**
+ * 실적DB 가 있으면 실적 숫자를 거기서 다시 셉니다.
+ *
+ * 손으로 적은 요약값보다 건별 원본이 정확하고, 무엇보다 둘이 어긋날 수가
+ * 없습니다. 실적을 한 건 더하고 회사정보.md 의 숫자를 안 고치면 화면이
+ * 거짓말을 하게 됩니다. 셀 수 있는 것은 세는 쪽이 낫습니다.
+ * DB 가 없으면 손으로 적은 값을 그대로 씁니다.
+ */
+function withRecords(profile, records) {
+  if (!records?.ok) return profile;
+  return {
+    ...profile,
+    maxRecord: records.maxRecord || profile.maxRecord,
+    recordCount: records.since(3).length,
+    recordAmount: records.sum(3),
+    recordsFrom: "실적DB",
+  };
+}
+
 export async function loadCompany() {
+  const records = await loadRecords().catch(() => null);
   try {
-    return parseCompany(await readFile(CONFIG, "utf8"));
+    return withRecords(parseCompany(await readFile(CONFIG, "utf8")), records);
   } catch (err) {
     if (err.code !== "ENOENT") throw err;
   }
@@ -89,8 +110,8 @@ export async function loadCompany() {
     const sample = await readFile(SAMPLE, "utf8");
     await writeFile(CONFIG, sample, "utf8");
     console.log("[회사정보] config/회사정보.md 를 만들었습니다. 열어서 채우시면 예측점수가 정확해집니다.");
-    return parseCompany(sample);
+    return withRecords(parseCompany(sample), records);
   } catch {
-    return parseCompany("");
+    return withRecords(parseCompany(""), records);
   }
 }

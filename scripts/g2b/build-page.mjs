@@ -7,6 +7,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { loadCompany } from "./lib/company.mjs";
 import { selfScore } from "./lib/selfscore.mjs";
+import { loadRecords } from "./lib/records.mjs";
 import { judgeEligibility } from "./lib/require.mjs";
 
 const TEMPLATE = new URL("../../g2b.html", import.meta.url);
@@ -30,7 +31,14 @@ async function main() {
   // 예측점수는 화면에서 계산합니다. 회사 정보를 같이 심어 두면
   // config/회사정보.md 만 고치고 이 스크립트를 다시 돌려도 점수가 갱신됩니다.
   // (수집을 다시 할 필요가 없습니다)
+  const records = await loadRecords();
   payload.company = await loadCompany();
+  if (records.ok) {
+    console.log(
+      `[실적DB] ${records.count}건 · 최근 3년 ${records.since(3).length}건 ` +
+        `· 최대단일실적 ${(records.maxRecord / 1e8).toFixed(1)}억`
+    );
+  }
 
   // 공고문에서 읽어낸 자격·배점을 각 공고에 붙입니다.
   // 목록 API 는 "지역제한 있음"까지만 알려주므로, 여기까지 와야 "우리가 들어갈 수
@@ -66,7 +74,7 @@ async function main() {
       eligibility: judgeEligibility(d, payload.company),
     };
     // 심사표 자가채점. 공고의 실제 채점표로 "우리가 몇 점 받나"를 셉니다.
-    it.self = selfScore(it.doc, payload.company, it.budget ?? it.price ?? null);
+    it.self = selfScore(it.doc, payload.company, it.budget ?? it.price ?? null, records);
     attached += 1;
   }
   const scored = [...(payload.posts ?? []), ...(payload.prespecs ?? [])];

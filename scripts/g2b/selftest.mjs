@@ -392,5 +392,48 @@ function buildZip(files) {
         JSON.stringify(s.items.find((i) => i.kind === "신인도")));
 }
 
+/* ⑦ 실적DB — 건별 실적을 실제로 세는지, 건수 등급을 읽는지. */
+{
+  const { loadRecords } = await import("./lib/records.mjs");
+  const { parseCountTiers, parseYears, extractRequirements } = await import("./lib/require.mjs");
+  const { selfScore } = await import("./lib/selfscore.mjs");
+
+  const r = await loadRecords();
+  check("실적DB 를 읽는다", r.ok && r.count > 0, `${r.count}건`);
+  check("최대단일실적을 찾는다", r.maxRecord > 0, `${(r.maxRecord / 1e8).toFixed(1)}억`);
+  check("금액 요건별 건수를 센다", r.countAtLeast(1e8, 3) <= r.since(3).length,
+        `1억 이상 ${r.countAtLeast(1e8, 3)}건 / 최근3년 ${r.since(3).length}건`);
+  check("분야별 건수를 센다", ["행사·교육", "창업지원"].some((g) => r.fieldCount(g, 3) > 0),
+        `행사·교육 ${r.fieldCount("행사·교육", 3)} · 창업지원 ${r.fieldCount("창업지원", 3)}`);
+
+  check("건수 등급을 읽는다",
+    JSON.stringify(parseCountTiers("최근 3년간 유사용역 3건 이상 10점, 2건 이상 8점, 1건 이상 6점"))
+      === JSON.stringify([{min:3,score:10},{min:2,score:8},{min:1,score:6}]),
+    JSON.stringify(parseCountTiers("최근 3년간 유사용역 3건 이상 10점, 2건 이상 8점, 1건 이상 6점")));
+  check("등급이 아닌 문장은 안 읽는다", parseCountTiers("참여인력 3건 이상 경력").length === 0);
+  check("기간을 읽는다", parseYears("최근 5년간 실적") === 5);
+
+  // 건수 등급이 있는 심사표로 끝까지
+  const grid = [
+    ["평가항목", "배점", "세부 배점기준"],
+    ["유사용역 수행실적", "20", "최근 3년간 1억원 이상 실적 3건 이상 20점, 2건 이상 15점, 1건 이상 10점"],
+    ["사업이해도", "70", ""],
+    ["입찰가격", "10", ""],
+  ];
+  const req = extractRequirements("", [{ grid }]);
+  const item = req.scoreTable.items.find((i) => i.kind === "실적");
+  check("실적 항목의 건수 등급이 붙는다", item?.countTiers?.length === 3, JSON.stringify(item?.countTiers));
+  check("금액 문턱도 같이 읽는다", item?.countAmount === 1e8, String(item?.countAmount));
+  check("기간도 같이 읽는다", item?.years === 3, String(item?.years));
+
+  const company = { region: "서울특별시", maxRecord: r.maxRecord, certs: [], directProduce: [] };
+  const s = selfScore({ scoreTable: req.scoreTable, credits: [], region: null, directItems: null }, company, 3e8, r);
+  const got = s.items.find((i) => i.kind === "실적");
+  const have = r.countAtLeast(1e8, 3);
+  const want = have >= 3 ? 20 : have >= 2 ? 15 : have >= 1 ? 10 : 0;
+  check("건수로 채점한다", got?.got === want, `${got?.got}점 (1억 이상 ${have}건 → ${want}점 이어야 함) · ${got?.why}`);
+  check("근거에 실제 건수가 적힌다", /\d+건/.test(got?.why ?? ""), got?.why);
+}
+
 console.log(`\n[자체점검] 통과 ${pass} · 실패 ${fail}`);
 if (fail) process.exitCode = 1;

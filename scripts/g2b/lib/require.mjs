@@ -189,6 +189,32 @@ function kindOf(name, detail = "") {
   return "기타";
 }
 
+/* 건수 등급. 금액 등급과 함께 실제 심사표에 자주 나옵니다.
+     "최근 3년간 유사용역 3건 이상 10점, 2건 이상 8점, 1건 이상 6점"
+   금액 조건이 앞에 붙는 경우도 있습니다("1억 이상 3건 이상 10점").
+   금액 등급은 가장 큰 실적 한 건으로 판정하지만 건수 등급은 실적DB 를
+   세어야 하므로, 둘을 따로 뽑아 둡니다. */
+export function parseCountTiers(text) {
+  const t = String(text ?? "").replace(/\s+/g, " ");
+  const out = [];
+  for (const m of t.matchAll(/(\d{1,2})\s*건\s*(?:이상|초과)[^0-9]{0,12}?([\d.]+)\s*점?/g)) {
+    const min = Number(m[1]);
+    const score = Number(m[2]);
+    if (!Number.isFinite(min) || !Number.isFinite(score)) continue;
+    out.push({ min, score });
+  }
+  out.sort((a, b) => b.min - a.min);
+  // 건수가 많을수록 점수가 높아야 등급표입니다.
+  for (let i = 1; i < out.length; i += 1) if (out[i].score > out[i - 1].score) return [];
+  return out.length >= 2 ? out : [];
+}
+
+/** "최근 3년" 처럼 기간이 적혀 있으면 그 햇수를. 없으면 null. */
+export function parseYears(text) {
+  const m = /최근\s*(\d)\s*년/.exec(String(text ?? ""));
+  return m ? Number(m[1]) : null;
+}
+
 /* 합계·소계 행은 배점 항목이 아닙니다.
    안 거르면 그 행이 항목으로 들어가 총점이 두세 배로 부풀고("채점 못한 정량
    125점" — 표 전체가 100점인데), 배점 합이 90~110 범위를 벗어나 표 자체를
@@ -261,7 +287,14 @@ function findScoreTable(tables) {
         .map(({ r, name, score }) => {
           // 세부 배점 기준은 보통 배점 열 뒤에, 없으면 항목 이름 칸에 같이 적힙니다.
           const detail = [...r.slice(c + 1), name].filter(Boolean).join(" ").trim();
-          return { name, score, kind: kindOf(name, detail), tiers: parseTiers(detail) };
+          const tiers = parseTiers(detail);
+          return {
+            name, score, kind: kindOf(name, detail), tiers,
+            countTiers: parseCountTiers(detail),
+            // 건수 등급에 "1억 이상 3건" 처럼 금액 문턱이 같이 붙는 경우
+            countAmount: tiers.length ? null : parseWon(detail),
+            years: parseYears(detail),
+          };
         })
         .filter((x) => x.name);
       if (!items.length) continue;
