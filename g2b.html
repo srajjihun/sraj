@@ -230,14 +230,18 @@ svg{display:block; width:100%}
 .donutlg i{width:11px; height:11px; border-radius:3px; flex-shrink:0}
 .donutlg .g{font-weight:700; white-space:nowrap}
 .donutlg b{margin-left:auto; font-weight:800; white-space:nowrap}
-.donutlg .p{color:var(--ink-3); font-weight:700; width:44px; text-align:right; white-space:nowrap}
+.donutlg .p{color:var(--ink-3); font-weight:700; width:42px; text-align:right; white-space:nowrap}
+/* 금액을 줄에 바로 적습니다. 마우스를 올려야만 보이면 한눈에 못 비교합니다. */
+.donutlg .w{color:var(--ink-2); font-weight:700; width:60px; text-align:right; white-space:nowrap}
 .donutfoot{margin-top:14px; font-size:13px; color:var(--ink-3)}
 /* 주목할 공고 표는 좁은 화면에서 가로로 넘칩니다. 잘라내지 않고 그 안에서만
    가로로 밀 수 있게 합니다 — 페이지 전체가 가로로 흔들리면 못 씁니다. */
 .focus{overflow-x:auto}
 
 /* ─── 4행 : 참여 조건 ─── */
-.cond{display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin-bottom:16px}
+/* 도넛과 참여 조건을 나란히 놓습니다. 참여 조건은 오른쪽에서 2×2 로 접힙니다. */
+.distrow{display:grid; grid-template-columns:1.1fr 1fr; gap:11px; margin-bottom:16px; align-items:start}
+.cond{display:grid; grid-template-columns:repeat(2,1fr); gap:11px}
 .condcard{
   background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);
   padding:13px 15px; text-align:left;
@@ -418,6 +422,7 @@ svg{display:block; width:100%}
   .brand-name{white-space:nowrap}
   .nav .split,.side-foot,.brand-sub{display:none}
   .vizgrid{grid-template-columns:1fr}
+  .distrow{grid-template-columns:1fr}
   .qrow{grid-template-columns:1fr; gap:2px}
   .qrow .b{text-align:left}
 }
@@ -566,14 +571,15 @@ table.prof .sub2{font-size:12.5px; color:var(--ink-3); font-weight:600}
   </section>
 
   <!-- 예측점수 분포 -->
-  <section class="panel" id="p-dist" style="margin-bottom:12px">
-    <h2>예측점수 90점 이상<span class="cnt" id="dist-cnt"></span></h2>
-    <p class="sub">자격이 안 되어 뺀 공고는 빼고 셉니다 · 조각에 마우스를 올리면 금액이 보입니다</p>
-    <div id="v-dist"></div>
-  </section>
-
-  <!-- 참여 조건 -->
-  <div class="cond" id="cond"></div>
+  <!-- 예측점수 90점 이상 · 참여 조건 (나란히) -->
+  <div class="distrow">
+    <section class="panel" id="p-dist">
+      <h2>예측점수 90점 이상<span class="cnt" id="dist-cnt"></span></h2>
+      <p class="sub">자격이 안 되어 뺀 공고는 빼고 셉니다</p>
+      <div id="v-dist"></div>
+    </section>
+    <div class="cond" id="cond"></div>
+  </div>
 
   <p class="foot">
     매일 아침 자동 수집됩니다 · 원문 링크가 있는 행을 클릭하면 나라장터가 새 창으로 열립니다
@@ -1066,6 +1072,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
         <span class="g">${esc(s.g)}</span>
         <b class="num">${s.n}</b>
         <span class="p num">${s.pct}%</span>
+        <span class="w num">${억(s.sum)}</span>
       </li>`).join("")}</ul>
   </div>
   <p class="donutfoot">합계 ${total}건 · ${억(totalSum)}</p>`;
@@ -1073,9 +1080,10 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   hoverTip(box,".slice[data-g], .donutlg li[data-g]",el=>{
     const g=el.dataset.g;
     const s=shapes.find(x=>x.g===g);
-    return `<b>${esc(g)}</b> ${s.n}건 (${s.pct}%)`
-      + `<br>예산 합계 ${억(s.sum)}`
-      + `<br><span style="opacity:.75">그중 심사표 자가채점 ${s.self}건</span>`;
+    // 건수·비율·금액은 이미 줄에 적혀 있으니, 여기서는 거기 없는 것만 말합니다.
+    return `<b>${esc(g)}</b> ${s.n}건`
+      + `<br><span style="opacity:.8">그중 ${s.self}건은 공고문 심사표로 채점한 값,`
+      + ` ${s.n-s.self}건은 추정</span>`;
   });
 })();
 
