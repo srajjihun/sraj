@@ -9,16 +9,21 @@ const CONFIG = new URL("../../../config/회사정보.md", import.meta.url);
 // 업데이트가 회사 정보를 덮어쓰지 않게 하기 위해서입니다.
 const SAMPLE = new URL("../../../config/회사정보.예시.md", import.meta.url);
 
-// "1,200,000,000" / "12억" / "3천만" → 숫자
+// "1,200,000,000" / "12억" / "3천만" / "50억9천만" → 숫자
+// 단위를 조합해 적는 경우(억+천만 등)가 있어 전체를 한 번에 매치하지 않고
+// 나오는 단위를 전부 더합니다.
 function money(v) {
   const s = String(v ?? "").replace(/[\s,원]/g, "");
   if (!s) return null;
-  let m = /^([\d.]+)억$/.exec(s);
-  if (m) return Math.round(Number(m[1]) * 1e8);
-  m = /^([\d.]+)천만$/.exec(s);
-  if (m) return Math.round(Number(m[1]) * 1e7);
-  m = /^([\d.]+)백만$/.exec(s);
-  if (m) return Math.round(Number(m[1]) * 1e6);
+  let total = 0;
+  let matched = false;
+  const eok = /([\d.]+)억/.exec(s);
+  if (eok) { total += Number(eok[1]) * 1e8; matched = true; }
+  const cheonman = /([\d.]+)천만/.exec(s);
+  if (cheonman) { total += Number(cheonman[1]) * 1e7; matched = true; }
+  const baekman = /(?:^|[^천])([\d.]+)백만/.exec(s);
+  if (baekman) { total += Number(baekman[1]) * 1e6; matched = true; }
+  if (matched) return Math.round(total);
   const n = Number(s);
   return Number.isFinite(n) && n > 0 ? n : null;
 }
@@ -28,9 +33,12 @@ function int(v) {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
+// 쉼표로만 나눕니다. 가운뎃점(·)은 나누는 기호가 아니라 "마케팅·홍보"
+// "수출·해외진출" 같은 분야 이름 자체에 들어 있어, 그것까지 나누면
+// 이름이 깨져 분야 일치 판정이 전부 틀어집니다.
 function list(v) {
   return String(v ?? "")
-    .split(/[,·]/)
+    .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
 }
