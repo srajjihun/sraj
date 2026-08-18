@@ -28,13 +28,12 @@ rem 그래서 (1) 이 PC 는 이제 아무것도 커밋·푸시하지 않고
 rem        (2) 원격 상태로 맞추기만 합니다. 갈라져 있어도 복구됩니다.
 rem data\g2b\ 와 g2b-live.html, config\회사정보.md 는 git 이 추적하지 않으므로
 rem 이 명령의 영향을 받지 않습니다.
-git fetch origin >> "%LOG%" 2>&1
-for /f %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BR=%%b"
-if defined BR (
-  git reset --hard origin/%BR% >> "%LOG%" 2>&1 || echo [경고] 최신 코드를 받지 못했습니다 >> "%LOG%"
-) else (
-  echo [경고] git 을 쓸 수 없습니다. 화면-새로고침.bat 으로 코드를 받으세요 >> "%LOG%"
-)
+rem 브랜치를 고정값으로 씁니다 (지금 체크아웃된 브랜치를 믿지 않습니다).
+rem 이 저장소가 무관한 다른 브랜치에 가 있던 적이 있어, 그 상태에서
+rem "지금 브랜치 그대로 맞추기"는 계속 엉뚱한 브랜치로만 맞춰졌습니다.
+set "BR=claude/g2b-bidding-collector-y605rn"
+git fetch origin %BR% >> "%LOG%" 2>&1
+git checkout -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [경고] 최신 코드를 받지 못했습니다 >> "%LOG%"
 
 for %%s in (ydp seoul bizinfo govkr) do (
   node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [경고] %%s 수집 실패 >> "%LOG%"

@@ -34,12 +34,15 @@ if not exist ".git" (
   exit /b 1
 )
 
-set "BR="
-for /f %%b in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "BR=%%b"
-if not defined BR (
-  echo         현재 브랜치를 알 수 없습니다 - 코드 받기를 건너뜁니다.
-  exit /b 1
-)
+rem 작업 브랜치를 고정값으로 씁니다 (현재 체크아웃된 브랜치를 믿지 않습니다).
+rem 예전에는 "git rev-parse --abbrev-ref HEAD" 로 지금 브랜치를 알아내 그
+rem 브랜치 최신본으로만 맞췄습니다. 그런데 이 PC 의 저장소가 이 프로젝트와
+rem 무관한 다른 브랜치에 가 있었던 적이 있고, 그 상태에서는 아무리 실행해도
+rem 엉뚱한 브랜치로만 맞춰졌습니다 — 최신 코드와 예전 코드가 섞여 이 파일이
+rem 고치려던 바로 그 문제(파일마다 버전이 다름)가 재발했습니다.
+rem 이제는 항상 이 브랜치로 고정해서 맞추므로, 지금 브랜치가 무엇이든 상관없이
+rem 실행할 때마다 저절로 복구됩니다.
+set "BR=claude/g2b-bidding-collector-y605rn"
 
 git fetch origin %BR%
 if errorlevel 1 (
@@ -47,7 +50,9 @@ if errorlevel 1 (
   exit /b 1
 )
 
-git reset --hard FETCH_HEAD
+rem checkout -B 는 로컬 브랜치를 FETCH_HEAD 로 강제로 맞추고 그 브랜치로
+rem 전환합니다. 지금 다른 브랜치에 가 있었더라도 여기서 바로잡힙니다.
+git checkout -B %BR% FETCH_HEAD
 if errorlevel 1 (
   echo         [경고] 코드를 맞추지 못했습니다. 위 메시지를 알려 주세요.
   exit /b 1
