@@ -572,7 +572,7 @@ table.prof .sub2{font-size:12.5px; color:var(--ink-3); font-weight:600}
   <section class="focus">
     <div class="focus-head">
       <h2>주목할 공고</h2>
-      <span class="sub">예측점수 높은 순 · 참가 불가로 확인된 공고는 삭제 · 마감이 지나면 자동으로 사라집니다</span>
+      <span class="sub">예측점수 높은 순 · 참가 불가와 개찰 7일 이내는 삭제 · 마감이 지나면 자동으로 사라집니다</span>
     </div>
     <div id="focus-body"></div>
   </section>
@@ -930,15 +930,33 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
      참가 불가로 확인된 공고(공고문에서 지역·업종·실적이 안 맞는다고 읽힌 건)는
      아예 뺍니다. 여기 올라올 자리에 들어갈 공고가 밀리면 손해입니다.
      사전규격도 같이 봅니다 — 미리 준비할 수 있는 단계라 오히려 더 이릅니다. */
-  const scored=[...POSTS, ...PRES]
-    .filter(it=>!it.score?.blocked)
+  /* 코앞에 닥친 공고는 여기 올리지 않습니다.
+     제안서를 쓸 시간이 없는 건을 "주목할 공고" 로 올려 봐야 볼 때마다
+     아쉽기만 합니다. 개찰(입찰마감이 있으면 그쪽)까지 7일 이상 남은 것만
+     올립니다 — 표에 찍히는 D-N 과 같은 날짜를 기준으로 삼아, 규칙이
+     지켜지고 있는지 화면에서 바로 확인할 수 있게 했습니다(D-6 이하 없음).
+
+     사전규격은 이 규칙에서 뺍니다. 개찰일이 아예 없고(의견마감만 있습니다),
+     정식 공고는 그 뒤에 나오므로 준비 시간이 가장 넉넉한 단계입니다.
+     여기서 빼면 제일 이른 기회를 놓칩니다. */
+  const LEAD_DAYS=7;
+  const inTime = it => {
+    if(it.type==="pre") return true;
+    const d=daysUntil(dueOf(it).iso);
+    return d!==null && d>=LEAD_DAYS;   // 날짜를 모르면 7일 이상인지 확인할 수 없습니다
+  };
+  const pool=[...POSTS, ...PRES].filter(it=>!it.score?.blocked);
+  const scored=pool.filter(inTime)
     .sort((a,b)=>((b.score?.total??0)-(a.score?.total??0))
       ||((daysUntil(dueOf(a).iso)??999)-(daysUntil(dueOf(b).iso)??999)))
     .slice(0,10);
   const noScore=[];
+  const soon=pool.length-pool.filter(inTime).length;
 
   if(!scored.length&&!noScore.length){
-    body.innerHTML=`<div class="placeholder" style="margin:0 16px 16px">표시할 공고가 없습니다.</div>`;
+    body.innerHTML=`<div class="placeholder" style="margin:0 16px 16px">${
+      soon ? `개찰까지 ${LEAD_DAYS}일 이상 남은 공고가 없습니다. (${soon}건은 코앞이라 뺐습니다)`
+           : "표시할 공고가 없습니다."}</div>`;
     return;
   }
   const kindTag = it => it.type==="pre" ? `<span class="kind k-pre">📋 사전</span>`
