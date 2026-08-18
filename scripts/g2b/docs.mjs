@@ -131,19 +131,30 @@ async function main() {
   const items = [...(payload.posts ?? []), ...(payload.prespecs ?? [])];
 
   // 예산 큰 순으로 (규모가 큰 건부터 확인하는 편이 이득입니다).
-  // 아직 안 읽은 것을 먼저, 그다음 해석기가 좋아져서 다시 읽어야 하는 것.
   const byBudget = (a, b) => (b.budget ?? b.price ?? 0) - (a.budget ?? a.price ?? 0);
   const withFiles = items.filter((it) => it.bidNo && (it.files ?? []).length);
   const fresh = withFiles.filter((it) => !store[it.bidNo]).sort(byBudget);
-  const stale = withFiles.filter((it) => store[it.bidNo] && (store[it.bidNo].v ?? 0) < VERSION).sort(byBudget);
-  const todo = [...fresh, ...stale].slice(0, limit === Infinity ? undefined : limit);
+  const stale = withFiles
+    .filter((it) => store[it.bidNo] && (store[it.bidNo].v ?? 0) < VERSION)
+    .sort(byBudget);
+
+  // 다시 읽을 자리를 따로 떼어 둡니다.
+  //   처음에는 "안 읽은 것 먼저, 남으면 다시 읽기"로 했는데, 안 읽은 공고가
+  //   300건 넘게 남아 있어서 다시 읽기 차례가 영영 오지 않았습니다(0건).
+  //   그러면 한글이 막혀 HWP 를 못 읽은 채 저장된 100건이 그대로 남습니다.
+  //   그래서 매번 3분의 1은 다시 읽기에 씁니다.
+  const staleShare = limit === Infinity ? stale.length : Math.max(1, Math.floor(limit / 3));
+  const pickStale = stale.slice(0, staleShare);
+  const room = limit === Infinity ? Infinity : Math.max(0, limit - pickStale.length);
+  const pickFresh = fresh.slice(0, room === Infinity ? undefined : room);
+  const todo = [...pickFresh, ...pickStale];
 
   console.log(
-    `[공고문] 전체 ${items.length}건 · 이미 읽음 ${Object.keys(store).length}건 · 이번에 ${todo.length}건` +
-      (stale.length ? ` (그중 다시 읽기 ${Math.min(stale.length, Math.max(0, todo.length - fresh.length))}건)` : "")
+    `[공고문] 전체 ${items.length}건 · 이미 읽음 ${Object.keys(store).length}건 · ` +
+      `이번에 ${todo.length}건 (새로 ${pickFresh.length} · 다시 읽기 ${pickStale.length})`
   );
-  if (stale.length && fresh.length < todo.length) {
-    console.log(`         해석기가 좋아져서 예전에 읽은 ${stale.length}건도 다시 읽습니다.`);
+  if (stale.length) {
+    console.log(`         해석기가 좋아져서 예전에 읽은 ${stale.length}건도 차례로 다시 읽습니다.`);
   }
   if (!todo.length) {
     console.log("새로 읽을 공고가 없습니다.");

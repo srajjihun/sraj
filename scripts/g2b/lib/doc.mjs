@@ -10,6 +10,7 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parseHwpx } from "./hwpx.mjs";
 import { parseHwp } from "./hwp.mjs";
+import { parseDocx } from "./docx.mjs";
 import { extractPdfText } from "./pdf.mjs";
 
 const PS1 = fileURLToPath(new URL("../hancom.ps1", import.meta.url));
@@ -77,6 +78,11 @@ export async function readDocument(buf, opts = {}) {
     }
   }
 
+  if (kind === "docx") {
+    const r = parseDocx(buf);
+    return { kind, ok: r.ok, text: r.text, tables: r.tables, note: r.note };
+  }
+
   if (kind === "pdf") {
     const r = extractPdfText(buf);
     return {
@@ -131,7 +137,7 @@ export async function readDocument(buf, opts = {}) {
     ok: false,
     text: "",
     tables: [],
-    note: kind === "docx" ? "DOCX 는 아직 읽지 않습니다" : "형식을 알 수 없습니다",
+    note: "형식을 알 수 없습니다",
   };
 }
 

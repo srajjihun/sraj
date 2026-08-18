@@ -11,7 +11,7 @@
 //   알 수 있어서, 못 읽으면 못 읽었다고 말하도록 만들어 두었습니다.
 //
 // 사용법: node scripts\g2b\selftest.mjs
-import { deflateRawSync } from "node:zlib";
+import { deflateRawSync, crc32 } from "node:zlib";
 import { parseHwp } from "./lib/hwp.mjs";
 import { openCfb } from "./lib/cfb.mjs";
 
@@ -196,7 +196,7 @@ const check = (name, ok, detail = "") => {
   else { fail += 1; console.log(`  FAIL ${name}${detail ? ` — ${detail}` : ""}`); }
 };
 
-console.log("[자체점검] HWP 해석기\n");
+console.log("[자체점검] 문서 해석기 (HWP · DOCX)\n");
 
 // 진짜 공고문에 나오는 문장들로 만듭니다. 뽑아낸 뒤 require.mjs 가
 // 이걸 실제로 알아보는지까지 봐야 의미가 있습니다.
@@ -281,6 +281,69 @@ const body = [
 {
   const cfb = openCfb(buildHwp(body));
   check("스트림 목록이 맞다", cfb.has("FileHeader") && cfb.has("BodyText/Section0"), cfb.names().join(", "));
+}
+
+/* ────────── DOCX ────────── */
+
+/** 아주 작은 ZIP 쓰기(무압축). zip.mjs 읽기까지 같이 확인됩니다. */
+function buildZip(files) {
+  const locals = [];
+  const central = [];
+  let offset = 0;
+  for (const f of files) {
+    const name = Buffer.from(f.name, "utf8");
+    const data = Buffer.from(f.data, "utf8");
+    const crc = crc32(data);
+    const lh = Buffer.alloc(30);
+    lh.writeUInt32LE(0x04034b50, 0);
+    lh.writeUInt16LE(20, 4);
+    lh.writeUInt32LE(crc, 14);
+    lh.writeUInt32LE(data.length, 18);
+    lh.writeUInt32LE(data.length, 22);
+    lh.writeUInt16LE(name.length, 26);
+    locals.push(lh, name, data);
+
+    const cd = Buffer.alloc(46);
+    cd.writeUInt32LE(0x02014b50, 0);
+    cd.writeUInt16LE(20, 4);
+    cd.writeUInt16LE(20, 6);
+    cd.writeUInt32LE(crc, 16);
+    cd.writeUInt32LE(data.length, 20);
+    cd.writeUInt32LE(data.length, 24);
+    cd.writeUInt16LE(name.length, 28);
+    cd.writeUInt32LE(offset, 42);
+    central.push(cd, name);
+    offset += 30 + name.length + data.length;
+  }
+  const cdBuf = Buffer.concat(central);
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(files.length, 8);
+  eocd.writeUInt16LE(files.length, 10);
+  eocd.writeUInt32LE(cdBuf.length, 12);
+  eocd.writeUInt32LE(offset, 16);
+  return Buffer.concat([...locals, cdBuf, eocd]);
+}
+
+{
+  const { parseDocx } = await import("./lib/docx.mjs");
+  const xml = `<?xml version="1.0"?><w:document xmlns:w="x"><w:body>
+    <w:p><w:r><w:t>2026년 창업지원 행사 대행 용역 입찰공고</w:t></w:r></w:p>
+    <w:p><w:r><w:t>나. 기타자유업(행사대행업, 업종코드 9901)으로 등록을 필한 업체</w:t></w:r></w:p>
+    <w:tbl>
+      <w:tr><w:tc><w:p><w:r><w:t>평가항목</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>배점</w:t></w:r></w:p></w:tc></w:tr>
+      <w:tr><w:tc><w:p><w:r><w:t>사업수행능력</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>60</w:t></w:r></w:p></w:tc></w:tr>
+      <w:tr><w:tc><w:p><w:r><w:t>신인도</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>40</w:t></w:r></w:p></w:tc></w:tr>
+    </w:tbl>
+    <w:p><w:r><w:t>이상 끝.</w:t></w:r></w:p>
+  </w:body></w:document>`;
+  const buf = buildZip([{ name: "word/document.xml", data: xml }]);
+  const r = parseDocx(buf);
+  check("DOCX 를 읽는다", r.ok, r.note);
+  check("DOCX 문장이 나온다", r.text.includes("업종코드 9901") && r.text.includes("이상 끝."));
+  check("DOCX 표를 찾는다", r.tables[0]?.grid?.length === 3, JSON.stringify(r.tables[0]?.grid));
+  const req = (await import("./lib/require.mjs")).extractRequirements(r.text, r.tables);
+  check("DOCX 배점표를 알아본다", req.scoreTable?.items?.length === 2, JSON.stringify(req.scoreTable?.items));
 }
 
 console.log(`\n[자체점검] 통과 ${pass} · 실패 ${fail}`);
