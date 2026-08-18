@@ -63,25 +63,43 @@ async function main() {
   }
 
   const read = Object.entries(docs).filter(([, d]) => d?.ok);
-  const stat = new Map(); // term → { n, sum }
+  const stat = new Map(); // term → { n, list:[예산…] }
   for (const [bidNo, d] of read) {
     const b = budget.get(bidNo) ?? 0;
     for (const c of d.credits ?? []) {
-      const cur = stat.get(c.term) ?? { n: 0, sum: 0 };
+      const cur = stat.get(c.term) ?? { n: 0, list: [] };
       cur.n += 1;
-      cur.sum += b;
+      cur.list.push(b);
       stat.set(c.term, cur);
     }
   }
 
+  const median = (a) => {
+    const x = [...a].sort((p, q) => p - q);
+    if (!x.length) return 0;
+    const m = Math.floor(x.length / 2);
+    return x.length % 2 ? x[m] : Math.round((x[m - 1] + x[m]) / 2);
+  };
   const rows = [...stat.entries()]
-    .map(([term, v]) => ({ term, ...v, have: held.has(norm(term)) }))
+    .map(([term, v]) => ({
+      term,
+      n: v.n,
+      sum: v.list.reduce((a, b) => a + b, 0),
+      mid: median(v.list),
+      max: Math.max(0, ...v.list),
+      have: held.has(norm(term)),
+    }))
     .sort((a, b) => b.n - a.n);
 
+  /* 합계만 보여주면 판단을 그르칩니다. 실측 예: 장애인기업 19건 155억,
+     여성기업 15건 151억, 사회적기업 9건 143억 — 건수는 반씩 줄어드는데
+     금액이 거의 같습니다. 한 건짜리 초대형 공고가 세 인증을 한 문장에서
+     같이 언급해 세 합계를 동시에 부풀렸기 때문입니다. 그래서 중앙값(보통
+     이 정도 크기)과 최대 한 건을 같이 적습니다. */
   const pct = (n) => (read.length ? Math.round((n / read.length) * 100) : 0);
   const line = (r) =>
-    `  ${r.term.padEnd(16)} ${String(r.n).padStart(4)}건 ${String(pct(r.n) + "%").padStart(5)}` +
-    `   공고 예산 합계 ${won(r.sum)}`;
+    `  ${r.term.padEnd(14)} ${String(r.n).padStart(4)}건 ${String(pct(r.n) + "%").padStart(5)}` +
+    `   보통 ${won(r.mid).padStart(6)}   가장 큰 건 ${won(r.max).padStart(6)}   합계 ${won(r.sum)}`;
 
   console.log(`\n[신인도 인증 리포트]  읽은 공고문 ${read.length}건 기준\n`);
   console.log(`보유: ${[...held].join(", ") || "(없음)"}\n`);
@@ -109,11 +127,16 @@ async function main() {
   const unknown = new Map();
   for (const [, d] of read) {
     for (const row of d.scoreTable?.rows ?? []) {
-      const name = (row[0] ?? "").trim();
-      if (!name || name.length > 30) continue;
-      if (!CREDIT_ROW.test(name) || NOT_CREDIT.test(name)) continue;
-      if (rows.some((r) => name.includes(r.term))) continue;
-      unknown.set(name, (unknown.get(name) ?? 0) + 1);
+      // 첫 칸만 보면 "수행기관 신인도" 같은 부모 이름만 잡힙니다(실측).
+      // 정작 인증 이름은 오른쪽 칸에 있어서 칸을 전부 훑습니다.
+      for (const cell of row) {
+        const name = String(cell ?? "").replace(/\s+/g, " ").trim();
+        if (!name || name.length > 30 || name.length < 3) continue;
+        if (/^[\d.,%()\s점-]+$/.test(name)) continue;       // 점수 칸
+        if (!CREDIT_ROW.test(name) || NOT_CREDIT.test(name)) continue;
+        if (rows.some((r) => name.includes(r.term))) continue;
+        unknown.set(name, (unknown.get(name) ?? 0) + 1);
+      }
     }
   }
   const cand = [...unknown.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15);
@@ -121,6 +144,55 @@ async function main() {
     console.log("\n── 배점표에 있으나 아직 세지 않는 항목 (목록을 넓힐 단서) ──");
     for (const [name, n] of cand) console.log(`  ${String(n).padStart(3)}건  ${name}`);
   }
+
+  /* 직접생산확인 품목 분석.
+     직접생산확인은 회사 단위가 아니라 "품목" 단위로 받습니다. 그래서
+     153건이 요구한다는 사실만으로는 우리가 그중 몇 건에 실제로 들어갈 수
+     있는지 알 수 없습니다. 공고문 원문에서 품목 이름을 뽑아 우리 보유
+     품목과 맞춰 봅니다. 이게 "어느 품목을 더 받아야 하나"의 답입니다.
+     원문 한 줄만 저장해 두므로 품목이 다른 줄에 있으면 안 잡힙니다 —
+     그래서 확정이 아니라 단서로 보여줍니다. */
+  const ours = new Set((company.directProduce ?? []).map(norm));
+  const items = new Map();
+  for (const [bidNo, d] of read) {
+    const ev = (d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence;
+    if (!ev) continue;
+    const b = budget.get(bidNo) ?? 0;
+    const seen = new Set();
+    for (const m of ev.matchAll(/([가-힣]{2,20}서비스)/g)) {
+      const name = m[1];
+      if (seen.has(name)) continue;
+      seen.add(name);
+      const cur = items.get(name) ?? { n: 0, list: [] };
+      cur.n += 1;
+      cur.list.push(b);
+      items.set(name, cur);
+    }
+  }
+  if (items.size) {
+    const list = [...items.entries()]
+      .map(([name, v]) => ({
+        name,
+        n: v.n,
+        mid: median(v.list),
+        sum: v.list.reduce((a, b) => a + b, 0),
+        have: ours.has(norm(name)),
+      }))
+      .sort((a, b) => b.n - a.n);
+    console.log("\n── 직접생산확인: 공고가 요구한 품목 ──");
+    console.log("   (직접생산확인은 품목별입니다. 보유 품목과 맞아야 인정됩니다)");
+    for (const r of list.slice(0, 20)) {
+      console.log(
+        `  ${r.have ? "보유" : "없음"}  ${r.name.padEnd(24)} ${String(r.n).padStart(3)}건` +
+          `   보통 ${won(r.mid).padStart(6)}   합계 ${won(r.sum)}`
+      );
+    }
+    const gap = list.filter((r) => !r.have);
+    if (gap.length) {
+      console.log(`\n  → 없는 품목 ${gap.length}종, 합쳐서 ${gap.reduce((a, r) => a + r.n, 0)}건`);
+    }
+  }
+  console.log(`\n  우리 보유 품목: ${(company.directProduce ?? []).join(", ") || "(없음)"}`);
 
   // 못 읽은 공고문의 사유
   const why = new Map();
