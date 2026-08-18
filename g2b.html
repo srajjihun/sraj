@@ -212,6 +212,26 @@ svg{display:block; width:100%}
 .rankbar .track{height:13px; background:var(--surface-3); border-radius:5px; overflow:hidden}
 .rankbar .fill{height:100%; border-radius:5px}
 .rankbar .kwline{font-size:12.5px; color:var(--ink-3); margin-top:5px}
+
+/* ─── 도넛 (예측점수 90점 이상 · 분야 구성) ─── */
+.donutwrap{display:flex; align-items:center; gap:26px; flex-wrap:wrap; margin-top:4px}
+.donut{width:186px; height:186px; flex-shrink:0}
+.donut .slice{cursor:default; transition:opacity .12s}
+.donut:hover .slice{opacity:.55}
+.donut .slice:hover{opacity:1}
+/* 가운데 숫자는 글자색을 씁니다 — 조각 색을 가져다 쓰면 어느 분야를 가리키는
+   것처럼 읽힙니다. 색은 조각이, 뜻은 글자가 나릅니다. */
+.donut .dn-n{font-size:38px; font-weight:800; fill:var(--ink); letter-spacing:-.03em}
+.donut .dn-u{font-size:14px; font-weight:700; fill:var(--ink-3)}
+/* 범례는 폭을 잡아 둡니다. flex:1 로 두었더니 패널 끝까지 늘어나
+   건수·비율이 이름에서 한참 떨어져 어느 줄 것인지 눈으로 못 이었습니다. */
+.donutlg{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; min-width:230px; max-width:340px}
+.donutlg li{display:flex; align-items:center; gap:9px; font-size:14px; cursor:default}
+.donutlg i{width:11px; height:11px; border-radius:3px; flex-shrink:0}
+.donutlg .g{font-weight:700; white-space:nowrap}
+.donutlg b{margin-left:auto; font-weight:800; white-space:nowrap}
+.donutlg .p{color:var(--ink-3); font-weight:700; width:44px; text-align:right; white-space:nowrap}
+.donutfoot{margin-top:14px; font-size:13px; color:var(--ink-3)}
 /* 주목할 공고 표는 좁은 화면에서 가로로 넘칩니다. 잘라내지 않고 그 안에서만
    가로로 밀 수 있게 합니다 — 페이지 전체가 가로로 흔들리면 못 씁니다. */
 .focus{overflow-x:auto}
@@ -547,8 +567,8 @@ table.prof .sub2{font-size:12.5px; color:var(--ink-3); font-weight:600}
 
   <!-- 예측점수 분포 -->
   <section class="panel" id="p-dist" style="margin-bottom:12px">
-    <h2>예측점수 분포 <span class="soft">· 어디에 얼마가 몰려 있나</span><span class="cnt" id="dist-cnt"></span></h2>
-    <p class="sub">자격이 안 되어 뺀 공고는 빼고 셉니다 · 구간에 마우스를 올리면 분야별로 보입니다</p>
+    <h2>예측점수 90점 이상<span class="cnt" id="dist-cnt"></span></h2>
+    <p class="sub">자격이 안 되어 뺀 공고는 빼고 셉니다 · 조각에 마우스를 올리면 금액이 보입니다</p>
     <div id="v-dist"></div>
   </section>
 
@@ -967,52 +987,96 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     tr.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(tr); } });
   });
 })();
-/* ═══ 예측점수 분포 ═══
-   순서형(점수가 높을수록 좋음)이라 색은 단일 색조 밝음→어둠 램프를 씁니다.
-   분야별 6색을 여기 쓰면 "색이 곧 등급"이라는 신호가 사라집니다. */
+/* ═══ 예측점수 90점 이상 · 분야 구성 ═══
+   전에는 다섯 구간을 막대로 늘어놓았는데, 실제로 볼 것은 "제일 좋은 공고가
+   어느 분야에 있나" 하나였습니다. 나머지 구간은 자리만 차지했습니다.
+
+   부분과 전체를 보는 그림이라 도넛으로 그립니다. 색은 분야별 고정 6색을
+   그대로 씁니다 — 색이 분야를 가리키게 두어야 다른 화면(카드 뱃지·목록 칩)
+   과 같은 색으로 읽힙니다. 크기 순서로 색을 바꾸면 같은 분야가 화면마다
+   다른 색이 되어 못 알아봅니다.
+   조각 사이는 배경색 2px 선으로 띄웁니다. 이름은 옆에 글자로도 적습니다 —
+   색만으로 구분하게 두면 색을 구분하기 어려운 사람은 읽을 수 없습니다. */
 (function(){
   const box=$("#v-dist");
   const live=ALL.filter(it=>!isBlocked(it) && it.score);
-  const BANDS=[
-    [90,101,"90점 이상","var(--seq-5)"],
-    [80, 90,"80~89점",  "var(--seq-4)"],
-    [70, 80,"70~79점",  "var(--seq-3)"],
-    [60, 70,"60~69점",  "var(--seq-2)"],
-    [ 0, 60,"60점 미만","var(--seq-1)"],
-  ];
+  const hi=live.filter(it=>it.score.total>=90);
   const budget=it=>it.budget ?? it.price ?? 0;
-  const rows=BANDS.map(([lo,hi,label,color])=>{
-    const list=live.filter(it=>it.score.total>=lo && it.score.total<hi);
-    const byKw=new Map();
-    for(const it of list){ const g=mainKw(it)||"기타"; byKw.set(g,(byKw.get(g)??0)+1); }
-    return {
-      label, color, n:list.length,
-      sum:list.reduce((a,it)=>a+budget(it),0),
-      self:list.filter(it=>it.score.self).length,
-      kw:[...byKw.entries()].sort((a,b)=>b[1]-a[1]),
-    };
-  });
-  const top=Math.max(1,...rows.map(r=>r.n));
-  const best=live.reduce((m,it)=>Math.max(m,it.score.total),0);
   const dropped=ALL.filter(isBlocked).length;
+  const best=live.reduce((m,it)=>Math.max(m,it.score.total),0);
   $("#dist-cnt").textContent = live.length
-    ? `최고 ${best}점` + (dropped?` · 제외 ${dropped}건`:"") : "";
-  if(!live.length){ box.innerHTML=`<div class="placeholder">표시할 공고가 없습니다.</div>`; return; }
+    ? `최고 ${best}점` + (dropped?` · 자격 미달 제외 ${dropped}건`:"") : "";
 
-  box.innerHTML=`<div class="rankbars">${rows.map(r=>`
-    <div class="rankbar${r.n?"":" zero"}" data-l="${esc(r.label)}" data-n="${r.n}"
-         data-kw="${esc(r.kw.map(([g,n])=>g+" "+n).join(" · ")||"—")}" data-self="${r.self}">
-      <div class="row1">
-        <span class="who">${esc(r.label)}</span>
-        <span class="amt num">${r.n}건 · ${억(r.sum)}</span>
-      </div>
-      <div class="track"><div class="fill" style="width:${r.n/top*100}%; background:${r.color}"></div></div>
-      ${r.n?`<div class="kwline">${esc(r.kw.slice(0,4).map(([g,n])=>g+" "+n).join(" · "))}</div>`:""}
-    </div>`).join("")}</div>`;
-  hoverTip(box,".rankbar[data-l]",el=>
-    `${el.dataset.l} · <b>${el.dataset.n}건</b>`
-    + `<br>${el.dataset.kw}`
-    + `<br><span style="opacity:.75">그중 심사표 자가채점 ${el.dataset.self}건</span>`);
+  if(!hi.length){
+    box.innerHTML=`<div class="placeholder">90점 이상인 공고가 아직 없습니다.${
+      live.length?` (가장 높은 점수 ${best}점)`:""}</div>`;
+    return;
+  }
+
+  const by=new Map();
+  for(const it of hi){
+    const g=mainKw(it)||"기타";
+    const cur=by.get(g) ?? {n:0, sum:0, self:0};
+    cur.n+=1; cur.sum+=budget(it); if(it.score.self) cur.self+=1;
+    by.set(g,cur);
+  }
+  const segs=[...by.entries()].map(([g,v])=>({g, ...v})).sort((a,b)=>b.n-a.n);
+  const total=hi.length;
+  const totalSum=segs.reduce((a,s)=>a+s.sum,0);
+
+  /* 도넛. 12시에서 시작해 시계 방향으로 돕니다.
+     한 분야뿐이면 원호가 시작점과 끝점이 같아 그려지지 않으므로 고리로 냅니다. */
+  const C=100, R=82, r=52;
+  const pt=(a,rad)=>[C+rad*Math.cos(a), C+rad*Math.sin(a)];
+  const arc=(a0,a1)=>{
+    const big=(a1-a0)>Math.PI?1:0;
+    const [x0,y0]=pt(a0,R), [x1,y1]=pt(a1,R), [x2,y2]=pt(a1,r), [x3,y3]=pt(a0,r);
+    return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 ${big} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`
+         + ` L${x2.toFixed(2)} ${y2.toFixed(2)} A${r} ${r} 0 ${big} 0 ${x3.toFixed(2)} ${y3.toFixed(2)} Z`;
+  };
+  let a=-Math.PI/2;
+  const shapes=segs.map(s=>{
+    const a0=a, a1=a+(s.n/total)*Math.PI*2;
+    a=a1;
+    const d=segs.length===1 ? null : arc(a0,a1);
+    return {...s, d, pct:Math.round(s.n/total*100)};
+  });
+
+  const seg=s=>{
+    const col=`var(--kw-${kwIdx(s.g)})`;
+    const attrs=`class="slice" fill="${col}" stroke="var(--surface)" stroke-width="2"`
+      + ` data-g="${esc(s.g)}" data-n="${s.n}" data-p="${s.pct}" data-sum="${esc(억(s.sum))}" data-self="${s.self}"`;
+    // 분야가 하나뿐이면 완전한 고리를 그립니다(원호로는 못 그립니다).
+    return s.d
+      ? `<path d="${s.d}" ${attrs}></path>`
+      : `<circle cx="${C}" cy="${C}" r="${(R+r)/2}" fill="none" stroke="${col}"
+                 stroke-width="${R-r}" ${attrs.replace(/fill="[^"]*"/,"")}></circle>`;
+  };
+
+  box.innerHTML=`<div class="donutwrap">
+    <svg class="donut" viewBox="0 0 200 200" role="img"
+         aria-label="예측점수 90점 이상 ${total}건의 분야별 구성">
+      ${shapes.map(seg).join("")}
+      <text class="dn-n" x="100" y="96" text-anchor="middle">${total}</text>
+      <text class="dn-u" x="100" y="118" text-anchor="middle">건</text>
+    </svg>
+    <ul class="donutlg">${shapes.map(s=>`
+      <li data-g="${esc(s.g)}">
+        <i style="background:var(--kw-${kwIdx(s.g)})"></i>
+        <span class="g">${esc(s.g)}</span>
+        <b class="num">${s.n}</b>
+        <span class="p num">${s.pct}%</span>
+      </li>`).join("")}</ul>
+  </div>
+  <p class="donutfoot">합계 ${total}건 · ${억(totalSum)}</p>`;
+
+  hoverTip(box,".slice[data-g], .donutlg li[data-g]",el=>{
+    const g=el.dataset.g;
+    const s=shapes.find(x=>x.g===g);
+    return `<b>${esc(g)}</b> ${s.n}건 (${s.pct}%)`
+      + `<br>예산 합계 ${억(s.sum)}`
+      + `<br><span style="opacity:.75">그중 심사표 자가채점 ${s.self}건</span>`;
+  });
 })();
 
 /* ═══ 참여 조건 ═══ */
