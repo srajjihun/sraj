@@ -150,6 +150,50 @@ function findRateLine(ls) {
   return null;
 }
 
+
+/* ───────── 심사표(배점표) 항목 읽기 ─────────
+   자가채점을 하려면 "이 항목이 무엇을 보는 항목인가"를 알아야 합니다.
+   정성평가(사업이해도·제안내용)는 제안서를 써봐야 아는 것이라 지금은 채점할 수
+   없고, 가격평가는 우리가 얼마를 쓰느냐에 달린 것이라 공고끼리 비교할 값이
+   아닙니다. 그래서 항목을 갈라 두고 채점 가능한 것만 씁니다. */
+const ITEM_KIND = [
+  ["실적",   /실적|수행경험|유사용역|수행건수|납품실적/],
+  ["신인도", /신인도|가점|우대|인증|여성기업|장애인기업|사회적기업|벤처기업|직접생산/],
+  ["인력",   /인력|조직|참여\s?기술|투입\s?인?력|전문가|인적/],
+  ["경영",   /경영\s?상태|재무|신용\s?평가|기업\s?신용|자본|부채/],
+  ["지역",   /지역\s?업체|관내\s?업체|지역\s?참여|본사\s?소재/],
+  ["가격",   /가격|입찰\s?금액|견적/],
+  ["정성",   /이해도|제안|계획|적정성|창의|전략|방안|구성|타당|우수성|충실|기대효과|아이디어|콘셉트|연출/],
+];
+
+function kindOf(name) {
+  for (const [kind, re] of ITEM_KIND) if (re.test(name)) return kind;
+  return "기타";
+}
+
+/* 세부 배점 기준에서 등급을 뽑습니다. 실측 표기:
+     "최근 3년간 유사용역 5억원 이상 10점, 3억원 이상 8점, 1억원 이상 6점"
+     "10억 이상: 20 / 5억 이상: 16 / 3억 이상: 12"
+   금액과 점수가 짝지어 나오면 그 짝을 등급으로 봅니다. 짝이 안 맞으면
+   등급을 못 읽은 것으로 두고 일반 규칙으로 채점합니다 — 억지로 맞추면
+   근거 없는 점수가 됩니다. */
+export function parseTiers(text) {
+  const t = String(text ?? "").replace(/\s+/g, " ");
+  const out = [];
+  const re = /([\d.,]+\s*(?:억|천만|백만|만)?\s*원?)\s*(?:이상|초과)[^0-9]{0,12}?([\d.]+)\s*점?/g;
+  let m;
+  while ((m = re.exec(t))) {
+    const min = parseWon(m[1]);
+    const score = Number(m[2]);
+    if (min === null || !Number.isFinite(score)) continue;
+    out.push({ min, score });
+  }
+  // 큰 금액이 높은 점수여야 등급표입니다. 아니면 잘못 읽은 것입니다.
+  out.sort((a, b) => b.min - a.min);
+  for (let i = 1; i < out.length; i += 1) if (out[i].score > out[i - 1].score) return [];
+  return out.length >= 2 ? out : [];
+}
+
 /**
  * 배점표 — 표에서 찾습니다.
  * "평가항목 / 배점" 처럼 숫자 열이 있는 표를 배점표로 봅니다.
@@ -176,10 +220,12 @@ function findScoreTable(tables) {
 
       const items = grid
         .slice(1)
-        .map((r, i) => ({
-          name: (r.slice(0, c).filter(Boolean).join(" / ") || "").trim(),
-          score: nums[i],
-        }))
+        .map((r, i) => {
+          const name = (r.slice(0, c).filter(Boolean).join(" / ") || "").trim();
+          // 세부 배점 기준은 보통 배점 열 뒤에, 없으면 항목 이름 칸에 같이 적힙니다.
+          const detail = [...r.slice(c + 1), name].filter(Boolean).join(" ").trim();
+          return { name, score: nums[i], kind: kindOf(name + " " + detail), tiers: parseTiers(detail) };
+        })
         .filter((x) => x.name && x.score !== null);
       if (!items.length) continue;
 

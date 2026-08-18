@@ -6,6 +6,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { loadCompany } from "./lib/company.mjs";
+import { selfScore } from "./lib/selfscore.mjs";
 import { judgeEligibility } from "./lib/require.mjs";
 
 const TEMPLATE = new URL("../../g2b.html", import.meta.url);
@@ -59,10 +60,22 @@ async function main() {
       record: d.record ?? null,
       rate: d.rate ?? null,
       scoreTable: d.scoreTable ?? null,
+      credits: d.credits ?? [],
+      directItems: d.directItems ?? null,
       source: d.source ?? "",
       eligibility: judgeEligibility(d, payload.company),
     };
+    // 심사표 자가채점. 공고의 실제 채점표로 "우리가 몇 점 받나"를 셉니다.
+    it.self = selfScore(it.doc, payload.company, it.budget ?? it.price ?? null);
     attached += 1;
+  }
+  const scored = [...(payload.posts ?? []), ...(payload.prespecs ?? [])];
+  const selfN = scored.filter((it) => it.self?.mode === "심사표").length;
+  const blockN = scored.filter((it) => it.self?.blocked).length;
+  if (selfN || blockN) {
+    console.log(
+      `[자가채점] 심사표로 채점 ${selfN}건 · 자격 미달로 목록에서 제외 ${blockN}건`
+    );
   }
   console.log(
     attached

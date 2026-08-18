@@ -208,6 +208,7 @@ svg{display:block; width:100%}
 .rankbar .amt{color:var(--ink-2); font-weight:700; white-space:nowrap; font-size:12px}
 .rankbar .track{height:10px; background:var(--surface-3); border-radius:4px; overflow:hidden}
 .rankbar .fill{height:100%; border-radius:4px}
+.rankbar .kwline{font-size:11px; color:var(--ink-3); margin-top:3px}
 
 /* ─── 4행 : 참여 조건 ─── */
 .cond{display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin-bottom:16px}
@@ -225,6 +226,25 @@ svg{display:block; width:100%}
 .condcard.hold .v{color:var(--warn)} .condcard.hold .fill{background:var(--warn)}
 .condcard.team .v{color:var(--pre)} .condcard.team .fill{background:var(--pre)}
 .condcard.solo .v{color:var(--ink-2)} .condcard.solo .fill{background:var(--ink-3)}
+
+/* 자격 미달로 뺀 공고 알림줄 — 뺐다는 사실이 늘 보이게 */
+.dropbar{
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  background:var(--surface-2); border:1px dashed var(--line); border-radius:10px;
+  padding:8px 12px; margin-bottom:10px; font-size:12px; color:var(--ink-2);
+}
+.dropbar .k{font-weight:700}
+.dropbar .d{color:var(--ink-3); font-size:11.5px}
+.dropbar .dropbtn{
+  margin-left:auto; border:1px solid var(--line); background:var(--surface);
+  border-radius:7px; padding:4px 11px; font:inherit; font-size:11.5px; font-weight:700;
+  color:var(--ink-2); cursor:pointer;
+}
+.dropbar .dropbtn:hover{border-color:var(--accent); color:var(--accent)}
+/* 자가채점은 근거가 공고문에 있습니다. 추정과 한눈에 갈리게 표시합니다. */
+.sc.selfsc{box-shadow:inset 0 0 0 1.5px currentColor}
+.sc.selfsc small{font-size:.72em; font-weight:700; opacity:.75; margin-left:1px}
+.sc.est{opacity:.82}
 
 /* ═══════════ 목록 화면 (사전공고 등) ═══════════ */
 .listbar{
@@ -509,6 +529,13 @@ table.prof .sub2{font-size:11px; color:var(--ink-3); font-weight:600}
     <div id="focus-body"></div>
   </section>
 
+  <!-- 예측점수 분포 -->
+  <section class="panel" id="p-dist" style="margin-bottom:12px">
+    <h2>예측점수 분포 <span class="soft">· 어디에 얼마가 몰려 있나</span><span class="cnt" id="dist-cnt"></span></h2>
+    <p class="sub">자격이 안 되어 뺀 공고는 빼고 셉니다 · 구간에 마우스를 올리면 분야별로 보입니다</p>
+    <div id="v-dist"></div>
+  </section>
+
   <!-- 시각화 -->
   <div class="vizgrid">
     <section class="panel">
@@ -548,7 +575,8 @@ table.prof .sub2{font-size:11px; color:var(--ink-3); font-weight:600}
     <div class="cards"></div><div class="empty" hidden>조건에 맞는 공고가 없습니다.</div>
     <p class="foot">
       한 번도 유찰되지 않은 일반 입찰공고입니다 · 유찰·긴급 건은 각각 다른 화면에 있습니다<br>
-      평가는 기술배점 : 가격배점입니다 · 마감이 지나면 자동으로 사라집니다
+      평가는 기술배점 : 가격배점입니다 · 마감이 지나면 자동으로 사라집니다<br>
+      <b>자가채점</b>은 공고문의 심사표로 우리가 받을 정량 점수를 센 값이고, <b>추정</b>은 심사표를 못 읽어 공고 성격으로 매긴 값입니다 · 점수순은 자가채점된 공고를 먼저 보여줍니다
     </p>
   </section>
 
@@ -725,10 +753,22 @@ function scoreEval(it){
 }
 
 function predict(it){
+  /* 심사표를 읽어낸 공고는 그 공고의 실제 채점표로 셉니다(자가채점).
+     남은 공고는 예전처럼 공고 성격으로 추정합니다 — 심사표가 있는 공고가
+     아직 3할이라, 추정을 없애면 나머지 7할의 순서를 정할 수가 없습니다.
+     대신 카드에 어느 쪽인지 표시해 같은 값처럼 보이지 않게 합니다. */
+  const s = it.self;
+  if(s && s.mode === "심사표"){
+    return {
+      total: s.pct, self: true, blocked: !!s.blocked,
+      why: s.blocked ? s.blockWhy : s.items.map(i => i.name + " " + i.got + "/" + i.score + " — " + i.why),
+      unknown: s.unknown, got: s.got, max: s.max, provisional: false,
+    };
+  }
   const e = scoreEntry(it), r = scoreRecord(it), v = scoreEval(it);
   // 못 들어가는 공고는 나머지가 아무리 좋아도 의미가 없습니다.
   // 참가 불가인데 60점이 붙어 목록 가운데 섞이면 그게 제일 위험합니다.
-  const blocked = it.doc?.eligibility?.verdict === "불가";
+  const blocked = it.doc?.eligibility?.verdict === "불가" || !!it.self?.blocked;
   return {
     total: blocked ? 0 : e.v + r.v + v.v,
     entry: e.v, record: r.v, evaluation: v.v,
@@ -785,6 +825,13 @@ const POSTS = RAW_POSTS.filter(it=>!drop(it));
 const PRES  = RAW_PRES.filter(it=>!drop(it));
 /* 예측점수는 여기서 한 번만 계산해 붙입니다 (정렬과 카드가 같은 값을 봅니다) */
 for(const it of [...POSTS, ...PRES]) it.score = predict(it);
+
+/* 자격이 안 되는 공고는 목록에서 뺍니다.
+   다만 "조용히 사라지는" 상태는 만들지 않습니다 — 우리 판정이 틀리면
+   진짜 기회가 소리 없이 없어지고, 없어진 줄도 모르게 됩니다.
+   그래서 목록 위에 "제외 N건 · 보기" 를 두고 되돌려 볼 수 있게 합니다. */
+const isBlocked = it => !!it.score?.blocked;
+let SHOW_BLOCKED = false;
 const ALL   = [...PRES, ...POSTS];
 const RAW_ALL = [...RAW_PRES, ...RAW_POSTS];
 const HIDDEN_EXPIRED = RAW_ALL.filter(isExpired).length;
@@ -798,6 +845,9 @@ const kwIdx = g => { const i=GROUPS.indexOf(g); return i>=0&&i<6?i+1:"x"; };
    수출·해외진출이 위에 있으므로 수출입니다. 카드의 분야 뱃지, 분야 칩,
    시장 리포트가 모두 이 하나의 기준을 씁니다 — 서로 다르면 건수가 안 맞습니다. */
 const mainKw = it => (it.kw || [])[0] ?? "";
+/* 금액 축약. 대시보드와 2차 화면이 같이 쓰므로 여기 둡니다
+   (예전에는 2차 화면 쪽에 있어서 대시보드에서 부르면 죽었습니다). */
+const 억 = v => v ? (v >= 1e8 ? (v/1e8).toFixed(v>=1e9?0:1)+"억" : Math.round(v/1e6)+"백만") : "—";
 const SEQ = ["var(--seq-1)","var(--seq-2)","var(--seq-3)","var(--seq-4)","var(--seq-5)"];
 
 const tip=$("#tip");
@@ -955,6 +1005,54 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
   });
   const inWin=[...byDay.values()].reduce((a,b)=>a+b,0);
   $("#cal-cnt").textContent = outside ? `${inWin}건 (이후 ${outside}건)` : `${inWin}건`;
+})();
+
+/* ═══ 예측점수 분포 ═══
+   순서형(점수가 높을수록 좋음)이라 색은 단일 색조 밝음→어둠 램프를 씁니다.
+   분야별 6색을 여기 쓰면 "색이 곧 등급"이라는 신호가 사라집니다. */
+(function(){
+  const box=$("#v-dist");
+  const live=ALL.filter(it=>!isBlocked(it) && it.score);
+  const BANDS=[
+    [90,101,"90점 이상","var(--seq-5)"],
+    [80, 90,"80~89점",  "var(--seq-4)"],
+    [70, 80,"70~79점",  "var(--seq-3)"],
+    [60, 70,"60~69점",  "var(--seq-2)"],
+    [ 0, 60,"60점 미만","var(--seq-1)"],
+  ];
+  const budget=it=>it.budget ?? it.price ?? 0;
+  const rows=BANDS.map(([lo,hi,label,color])=>{
+    const list=live.filter(it=>it.score.total>=lo && it.score.total<hi);
+    const byKw=new Map();
+    for(const it of list){ const g=mainKw(it)||"기타"; byKw.set(g,(byKw.get(g)??0)+1); }
+    return {
+      label, color, n:list.length,
+      sum:list.reduce((a,it)=>a+budget(it),0),
+      self:list.filter(it=>it.score.self).length,
+      kw:[...byKw.entries()].sort((a,b)=>b[1]-a[1]),
+    };
+  });
+  const top=Math.max(1,...rows.map(r=>r.n));
+  const best=live.reduce((m,it)=>Math.max(m,it.score.total),0);
+  const dropped=ALL.filter(isBlocked).length;
+  $("#dist-cnt").textContent = live.length
+    ? `최고 ${best}점` + (dropped?` · 제외 ${dropped}건`:"") : "";
+  if(!live.length){ box.innerHTML=`<div class="placeholder">표시할 공고가 없습니다.</div>`; return; }
+
+  box.innerHTML=`<div class="rankbars">${rows.map(r=>`
+    <div class="rankbar" data-l="${esc(r.label)}" data-n="${r.n}"
+         data-kw="${esc(r.kw.map(([g,n])=>g+" "+n).join(" · ")||"—")}" data-self="${r.self}">
+      <div class="row1">
+        <span class="who">${esc(r.label)}</span>
+        <span class="amt num">${r.n}건 · ${억(r.sum)}</span>
+      </div>
+      <div class="track"><div class="fill" style="width:${r.n/top*100}%; background:${r.color}"></div></div>
+      <div class="kwline">${esc(r.kw.slice(0,4).map(([g,n])=>g+" "+n).join(" · ")||"—")}</div>
+    </div>`).join("")}</div>`;
+  hoverTip(box,".rankbar[data-l]",el=>
+    `${el.dataset.l} · <b>${el.dataset.n}건</b>`
+    + `<br>${el.dataset.kw}`
+    + `<br><span style="opacity:.75">그중 심사표 자가채점 ${el.dataset.self}건</span>`);
 })();
 
 /* ═══ 분야별 공고 (범주형 6색) ═══ */
@@ -1128,16 +1226,30 @@ function preFindLine(it){
 }
 
 /* 예측점수 배지. 마우스를 올리면 왜 그 점수인지 보여줍니다. */
+/* 점수 뱃지.
+   두 종류가 있고 섞이면 안 됩니다.
+     자가채점 — 공고의 실제 심사표로 센 정량 득점률. 근거가 공고문에 있습니다.
+     추정     — 심사표를 못 읽은 공고. 공고 성격만 보고 매긴 값입니다.
+   같은 숫자로 보이면 근거가 있는 것과 없는 것을 구분할 수 없으니 표시를 다르게 합니다. */
 function scoreBadge(it){
   const s = it.score;
   if(!s) return "";
-  if(s.blocked) return `<span class="sc no" title="${esc(s.why.join(" · "))}">참가 불가</span>`;
+  if(s.blocked) return `<span class="sc no" title="${esc((s.why||[]).join(" · "))}">참가 불가</span>`;
   const band = s.total >= 75 ? "s3" : s.total >= 60 ? "s2" : s.total >= 45 ? "s1" : "s0";
-  const tip = `참가 ${s.entry}/40 · 실적 ${s.record}/35 · 평가 ${s.evaluation}/25`
+  if(s.self){
+    const tip = `심사표 자가채점 — 정량 ${s.max}점 중 ${s.got}점`
+      + (s.unknown ? ` · 채점 못한 정량 ${s.unknown}점(경영상태·인력)` : "")
+      + `\n정성평가와 가격평가는 뺐습니다 (제안서를 써봐야 알고, 공고끼리 비교값이 아닙니다)`
+      + (s.why.length ? `\n\n${s.why.join("\n")}` : "");
+    return `<span class="sc ${band} selfsc" title="${esc(tip)}">`
+      + `자가채점 <span class="v">${s.total}</span><small>%</small></span>`;
+  }
+  const tip = `추정 — 이 공고는 심사표를 못 읽어 공고 성격으로 매긴 값입니다`
+    + `\n참가 ${s.entry}/40 · 실적 ${s.record}/35 · 평가 ${s.evaluation}/25`
     + (s.why.length ? `\n${s.why.join(" · ")}` : "")
     + (s.provisional ? `\n(회사정보 미입력 — 잠정 점수)` : "");
-  return `<span class="sc ${band}${s.provisional?" prov":""}" title="${esc(tip)}">`
-    + `예측 <span class="v">${s.total}</span></span>`;
+  return `<span class="sc ${band} est${s.provisional?" prov":""}" title="${esc(tip)}">`
+    + `추정 <span class="v">${s.total}</span></span>`;
 }
 
 function cardHtml(it, kind){
@@ -1163,29 +1275,46 @@ function cardHtml(it, kind){
 }
 
 /* 정렬 — 카드에는 누를 칸 제목이 없으므로 버튼으로 고릅니다 */
+/* 점수순 정렬은 두 층으로 세웁니다.
+   자가채점(공고의 실제 심사표로 센 값)과 추정(공고 성격만 보고 매긴 값)은
+   같은 자로 잰 숫자가 아닙니다. 추정은 조건이 좋으면 100 가까이 나오는 반면
+   자가채점은 정량 득점률이라 보통 70~90 입니다. 한 줄로 섞어 세우면
+   근거 있는 공고가 근거 없는 공고 밑으로 밀립니다 — 실제로 그렇게 나왔습니다.
+   그래서 자가채점된 공고를 위에 두고, 각 층 안에서 점수순으로 정렬합니다. */
 const SORTS = [
-  { id:"score",  label:"예측순", key:it=>-(it.score?.total ?? 0) },
+  { id:"score",  label:"점수순", key:it=>(it.score?.self?0:1)*1000 - (it.score?.total ?? 0) },
   { id:"due",    label:"마감순", key:it=>daysUntil(dueOf(it).iso) ?? 99999 },
   { id:"budget", label:"예산순", key:it=>-((it.budget ?? it.price) ?? -1) },
   { id:"date",   label:"최신순", key:it=>it.date ? -Number(it.date.replace(/-/g,"")) : 1 },
+  /* 작년 같은 사업에 몇 곳이 투찰했는지. 3곳 붙은 판과 15곳 붙은 판은
+     같은 점수라도 전혀 다른 사업입니다. 이 값은 자가채점에는 넣지 않습니다 —
+     심사표에 없는 항목이라 점수에 섞으면 "심사표대로 센 값"이 아니게 됩니다.
+     대신 따로 정렬할 수 있게 둡니다. 작년 기록이 없는 건은 뒤로 보냅니다. */
+  { id:"comp",   label:"경쟁 낮은순", key:it=>it.last?.bidders ?? 9999 },
 ];
 
 function cardView(viewId, items, kind, countEl, defaultSort="score"){
   const root=$("#"+viewId);
-  if(countEl) $(countEl).textContent=items.length;
+  /* 자격이 안 되는 공고는 목록에서 뺍니다. 지역제한에 걸리거나, 요구하는
+     직접생산확인 품목을 하나도 안 가진 공고는 넣을 수가 없습니다.
+     세는 숫자도 전부 "넣을 수 있는 공고" 기준입니다 — 못 넣는 건이
+     건수에 섞이면 분야별 규모를 잘못 읽게 됩니다. */
+  const live=items.filter(it=>!isBlocked(it));
+  const dropped=items.filter(isBlocked);
+  if(countEl) $(countEl).textContent=live.length;
   /* 분야는 여러 개 겹쳐 고를 수 있습니다. 아무것도 안 고르면 전체입니다. */
-  const st={kw:new Set(), q:"", sort:defaultSort};
+  const st={kw:new Set(), q:"", sort:defaultSort, showDropped:false};
 
   const chips=root.querySelector(".chips");
   const all=document.createElement("button");
   all.type="button"; all.className="chip on"; all.setAttribute("aria-pressed","true");
-  all.innerHTML=`전체 <span class="n num">${items.length}</span>`;
+  all.innerHTML=`전체 <span class="n num">${live.length}</span>`;
   all.addEventListener("click",()=>{ st.kw.clear(); sync(); draw(); });
   chips.appendChild(all);
 
   const btns=[];
   for(const g of GROUPS){
-    const n=items.filter(it=>mainKw(it)===g).length;
+    const n=live.filter(it=>mainKw(it)===g).length;
     const b=document.createElement("button");
     b.type="button"; b.className="chip"; b.setAttribute("aria-pressed","false");
     b.innerHTML=`${esc(g)} <span class="n num">${n}</span>`;
@@ -1229,9 +1358,36 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
     bar.innerHTML='<b>예측점수는 잠정입니다.</b> config/회사정보.md 에 실적·지역·업종을 적으면 정확해집니다.';
     wrap.parentNode.insertBefore(bar, wrap);
   }
+  /* 뺀 공고를 되돌려 볼 수 있게 합니다. 판정이 틀렸을 때 조용히 사라지면
+     없어진 줄도 모릅니다. 몇 건을 왜 뺐는지는 항상 보이게 둡니다. */
+  let dropBar=null;
+  if(dropped.length){
+    dropBar=document.createElement("div");
+    dropBar.className="dropbar";
+    wrap.parentNode.insertBefore(dropBar, wrap);
+    dropBar.addEventListener("click",e=>{
+      if(!e.target.closest(".dropbtn")) return;
+      st.showDropped=!st.showDropped; draw();
+    });
+  }
+  function drawDropBar(){
+    if(!dropBar) return;
+    const why=new Map();
+    for(const it of dropped) for(const w of (it.score?.why ?? [])) {
+      const k=String(w).split(":")[0].trim();
+      why.set(k,(why.get(k)??0)+1);
+    }
+    const sum=[...why.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3)
+      .map(([k,n])=>`${esc(k)} ${n}`).join(" · ");
+    dropBar.innerHTML=`<span class="k">자격이 안 되어 뺀 공고 <b class="num">${dropped.length}</b>건</span>`
+      +(sum?`<span class="d">${sum}</span>`:"")
+      +`<button type="button" class="dropbtn" aria-pressed="${st.showDropped}">${st.showDropped?"숨기기":"보기"}</button>`;
+  }
   function draw(){
+    drawDropBar();
+    const base=st.showDropped?items:live;
     const q=st.q.trim().toLowerCase();
-    const list=items.filter(it=>
+    const list=base.filter(it=>
       (st.kw.size===0 || st.kw.has(mainKw(it))) &&
       (!q || (it.title||"").toLowerCase().includes(q)));
     const key=SORTS.find(s=>s.id===st.sort).key;
@@ -1249,7 +1405,6 @@ function cardView(viewId, items, kind, countEl, defaultSort="score"){
    (경쟁사 분석만 낙찰정보가 있어야 하고, 없으면 그 사실을 말합니다) */
 
 const AWARDS = Array.isArray(DATA.awards) ? DATA.awards : [];
-const 억 = v => v ? (v >= 1e8 ? (v/1e8).toFixed(v>=1e9?0:1)+"억" : Math.round(v/1e6)+"백만") : "—";
 
 /* 값 목록 → [{k, n, sum}] 내림차순 */
 function tally(items, keyFn, valFn){
