@@ -965,8 +965,15 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     const due=dueOf(it);
     const d=daysUntil(due.iso);
     if(d===null) return `<span class="sched num">일정 미상</span>`;
-    const pre=it.type==="pre"?"의견 ":(due.src==="개찰"?"개찰 ":"");
-    return `<span class="sched num">${pre}<b>${fmtShort(due.iso)}</b>${due.time?" "+esc(due.time):""} · ${d===0?"오늘":"D-"+d}</span>`;
+    /* "개찰" 이라는 말은 빼고 날짜만 보여줍니다. 열 이름이 이미 일정이고
+       거의 다 개찰 기준이라, 줄마다 같은 낱말이 붙으면 읽는 데 방해만 됩니다.
+       다만 아주 없애지는 않습니다 — 입찰마감일이 따로 있는 공고는 그쪽이
+       기준이라 날짜의 뜻이 다릅니다. 그 구분은 마우스를 올리면 나옵니다.
+       사전규격은 개찰이 아니라 의견마감이라 글자를 남깁니다. */
+    const pre=it.type==="pre"?"의견 ":"";
+    const what=it.type==="pre"?"의견마감":due.src;
+    return `<span class="sched num" title="${esc(what)} ${esc(due.iso)}${due.time?" "+esc(due.time):""}">`
+      + `${pre}<b>${fmtShort(due.iso)}</b>${due.time?" "+esc(due.time):""} · ${d===0?"오늘":"D-"+d}</span>`;
   };
   // 예측점수. 왜 그 점수인지는 마우스를 올리면 보입니다(목록 화면과 같은 값).
   /* 대시보드에서도 자가채점과 추정을 구분합니다.
