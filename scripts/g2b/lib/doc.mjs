@@ -9,6 +9,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { parseHwpx } from "./hwpx.mjs";
+import { parseHwp } from "./hwp.mjs";
 import { extractPdfText } from "./pdf.mjs";
 
 const PS1 = fileURLToPath(new URL("../hancom.ps1", import.meta.url));
@@ -88,21 +89,26 @@ export async function readDocument(buf, opts = {}) {
   }
 
   if (kind === "hwp") {
+    // 먼저 우리가 직접 읽습니다. 한글(한컴오피스)이 없어도, Windows 가 아니어도
+    // 됩니다. 한글에 기대던 방식은 보안 팝업을 없애는 DLL 이 필요한데 그 파일이
+    // 설치본에 없는 PC 가 많아 계속 막혔습니다.
+    const direct = parseHwp(buf);
+    if (direct.ok) {
+      return { kind, ok: true, text: direct.text, tables: direct.tables, note: "" };
+    }
+
+    // 우리가 못 읽는 경우(배포용·암호 문서 등)에만 한글에게 부탁합니다.
     const dir = opts.workDir;
-    if (!dir) return { kind, ok: false, text: "", tables: [], note: "HWP 변환용 작업 폴더가 없습니다" };
+    if (!dir) return { kind, ok: false, text: "", tables: [], note: direct.note };
     await mkdir(dir, { recursive: true });
     const src = `${dir}/in.hwp`;
     const dst = `${dir}/out.hwpx`;
     await writeFile(src, buf);
     const r = await hancom(["-In", src, "-Out", dst]);
     if (r.code !== 0) {
-      const why =
-        r.code === 2
-          ? "한글(HWP)이 설치돼 있지 않거나 자동화를 쓸 수 없습니다"
-          : r.code === 4
-            ? "한글 보안 팝업 설정이 필요합니다 (공고문-분석.bat 이 안내합니다)"
-            : `변환 실패: ${r.out}`;
-      return { kind, ok: false, text: "", tables: [], note: why };
+      // 한글 쪽 실패 사유보다 우리가 왜 못 읽었는지가 더 쓸모 있습니다.
+      // 한글은 어차피 있으면 좋고 없어도 되는 보조 수단이 됐습니다.
+      return { kind, ok: false, text: "", tables: [], note: direct.note };
     }
     try {
       const conv = parseHwpx(await readFile(dst));
@@ -112,15 +118,20 @@ export async function readDocument(buf, opts = {}) {
     }
   }
 
+  if (kind === "ole") {
+    // 시그니처만으로는 HWP 인지 옛 워드·엑셀인지 확실치 않은 경우가 있습니다
+    // (판별은 앞 8KB 만 봅니다). 일단 HWP 로 읽어 보고, 되면 HWP 입니다.
+    const direct = parseHwp(buf);
+    if (direct.ok) return { kind: "hwp", ok: true, text: direct.text, tables: direct.tables, note: "" };
+    return { kind, ok: false, text: "", tables: [], note: "한글 문서가 아닌 옛 오피스 파일입니다" };
+  }
+
   return {
     kind,
     ok: false,
     text: "",
     tables: [],
-    note:
-      kind === "docx" ? "DOCX 는 아직 읽지 않습니다"
-      : kind === "ole" ? "한글 문서가 아닌 옛 오피스 파일입니다"
-      : "형식을 알 수 없습니다",
+    note: kind === "docx" ? "DOCX 는 아직 읽지 않습니다" : "형식을 알 수 없습니다",
   };
 }
 

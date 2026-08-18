@@ -40,19 +40,49 @@ function findRegion(ls) {
   return null;
 }
 
-/** 업종·면허 — 업종코드가 있으면 그것까지 */
+/**
+ * 업종·면허 — 업종코드가 있으면 그것까지.
+ *
+ * 모든 공고에 똑같이 붙는 상투 문구는 걸러야 합니다. 실측 오탐:
+ *   "국가종합전자조달시스템 입찰참가자격등록규정에 의하여 반드시 나라장터
+ *    시스템에 입찰일 전일까지 입찰참가 등록을 필한 자"
+ * 이건 업종 제한이 아니라 나라장터를 쓰라는 안내입니다. 그런데 "등록을 필한"
+ * 이 걸려서 업종 요건으로 잡혔고, 카드에 140자짜리 문장이 붙었습니다.
+ */
+const NOT_INDUSTRY = /입찰참가자격등록|전자조달시스템|국가종합전자조달|나라장터\s*시스템|공동인증서|지문인식|청렴계약|부정당업자/;
+
 function findIndustry(ls) {
   const out = [];
+  const seen = new Set();
+  const add = (value, evidence) => {
+    if (seen.has(value)) return;
+    seen.add(value);
+    out.push({ value, evidence: clip(evidence) });
+  };
+
   for (const l of ls) {
+    if (NOT_INDUSTRY.test(l)) continue;
+
+    // "기타자유업(행사대행업, 업종코드 9901)" / "업종코드: 9901"
     const code = /업종\s*코드\s*[:：]?\s*(\d{3,5})/.exec(l);
     if (code) {
-      const name = /([가-힣]+업)\s*[,，(]?\s*업종\s*코드/.exec(l);
-      out.push({ value: name ? `${name[1]}(${code[1]})` : `업종코드 ${code[1]}`, evidence: clip(l) });
+      const name = /([가-힣]{2,12}업)\s*[,，(（]?\s*업종\s*코드/.exec(l);
+      add(name ? `${name[1]}(${code[1]})` : `업종코드 ${code[1]}`, l);
       continue;
     }
-    if (/(등록|면허|신고)을?\s*(필한|한|받은)/.test(l) && /업\b|업자|업종/.test(l)) {
-      out.push({ value: clip(l, 60), evidence: clip(l) });
+
+    // "[창업기획자(6883)] 업종을 등록한 업체"
+    const bracket = /([가-힣]{2,12})\s*[(（]\s*(\d{3,5})\s*[)）]\s*\]?\s*업종/.exec(l);
+    if (bracket) {
+      add(`${bracket[1]}(${bracket[2]})`, l);
+      continue;
     }
+
+    // 코드가 없는 경우. 문장을 통째로 담지 않고 "○○업" 한 낱말만 뽑습니다 —
+    // 카드에 붙는 값이라 길면 읽을 수가 없고, 회사 보유 업종과 대조도 안 됩니다.
+    if (!/(등록|면허|신고)를?을?\s*(필한|받은|한)/.test(l)) continue;
+    const word = /([가-힣]{2,12}(?:업|업자|공사업|서비스업))\s*(?:등록|면허|신고|을|를|으로|로)/.exec(l);
+    if (word) add(word[1], l);
   }
   // 같은 내용이 여러 번 나오므로 앞의 둘만 씁니다.
   return out.slice(0, 2);

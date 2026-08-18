@@ -6,12 +6,13 @@
 //   추측이 아니라 확정으로 말할 수 있습니다.
 //
 // 무엇을 하는가:
-//   ① 예측점수 높은 순으로 N건을 고른다 (전부 받을 필요가 없습니다)
+//   ① 예산 큰 순으로 N건을 고른다 (전부 받을 필요가 없습니다)
 //   ② 첨부파일을 내려받아 형식을 판별한다 (PDF / HWPX / HWP)
-//   ③ HWP 는 한글에게 HWPX 로 저장시킨다 (표가 안 깨집니다)
+//   ③ 형식별로 직접 읽는다 — 한글(한컴오피스)이 없어도 됩니다
 //   ④ 참가자격·배점표를 뽑아 data/g2b/docs.json 에 쌓는다
 //
-// 한 번 읽은 공고는 다시 읽지 않습니다. 원본은 남기지 않고 뽑은 것만 보관합니다.
+// 한 번 읽은 공고는 다시 읽지 않습니다 — 해석기가 좋아진 경우(VERSION)만 예외입니다.
+// 원본 파일은 남기지 않고 뽑아낸 것만 보관합니다.
 //
 // 사용법:
 //   node scripts\g2b\docs.mjs         ← 상위 20건
@@ -20,13 +21,21 @@
 import { readFile, writeFile, mkdir, rm } from "node:fs/promises";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { download, readDocument, hancomReady, sniff } from "./lib/doc.mjs";
+import { download, readDocument, sniff } from "./lib/doc.mjs";
 import { extractRequirements } from "./lib/require.mjs";
 import { loadCompany } from "./lib/company.mjs";
 
 const DATA_DIR = new URL("../../data/g2b/", import.meta.url);
 const POSTS = new URL("posts.json", DATA_DIR);
 const OUT = new URL("docs.json", DATA_DIR);
+
+// 해석기 판(版). 해석 방식이 좋아지면 이 숫자를 올립니다. 그러면 예전에
+// 읽어 둔 공고도 다시 읽습니다 — 안 그러면 "이미 읽음"으로 남아서 개선된
+// 결과가 영원히 반영되지 않습니다. 실제로 그 일이 있었습니다: 한글 자동화가
+// 막혀 HWP 를 못 읽은 100건이 전부 "읽음"으로 저장돼 있었습니다.
+//   1 → 최초
+//   2 → HWP 를 한글 없이 직접 읽음 / 업종 오탐(나라장터 상투문구) 제거
+const VERSION = 2;
 
 const DEFAULT_LIMIT = 20;
 // 공고문은 보통 첫 두어 개 첨부에 들어 있습니다. 전부 받으면 시간만 걸립니다.
@@ -121,29 +130,24 @@ async function main() {
   const store = await loadJson(OUT, {});
   const items = [...(payload.posts ?? []), ...(payload.prespecs ?? [])];
 
-  // 아직 안 읽은 것만, 예산 큰 순으로 (규모가 큰 건부터 확인하는 편이 이득입니다)
-  const todo = items
-    .filter((it) => it.bidNo && !store[it.bidNo])
-    .filter((it) => (it.files ?? []).length)
-    .sort((a, b) => (b.budget ?? b.price ?? 0) - (a.budget ?? a.price ?? 0))
-    .slice(0, limit === Infinity ? undefined : limit);
+  // 예산 큰 순으로 (규모가 큰 건부터 확인하는 편이 이득입니다).
+  // 아직 안 읽은 것을 먼저, 그다음 해석기가 좋아져서 다시 읽어야 하는 것.
+  const byBudget = (a, b) => (b.budget ?? b.price ?? 0) - (a.budget ?? a.price ?? 0);
+  const withFiles = items.filter((it) => it.bidNo && (it.files ?? []).length);
+  const fresh = withFiles.filter((it) => !store[it.bidNo]).sort(byBudget);
+  const stale = withFiles.filter((it) => store[it.bidNo] && (store[it.bidNo].v ?? 0) < VERSION).sort(byBudget);
+  const todo = [...fresh, ...stale].slice(0, limit === Infinity ? undefined : limit);
 
-  console.log(`[공고문] 전체 ${items.length}건 · 이미 읽음 ${Object.keys(store).length}건 · 이번에 ${todo.length}건`);
+  console.log(
+    `[공고문] 전체 ${items.length}건 · 이미 읽음 ${Object.keys(store).length}건 · 이번에 ${todo.length}건` +
+      (stale.length ? ` (그중 다시 읽기 ${Math.min(stale.length, Math.max(0, todo.length - fresh.length))}건)` : "")
+  );
+  if (stale.length && fresh.length < todo.length) {
+    console.log(`         해석기가 좋아져서 예전에 읽은 ${stale.length}건도 다시 읽습니다.`);
+  }
   if (!todo.length) {
     console.log("새로 읽을 공고가 없습니다.");
     return;
-  }
-
-  const needHancom = todo.length > 0;
-  if (needHancom && process.platform === "win32") {
-    const ready = await hancomReady();
-    console.log(
-      ready
-        ? "[한글] 자동화 준비됨 — HWP 도 읽습니다"
-        : "[한글] 보안 설정이 안 돼 있어 HWP 는 건너뜁니다 (공고문-분석.bat 이 안내합니다)"
-    );
-  } else if (needHancom) {
-    console.log("[한글] Windows 가 아니라 HWP 는 건너뜁니다 (PDF·HWPX 는 읽습니다)");
   }
 
   const workDir = `${tmpdir()}/g2b-doc-${process.pid}`;
@@ -154,7 +158,7 @@ async function main() {
     process.stdout.write(`  ${String(it.title).slice(0, 34).padEnd(34)} … `);
     try {
       const r = await analyze(it, workDir);
-      store[it.bidNo] = { ...r, title: it.title, org: it.org, at: new Date().toISOString() };
+      store[it.bidNo] = { ...r, v: VERSION, title: it.title, org: it.org, at: new Date().toISOString() };
       if (r.ok) {
         ok += 1;
         const bits = [];
@@ -171,7 +175,7 @@ async function main() {
       }
     } catch (err) {
       fail += 1;
-      store[it.bidNo] = { ok: false, note: err.message, title: it.title, at: new Date().toISOString() };
+      store[it.bidNo] = { ok: false, v: VERSION, note: err.message, title: it.title, at: new Date().toISOString() };
       console.log(`실패: ${err.message}`);
     }
     await saveJson(OUT, store); // 중간에 멈춰도 읽은 것은 남습니다
@@ -179,6 +183,23 @@ async function main() {
 
   await rm(workDir, { recursive: true, force: true }).catch(() => {});
   console.log(`\n[완료] 읽음 ${ok}건 · 못 읽음 ${fail}건 · 누적 ${Object.keys(store).length}건`);
+
+  // 어떤 형식이 실제로 읽히고 있는지. HWP 가 0 이면 뭔가 잘못된 것입니다.
+  const byKind = new Map();
+  for (const d of Object.values(store)) {
+    for (const k of d?.kinds ?? []) {
+      const key = k.kind ?? "?";
+      const cur = byKind.get(key) ?? { ok: 0, no: 0 };
+      if (k.note) cur.no += 1; else cur.ok += 1;
+      byKind.set(key, cur);
+    }
+  }
+  if (byKind.size) {
+    const parts = [...byKind.entries()]
+      .sort((a, b) => b[1].ok - a[1].ok)
+      .map(([k, v]) => `${k} ${v.ok}건${v.no ? `(못 읽음 ${v.no})` : ""}`);
+    console.log(`       읽은 첨부 형식 — ${parts.join(" · ")}`);
+  }
   console.log(`       화면-새로고침.bat 을 실행하면 공고 카드에 반영됩니다.`);
   if (!company.filled) {
     console.log(`       config/회사정보.md 를 채우면 "우리가 들어갈 수 있는가"까지 판정합니다.`);

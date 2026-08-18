@@ -10,6 +10,12 @@ rem Usage:
 rem   this .bat        top 20 by budget
 rem   this .bat 50     top 50
 rem   this .bat --all  everything (slow)
+rem
+rem PDF / HWPX / HWP are all parsed by our own code now (lib\pdf.mjs,
+rem lib\hwpx.mjs, lib\hwp.mjs). Hancom Office is no longer required, so the
+rem security-module setup step that used to live here is gone. hancom.ps1
+rem stays as a fallback that doc.mjs calls only for documents we cannot read
+rem ourselves, and it stays quiet when Hangul is missing.
 
 set "SAY=node scripts\g2b\say.mjs"
 
@@ -17,37 +23,6 @@ set "SAY=node scripts\g2b\say.mjs"
 
 call "%~dp0getcode.bat"
 
-%SAY% docs-step1
-
-rem Hangul refuses to open a file from an external program until the
-rem FilePathChecker module is registered - it pops a security dialog and
-rem automation hangs forever waiting for a click. hancom.ps1 -Check tells
-rem us whether that registration exists; -Register creates it.
-rem Exit codes from hancom.ps1: 0 ok / 2 Hangul or DLL missing / 4 not registered
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\g2b\hancom.ps1" -Check >nul 2>&1
-if not errorlevel 1 goto :hancom_ok
-
-%SAY% docs-hancom-try
-powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\g2b\hancom.ps1" -Register
-set "HRC=%errorlevel%"
-if "%HRC%"=="0" goto :hancom_registered
-if "%HRC%"=="2" goto :hancom_nodll
-%SAY% docs-hancom-fail
-goto :read
-
-:hancom_ok
-%SAY% docs-hancom-ok
-goto :read
-
-:hancom_registered
-%SAY% docs-hancom-registered
-goto :read
-
-:hancom_nodll
-%SAY% docs-hancom-nodll
-goto :read
-
-:read
 %SAY% docs-step2
 node "scripts\g2b\docs.mjs" %1
 if errorlevel 1 goto :fail
