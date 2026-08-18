@@ -161,6 +161,32 @@ function findScoreTable(tables) {
   return best;
 }
 
+// 신인도 가점으로 흔히 나오는 인증들. "인증서류 뭐가 더 필요해?"에 추측
+// 대신 실제 공고문 빈도로 답하기 위한 목록입니다 — 공고문-분석.bat 을
+// 여러 건 돌리면 어떤 인증이 실제로 몇 번 나왔는지 쌓입니다.
+const CREDIT_TERMS = [
+  "여성기업", "장애인기업", "사회적기업", "사회적경제기업", "벤처기업",
+  "이노비즈", "메인비즈", "가족친화인증", "고용우수기업", "청년친화강소기업",
+  "ISO9001", "ISO 9001", "ISO14001", "ISO 14001", "기업부설연구소",
+  "지식재산경영인증", "직접생산확인",
+];
+
+/** 공고문에 언급된 신인도 가점 인증들. 근거 문장을 같이 남깁니다. */
+function findCredits(ls) {
+  const found = [];
+  const seen = new Set();
+  for (const l of ls) {
+    for (const term of CREDIT_TERMS) {
+      if (seen.has(term)) continue;
+      if (l.includes(term)) {
+        found.push({ term, evidence: clip(l) });
+        seen.add(term);
+      }
+    }
+  }
+  return found;
+}
+
 /**
  * 공고문 하나에서 뽑아낼 수 있는 것을 전부 뽑습니다.
  * @param {string} text   본문
@@ -173,6 +199,7 @@ export function extractRequirements(text, tables) {
   const record = findRecord(ls);
   const rate = findRateLine(ls);
   const scoreTable = findScoreTable(tables);
+  const credits = findCredits(ls);
 
   return {
     region,        // { value:"부산광역시", evidence } | null
@@ -180,6 +207,7 @@ export function extractRequirements(text, tables) {
     record,        // { years, amount, evidence } | null
     rate,          // { tech, price, evidence } | null
     scoreTable,    // { items:[{name,score}], total } | null
+    credits,       // [{ term, evidence }] — 언급된 신인도 인증
     found: {
       region: !!region,
       industry: industry.length > 0,

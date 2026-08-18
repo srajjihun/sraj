@@ -163,6 +163,7 @@ async function main() {
         if (r.record?.amount) bits.push(`실적 ${Math.round(r.record.amount / 1e6)}백만`);
         if (r.rate) bits.push(`기술${r.rate.tech}:가격${r.rate.price}`);
         if (r.scoreTable) bits.push(`배점표 ${r.scoreTable.items.length}항목`);
+        if (r.credits?.length) bits.push(`신인도 ${r.credits.map((c) => c.term).join("·")}`);
         console.log(bits.length ? bits.join(" · ") : "읽었으나 자격·배점 문구를 못 찾음");
       } else {
         fail += 1;
@@ -181,6 +182,21 @@ async function main() {
   console.log(`       화면-새로고침.bat 을 실행하면 공고 카드에 반영됩니다.`);
   if (!company.filled) {
     console.log(`       config/회사정보.md 를 채우면 "우리가 들어갈 수 있는가"까지 판정합니다.`);
+  }
+
+  // 지금까지 읽은 전체(누적)에서 신인도 인증이 몇 번 나왔는지.
+  // "인증서류 뭐가 더 필요해?"에 추측이 아니라 실제 빈도로 답하기 위한 것입니다.
+  const tally = new Map();
+  let scored = 0;
+  for (const d of Object.values(store)) {
+    if (!d?.ok) continue;
+    scored += 1;
+    for (const c of d.credits ?? []) tally.set(c.term, (tally.get(c.term) ?? 0) + 1);
+  }
+  if (tally.size) {
+    const rows = [...tally.entries()].sort((a, b) => b[1] - a[1]);
+    console.log(`\n[신인도] 지금까지 읽은 공고문 ${scored}건 중 언급된 인증 (많은 순):`);
+    for (const [term, n] of rows) console.log(`       ${term} — ${n}건`);
   }
 }
 
