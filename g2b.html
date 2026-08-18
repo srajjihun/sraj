@@ -753,7 +753,7 @@ function predict(it){
     return {
       total: s.pct, self: true, blocked: !!s.blocked,
       why: s.blocked ? s.blockWhy : s.items.map(i => i.name + " " + i.got + "/" + i.score + " — " + i.why),
-      unknown: s.unknown, got: s.got, max: s.max, provisional: false,
+      unknown: s.unknown, unknownKinds: s.unknownKinds ?? [], got: s.got, max: s.max, provisional: false,
     };
   }
   const e = scoreEntry(it), r = scoreRecord(it), v = scoreEval(it);
@@ -919,7 +919,7 @@ const openUrl = it => it.url || it.files?.[0]?.url || "";
     const band = sc.total>=75?"s3":sc.total>=60?"s2":sc.total>=45?"s1":"s0";
     if(sc.self){
       const tip=`심사표 자가채점 — 정량 ${sc.max}점 중 ${sc.got}점`
-        + (sc.unknown?` · 채점 못한 정량 ${sc.unknown}점`:"")
+        + (sc.unknown?` · 채점 못한 정량 ${sc.unknown}점` + (sc.unknownKinds?.length ? `(${sc.unknownKinds.join("·")})` : ""):"")
         + (sc.why.length?`\n\n${sc.why.join("\n")}`:"");
       return `<span class="sc ${band} selfsc" title="${esc(tip)}"><span class="v">${sc.total}</span><small>%</small></span>`;
     }
@@ -1173,7 +1173,7 @@ function scoreBadge(it){
   const band = s.total >= 75 ? "s3" : s.total >= 60 ? "s2" : s.total >= 45 ? "s1" : "s0";
   if(s.self){
     const tip = `심사표 자가채점 — 정량 ${s.max}점 중 ${s.got}점`
-      + (s.unknown ? ` · 채점 못한 정량 ${s.unknown}점(경영상태·인력)` : "")
+      + (s.unknown ? ` · 채점 못한 정량 ${s.unknown}점` + (s.unknownKinds?.length ? `(${s.unknownKinds.join("·")})` : "") : "")
       + `\n정성평가와 가격평가는 뺐습니다 (제안서를 써봐야 알고, 공고끼리 비교값이 아닙니다)`
       + (s.why.length ? `\n\n${s.why.join("\n")}` : "");
     return `<span class="sc ${band} selfsc" title="${esc(tip)}">`

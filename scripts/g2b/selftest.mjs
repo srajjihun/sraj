@@ -346,5 +346,51 @@ function buildZip(files) {
   check("DOCX 배점표를 알아본다", req.scoreTable?.items?.length === 2, JSON.stringify(req.scoreTable?.items));
 }
 
+/* ⑥ 심사표 항목 분류 — 교차 검증에서 확인된 결함 세 가지를 그대로 시험합니다.
+   전에는 2열짜리 표만 시험해서 이 경우들을 하나도 못 잡았습니다(통과 27인데
+   무의미했습니다). 실제 협상에의한계약 심사표는 "세부 배점기준" 열이 붙고
+   소계·합계 행이 들어갑니다. */
+{
+  const { extractRequirements } = await import("./lib/require.mjs");
+  const { selfScore } = await import("./lib/selfscore.mjs");
+
+  const grid = [
+    ["평가부문", "평가항목", "배점", "세부 배점기준"],
+    ["정량적 평가", "유사용역 수행실적", "10", "최근 3년간 5억원 이상 10점, 3억원 이상 8점, 1억원 이상 6점"],
+    ["정량적 평가", "참여인력 구성", "15", "참여인력의 동종 용역 수행실적 및 자격증 보유 현황"],
+    ["정량적 평가", "경영상태", "10", "기업신용평가등급 AAA 이상 만점 · 최근 3년 경영실적 반영"],
+    ["정량적 평가", "지역업체 참여도", "5", "관내 소재 업체 참여 시 가점"],
+    ["정량적 평가", "신인도", "5", "최근 3년간 계약이행 실적 관련 제재 없을 것"],
+    ["정량적 평가", "소 계", "45", ""],
+    ["정성적 평가", "사업이해도 및 제안내용의 적정성", "45", ""],
+    ["가격", "입찰가격", "10", ""],
+    ["합 계", "합 계", "100", ""],
+  ];
+  const req = extractRequirements("", [{ grid }]);
+  const kinds = Object.fromEntries((req.scoreTable?.items ?? []).map((i) => [i.name.split(" / ").pop(), i.kind]));
+
+  check("세부기준의 '경영실적' 에 끌려가지 않는다", kinds["경영상태"] === "경영", JSON.stringify(kinds["경영상태"]));
+  check("세부기준의 '수행실적' 에 끌려가지 않는다", kinds["참여인력 구성"] === "인력", JSON.stringify(kinds["참여인력 구성"]));
+  check("세부기준의 '실적' 에 끌려가지 않는다(신인도)", kinds["신인도"] === "신인도", JSON.stringify(kinds["신인도"]));
+  check("'가점' 이 붙어도 지역은 지역이다", kinds["지역업체 참여도"] === "지역", JSON.stringify(kinds["지역업체 참여도"]));
+  check("실적 항목은 실적이다", kinds["유사용역 수행실적"] === "실적", JSON.stringify(kinds["유사용역 수행실적"]));
+  check("정성·가격도 제자리", kinds["입찰가격"] === "가격" && kinds["사업이해도 및 제안내용의 적정성"] === "정성",
+        JSON.stringify([kinds["입찰가격"], kinds["사업이해도 및 제안내용의 적정성"]]));
+  check("소계·합계 행은 항목이 아니다", (req.scoreTable?.items ?? []).length === 7, `${req.scoreTable?.items?.length}개`);
+  check("총점이 부풀지 않는다", req.scoreTable?.total === 100, `${req.scoreTable?.total}`);
+
+  // 자가채점까지 이어서 — 채점 못하는 항목이 실적으로 지어내지지 않아야 합니다.
+  const company = { region: "서울특별시", maxRecord: 8e8, certs: ["벤처기업"], directProduce: ["기타행사기획및대행서비스"] };
+  const s = selfScore({ scoreTable: req.scoreTable, credits: [{ term: "여성기업" }, { term: "벤처기업" }, { term: "직접생산확인" }], region: null, directItems: null }, company, 3e8);
+  check("채점 대상은 실적·신인도뿐 (지역은 요구지역 미상이라 제외)", s.max === 15, `max=${s.max}`);
+  // 인력 15 + 경영 10 + 지역 5(요구 지역을 못 읽었으므로) = 30.
+  // 지역도 미확인으로 가는 것이 맞습니다 — 어디를 요구하는지 모르면 채점할 수 없습니다.
+  check("채점 못하는 항목은 미확인으로 빠진다", s.unknown === 30, `unknown=${s.unknown}`);
+  check("실적은 등급표대로 만점", s.items.find((i) => i.kind === "실적")?.got === 10,
+        JSON.stringify(s.items.find((i) => i.kind === "실적")));
+  check("신인도는 보유 비율", Math.abs((s.items.find((i) => i.kind === "신인도")?.got ?? 0) - 3.3) < 0.1,
+        JSON.stringify(s.items.find((i) => i.kind === "신인도")));
+}
+
 console.log(`\n[자체점검] 통과 ${pass} · 실패 ${fail}`);
 if (fail) process.exitCode = 1;

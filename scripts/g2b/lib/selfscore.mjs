@@ -115,17 +115,20 @@ export function selfScore(doc, company, budget) {
   let got = 0;
   let max = 0;
   let unknown = 0;
+  // 무엇을 못 채점했는지도 남깁니다. 화면에 "경영상태·인력" 이라고 고정으로
+  // 박아 두었더니 지역이 미확인일 때도 그 문구가 나왔습니다 — 사실이 아닙니다.
+  const unknownKinds = new Set();
 
   for (const it of table.items) {
     if (EXCLUDED.has(it.kind)) continue;
-    if (!SCORABLE.has(it.kind)) { unknown += it.score; continue; }
+    if (!SCORABLE.has(it.kind)) { unknown += it.score; unknownKinds.add(it.kind); continue; }
 
     const r =
       it.kind === "실적" ? scoreRecord(it, company, budget)
       : it.kind === "신인도" ? scoreCredit(it, company, doc.credits)
       : scoreRegion(it, company, doc.region);
 
-    if (r.got === null) { unknown += it.score; continue; }
+    if (r.got === null) { unknown += it.score; unknownKinds.add(it.kind); continue; }
     got += r.got;
     max += it.score;
     items.push({ name: it.name, kind: it.kind, score: it.score, got: r.got, why: r.why });
@@ -139,6 +142,7 @@ export function selfScore(doc, company, budget) {
     got: Math.round(got * 10) / 10,
     max,
     unknown,
+    unknownKinds: [...unknownKinds],
     items,
     blocked,
     blockWhy,

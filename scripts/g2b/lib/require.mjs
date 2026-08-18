@@ -156,20 +156,54 @@ function findRateLine(ls) {
    정성평가(사업이해도·제안내용)는 제안서를 써봐야 아는 것이라 지금은 채점할 수
    없고, 가격평가는 우리가 얼마를 쓰느냐에 달린 것이라 공고끼리 비교할 값이
    아닙니다. 그래서 항목을 갈라 두고 채점 가능한 것만 씁니다. */
+/* 목록의 순서가 곧 우선순위입니다(먼저 걸리는 것이 이깁니다).
+   처음에는 "실적"이 맨 위에 있었는데, 그러면 넓은 낱말이 좁은 항목을 통째로
+   삼킵니다. 실제로 이렇게 틀렸습니다:
+     "참여인력 구성" + 세부기준 "참여인력의 동종 용역 수행실적…" → 실적으로 분류
+     "경영상태"     + 세부기준 "최근 3년 경영실적 반영"          → 실적으로 분류
+   그러면 채점할 수 없는 항목(인력·경영)에 회사 실적으로 점수가 매겨집니다.
+   근거 없는 숫자를 지어내는 것이라, 이 시스템에서 제일 하면 안 되는 일입니다.
+   그래서 좁고 분명한 것부터 놓고, 가장 넓은 "실적"을 맨 뒤로 뺐습니다.
+
+   "가점·우대·인증"도 신인도 규칙에서 뺐습니다. 지역 항목에도 실적 항목에도
+   붙는 말이라("지역업체 참여 가점"), 그것만으로는 신인도라고 볼 수 없습니다.
+   신인도는 "신인도" 라는 말이나 실제 인증 이름으로만 판정합니다. */
 const ITEM_KIND = [
-  ["실적",   /실적|수행경험|유사용역|수행건수|납품실적/],
-  ["신인도", /신인도|가점|우대|인증|여성기업|장애인기업|사회적기업|벤처기업|직접생산/],
-  ["인력",   /인력|조직|참여\s?기술|투입\s?인?력|전문가|인적/],
-  ["경영",   /경영\s?상태|재무|신용\s?평가|기업\s?신용|자본|부채/],
-  ["지역",   /지역\s?업체|관내\s?업체|지역\s?참여|본사\s?소재/],
   ["가격",   /가격|입찰\s?금액|견적/],
-  ["정성",   /이해도|제안|계획|적정성|창의|전략|방안|구성|타당|우수성|충실|기대효과|아이디어|콘셉트|연출/],
+  ["정성",   /이해도|제안\s?내용|제안서|계획|적정성|창의|전략|방안|타당|우수성|충실|기대효과|아이디어|콘셉트|연출/],
+  ["지역",   /지역\s?업체|관내\s?업체|지역\s?참여|지역\s?기여|본사\s?소재|소재지/],
+  ["경영",   /경영\s?상태|재무|신용\s?평가|기업\s?신용|신용\s?등급|자본|부채/],
+  ["인력",   /인력|조직|참여\s?기술|투입|전문가|인적/],
+  ["신인도", /신인도|여성기업|장애인기업|사회적기업|사회적경제|벤처기업|이노비즈|메인비즈|직접생산|기업부설\s?연구소|ISO\s?\d{4,5}/],
+  ["실적",   /실적|수행경험|유사용역|수행건수|납품실적/],
 ];
 
-function kindOf(name) {
+/* 항목 이름으로 먼저 판정하고, 이름만으로 못 정할 때만 세부기준을 봅니다.
+   예전에는 이름과 세부기준을 붙여서 한꺼번에 봤는데, 그러면 이름이 분명한
+   항목("경영상태")도 세부기준 문장 한 낱말("경영실적")에 끌려갑니다.
+   이름은 그 항목이 무엇인지를 적은 것이고, 세부기준은 어떻게 채점하는지를
+   적은 것이라 이름이 더 믿을 만합니다. */
+function kindOf(name, detail = "") {
   for (const [kind, re] of ITEM_KIND) if (re.test(name)) return kind;
+  if (detail) for (const [kind, re] of ITEM_KIND) if (re.test(detail)) return kind;
   return "기타";
 }
+
+/* 합계·소계 행은 배점 항목이 아닙니다.
+   안 거르면 그 행이 항목으로 들어가 총점이 두세 배로 부풀고("채점 못한 정량
+   125점" — 표 전체가 100점인데), 배점 합이 90~110 범위를 벗어나 표 자체를
+   못 알아보기도 합니다. 같은 저장소의 credits.mjs 도 이미 같은 낱말을
+   걸러내고 있습니다 — 실제 공고문에 이런 행이 들어온다는 뜻입니다. */
+const SUMMARY_ROW = /^\s*(합\s*계|소\s*계|총\s*계|중\s*계|계|총\s*점|비\s*고)\s*$/;
+/* 이름은 상위 칸까지 붙여 만듭니다("정량적 평가 / 소 계"). 그래서 전체가
+   합계 낱말인지 보면 안 되고, 가장 마지막(가장 구체적인) 칸으로 판정해야
+   합니다. 처음에 every 로 검사했더니 소계 행이 그대로 새어 총점이 145가
+   됐습니다(표는 100점). */
+const isSummaryRow = (name) => {
+  const parts = String(name ?? "").split("/").map((p) => p.trim()).filter(Boolean);
+  if (!parts.length) return false;
+  return SUMMARY_ROW.test(parts[parts.length - 1]);
+};
 
 /* 세부 배점 기준에서 등급을 뽑습니다. 실측 표기:
      "최근 3년간 유사용역 5억원 이상 10점, 3억원 이상 8점, 1억원 이상 6점"
@@ -209,24 +243,27 @@ function findScoreTable(tables) {
 
     // 배점처럼 보이는 열을 찾습니다 — 숫자만 든 칸이 많은 열
     for (let c = 1; c < width; c += 1) {
-      const vals = grid.slice(1).map((r) => (r[c] ?? "").trim());
-      const nums = vals.map((v) => (/^\d{1,3}(\.\d+)?$/.test(v) ? Number(v) : null));
-      const filled = nums.filter((n) => n !== null);
-      if (filled.length < 2) continue;
-      const sum = filled.reduce((a, b) => a + b, 0);
+      // 합계·소계 행은 배점에서도 항목에서도 뺍니다(총점이 부풀지 않도록).
+      const rows = grid.slice(1).map((r) => {
+        const name = (r.slice(0, c).filter(Boolean).join(" / ") || "").trim();
+        const v = (r[c] ?? "").trim();
+        const score = /^\d{1,3}(\.\d+)?$/.test(v) ? Number(v) : null;
+        return { r, name, score, summary: isSummaryRow(name) };
+      });
+      const scored = rows.filter((x) => x.score !== null && !x.summary);
+      if (scored.length < 2) continue;
+      const sum = scored.reduce((a, x) => a + x.score, 0);
       const header = (grid[0][c] ?? "").trim();
       const looksLikeScore = /배점|점수|평점|가중치/.test(header) || (sum >= 90 && sum <= 110);
       if (!looksLikeScore) continue;
 
-      const items = grid
-        .slice(1)
-        .map((r, i) => {
-          const name = (r.slice(0, c).filter(Boolean).join(" / ") || "").trim();
+      const items = scored
+        .map(({ r, name, score }) => {
           // 세부 배점 기준은 보통 배점 열 뒤에, 없으면 항목 이름 칸에 같이 적힙니다.
           const detail = [...r.slice(c + 1), name].filter(Boolean).join(" ").trim();
-          return { name, score: nums[i], kind: kindOf(name + " " + detail), tiers: parseTiers(detail) };
+          return { name, score, kind: kindOf(name, detail), tiers: parseTiers(detail) };
         })
-        .filter((x) => x.name && x.score !== null);
+        .filter((x) => x.name);
       if (!items.length) continue;
 
       const cand = { items, total: sum, column: header || "배점", rows: grid };
