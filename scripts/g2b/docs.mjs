@@ -144,6 +144,10 @@ async function main() {
   const RETRYABLE = /^(zip|ole|unknown|hwp|pdf|docx|hwpx)$/;
   const needsRetry = (d) => {
     if ((d.v ?? 0) < VERSION) return true;
+    // 직접생산확인을 요구하는데 품목 이름이 없는 건 — 예전 방식은 한 줄만
+    // 봐서 153건 중 63건이 이름 미상이었습니다. 품목을 모르면 우리가 들어갈
+    // 수 있는지 판단이 안 되므로 이 건들은 다시 읽습니다.
+    if (d.ok && !d.directItems && (d.credits ?? []).some((c) => c.term === "직접생산확인")) return true;
     if ((d.tries ?? 1) >= 2) return false;
     return (d.kinds ?? []).some((k) => k.note && RETRYABLE.test(k.kind ?? ""));
   };
@@ -191,6 +195,7 @@ async function main() {
         if (r.rate) bits.push(`기술${r.rate.tech}:가격${r.rate.price}`);
         if (r.scoreTable) bits.push(`배점표 ${r.scoreTable.items.length}항목`);
         if (r.credits?.length) bits.push(`신인도 ${r.credits.map((c) => c.term).join("·")}`);
+        if (r.directItems?.length) bits.push(`직생품목 ${r.directItems.map((i) => i.name).join("·")}`);
         console.log(bits.length ? bits.join(" · ") : "읽었으나 자격·배점 문구를 못 찾음");
       } else {
         fail += 1;

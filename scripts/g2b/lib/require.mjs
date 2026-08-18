@@ -226,6 +226,79 @@ const CREDIT_TERMS = [
   { term: "ISO45001", re: /ISO\s?45001|안전보건\s?경영/i },
 ];
 
+
+/* 직접생산확인 "품목" 뽑기.
+   직접생산확인은 회사 단위가 아니라 품목 단위로 받습니다. 그래서 공고가
+   요구하는 품목 이름을 알아야 우리가 실제로 들어갈 수 있는지 판단됩니다.
+
+   자유롭게 찾으면 양쪽으로 틀립니다. 붙여쓴 덩어리만 찾으면
+   「행사기획 및 대행서비스」에서 앞이 잘려 "대행서비스"가 되고, 공백을
+   허용하면 "본 용역은 축제기획및…"처럼 앞 낱말까지 삼킵니다.
+   그래서 품목 이름에 실제로 쓰이는 낱말만 목록으로 두고 "서비스"에서
+   거꾸로 훑습니다. 목록에 없는 낱말을 만나면 멈춥니다.
+   목록에 없는 품목은 못 찾겠지만, 없는 것을 지어내지는 않습니다. */
+const ITEM_PARTS = [
+  "전시홍보관", "기타행사", "국제행사", "전시부스", "동영상", "박람회", "전시회",
+  "홍보관", "이벤트", "시상식", "디자인", "마케팅", "축제", "행사", "회의", "전시",
+  "국제", "기타", "부스", "설치", "제작", "광고", "인쇄", "운영", "공연", "대행",
+  "기획", "영상", "홍보", "및",
+].sort((a, b) => b.length - a.length);
+
+// 앞이 잘려 뜻이 없어진 이름들. 세면 오히려 판단을 흐립니다.
+const GENERIC_ITEM = /^(대행|운영|기획|제작|관리|위탁)?서비스$/;
+
+export function itemNames(line) {
+  const out = [];
+  let at = -1;
+  while ((at = String(line).indexOf("서비스", at + 1)) >= 0) {
+    const chunks = [];
+    let end = at;
+    for (let guard = 0; guard < 8; guard += 1) {
+      let j = end;
+      while (j > 0 && /\s/.test(line[j - 1])) j -= 1;
+      const part = ITEM_PARTS.find((v) => j >= v.length && line.slice(j - v.length, j) === v);
+      if (!part) break;
+      chunks.unshift(part);
+      end = j - part.length;
+    }
+    if (!chunks.length) continue;
+    const name = chunks.join("") + "서비스";
+    if (!GENERIC_ITEM.test(name)) out.push(name);
+  }
+  return [...new Set(out)];
+}
+
+/**
+ * 공고문 전체에서 직접생산확인 품목을 모읍니다. 근거 줄을 같이 남깁니다.
+ *
+ * 같은 줄만 보면 안 됩니다. 실제 공고문은 이렇게 줄이 나뉩니다:
+ *   가. 중소기업자간 경쟁제품에 해당하므로
+ *   「축제기획 및 대행서비스」
+ *   직접생산확인증명서를 보유한 업체에 한합니다.
+ * 품목 이름과 "직접생산"이 다른 줄에 있어서, 한 줄만 보던 방식으로는
+ * 153건 중 63건(41%)이 "이름 미상"으로 남았습니다.
+ * 그래서 "직접생산"이 든 줄의 앞뒤 두 줄까지 함께 봅니다.
+ */
+const ITEM_WINDOW = 2;
+
+function findDirectItems(ls) {
+  const out = [];
+  const seen = new Set();
+  for (let i = 0; i < ls.length; i += 1) {
+    if (!/직접생산/.test(ls[i])) continue;
+    const from = Math.max(0, i - ITEM_WINDOW);
+    const to = Math.min(ls.length - 1, i + ITEM_WINDOW);
+    for (let j = from; j <= to; j += 1) {
+      for (const name of itemNames(ls[j])) {
+        if (seen.has(name)) continue;
+        seen.add(name);
+        out.push({ name, evidence: clip(ls[j] === ls[i] ? ls[i] : `${ls[j]} … ${ls[i]}`) });
+      }
+    }
+  }
+  return out;
+}
+
 /** 공고문에 언급된 신인도 가점 인증들. 근거 문장을 같이 남깁니다. */
 function findCredits(ls) {
   const found = [];
@@ -255,6 +328,7 @@ export function extractRequirements(text, tables) {
   const rate = findRateLine(ls);
   const scoreTable = findScoreTable(tables);
   const credits = findCredits(ls);
+  const directItems = findDirectItems(ls);
 
   return {
     region,        // { value:"부산광역시", evidence } | null
@@ -263,6 +337,7 @@ export function extractRequirements(text, tables) {
     rate,          // { tech, price, evidence } | null
     scoreTable,    // { items:[{name,score}], total } | null
     credits,       // [{ term, evidence }] — 언급된 신인도 인증
+    directItems,   // [{ name, evidence }] — 직접생산확인 요구 품목
     found: {
       region: !!region,
       industry: industry.length > 0,

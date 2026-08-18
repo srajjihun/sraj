@@ -18,6 +18,7 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { loadCompany } from "./lib/company.mjs";
+import { itemNames } from "./lib/require.mjs";
 
 const DATA = new URL("../../data/g2b/", import.meta.url);
 
@@ -154,54 +155,19 @@ async function main() {
      그래서 확정이 아니라 단서로 보여줍니다. */
   const ours = new Set((company.directProduce ?? []).map(norm));
 
-  /* 품목 이름 뽑기.
-     처음에는 한글이 죽 붙은 덩어리(/[가-힣]{2,20}서비스/)만 찾았습니다.
-     그랬더니 「행사기획 및 대행서비스」처럼 띄어쓰기가 든 이름에서 앞이
-     잘려 "대행서비스 27건 70.7억" 이라는 가짜 1위가 만들어졌습니다.
-     공백을 허용하도록 넓혀 봤더니 이번엔 "본 용역은 축제기획및대행서비스"
-     에서 "용역은축제기획및…" 처럼 앞 낱말까지 빨려 들어갔습니다.
-
-     그래서 자유롭게 찾지 않고, 품목 이름에 실제로 쓰이는 낱말만 목록으로
-     두고 "서비스" 에서 거꾸로 훑습니다. 목록에 없는 낱말을 만나면 멈춥니다.
-     목록에 없는 품목은 못 찾겠지만, 없는 것을 지어내지는 않습니다. */
-  const PARTS = [
-    "전시홍보관", "기타행사", "국제행사", "전시부스", "동영상", "박람회", "전시회",
-    "홍보관", "이벤트", "시상식", "디자인", "마케팅", "축제", "행사", "회의", "전시",
-    "국제", "기타", "부스", "설치", "제작", "광고", "인쇄", "운영", "공연", "대행",
-    "기획", "영상", "홍보", "및",
-  ].sort((a, b) => b.length - a.length);
-
-  // 앞이 잘려 뜻이 없어진 이름들. 세면 오히려 판단을 흐립니다.
-  const GENERIC = /^(대행|운영|기획|제작|관리|위탁)?서비스$/;
-
-  function itemNames(line) {
-    const out = [];
-    let at = -1;
-    while ((at = line.indexOf("서비스", at + 1)) >= 0) {
-      const chunks = [];
-      let end = at;
-      for (let guard = 0; guard < 8; guard += 1) {
-        let j = end;
-        while (j > 0 && /\s/.test(line[j - 1])) j -= 1;
-        const part = PARTS.find((v) => j >= v.length && line.slice(j - v.length, j) === v);
-        if (!part) break;
-        chunks.unshift(part);
-        end = j - part.length;
-      }
-      if (!chunks.length) continue;
-      const name = chunks.join("") + "서비스";
-      if (!GENERIC.test(name)) out.push(name);
-    }
-    return [...new Set(out)];
-  }
-
+  /* 품목 이름은 공고문을 읽는 시점(require.mjs)에 본문 전체를 보고 뽑아
+     docs.json 에 저장합니다. 리포트는 그것을 씁니다.
+     아직 다시 읽지 않은 옛 기록에는 그 값이 없어서, 그때는 예전처럼
+     저장된 근거 줄에서 뽑습니다(그쪽은 이름 미상이 많이 남습니다). */
   const items = new Map();
   let noName = 0;
   for (const [bidNo, d] of read) {
-    const ev = (d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence;
-    if (!ev) continue;
+    const hasDirect = (d.credits ?? []).some((c) => c.term === "직접생산확인");
+    if (!hasDirect) continue;
     const b = budget.get(bidNo) ?? 0;
-    const names = itemNames(ev);
+    const names = d.directItems
+      ? d.directItems.map((i) => i.name)
+      : itemNames((d.credits ?? []).find((c) => c.term === "직접생산확인")?.evidence ?? "");
     for (const name of names) {
       const cur = items.get(name) ?? { n: 0, list: [] };
       cur.n += 1;
@@ -233,7 +199,7 @@ async function main() {
       console.log(`\n  → 없는 품목 ${gap.length}종, 합쳐서 ${gap.reduce((a, r) => a + r.n, 0)}건`);
     }
     if (noName) {
-      console.log(`  → 품목 이름을 못 뽑은 공고 ${noName}건 (원문 한 줄만 저장해서 이름이 다른 줄에 있는 경우)`);
+      console.log(`  → 품목 이름을 못 뽑은 공고 ${noName}건 (공고문-분석.bat 을 한 번 더 돌리면 줄어듭니다)`);
     }
   }
   console.log(`\n  우리 보유 품목: ${(company.directProduce ?? []).join(", ") || "(없음)"}`);
