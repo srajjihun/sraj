@@ -387,6 +387,15 @@ svg{display:block; width:100%}
   .side{position:static; height:auto; flex-direction:row; align-items:center; overflow-x:auto; padding:10px 14px}
   .brand{padding:0 10px 0 0}
   .nav{flex-direction:row; gap:3px}
+  /* 가로줄로 바뀐 메뉴는 줄바꿈도 찌그러짐도 없어야 합니다.
+     이게 없으면 각 링크가 min-content 까지 눌리는데, 한글은 어디서나 줄바꿈이
+     돼서 min-content 가 "한 글자 폭"입니다. 그래서 "대시보드" 가 대/시/보/드
+     네 줄로 세로로 쌓이고 메뉴 높이가 40px → 152px 이 됐습니다.
+     아이콘에만 flex-shrink:0 이 걸려 있어 아이콘은 멀쩡하고 글자만 무너졌습니다.
+     이걸 막아야 .side 의 overflow-x:auto 가 원래 의도대로(가로로 미는 띠)
+     동작합니다 — 눌려 있는 동안에는 폭이 안 넘쳐 스크롤조차 안 생겼습니다. */
+  .nav a{white-space:nowrap; flex-shrink:0}
+  .brand-name{white-space:nowrap}
   .nav .split,.side-foot,.brand-sub{display:none}
   .vizgrid{grid-template-columns:1fr}
   .qrow{grid-template-columns:1fr; gap:2px}
@@ -429,7 +438,8 @@ table.prof .sub2{font-size:12.5px; color:var(--ink-3); font-weight:600}
 }
 .sheetcard h3{font-size:16.5px; font-weight:750; line-height:1.45; letter-spacing:-.01em; margin:8px 0 10px}
 .sh-top{display:flex; align-items:center; gap:8px}
-.sh-due{margin-left:auto; font-size:13.5px; font-weight:800; color:var(--ink-2)}
+/* 좁은 화면에서 "D-18" 이 D- 와 18 로 갈라져 두 줄에 찍혔습니다. */
+.sh-due{margin-left:auto; font-size:13.5px; font-weight:800; color:var(--ink-2); white-space:nowrap}
 .sh-due.hot{color:var(--stop)}
 .sh-tb{width:100%; border-collapse:collapse; font-size:14.5px}
 .sh-tb th{
