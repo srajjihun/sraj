@@ -35,6 +35,7 @@ const OUT = new URL("docs.json", DATA_DIR);
 // 막혀 HWP 를 못 읽은 100건이 전부 "읽음"으로 저장돼 있었습니다.
 //   1 → 최초
 //   2 → HWP 를 한글 없이 직접 읽음 / 업종 오탐(나라장터 상투문구) 제거
+//   (그 뒤로는 실패한 건만 골라 다시 읽습니다 — needsRetry 참고)
 const VERSION = 2;
 
 const DEFAULT_LIMIT = 20;
@@ -134,9 +135,19 @@ async function main() {
   const byBudget = (a, b) => (b.budget ?? b.price ?? 0) - (a.budget ?? a.price ?? 0);
   const withFiles = items.filter((it) => it.bidNo && (it.files ?? []).length);
   const fresh = withFiles.filter((it) => !store[it.bidNo]).sort(byBudget);
-  const stale = withFiles
-    .filter((it) => store[it.bidNo] && (store[it.bidNo].v ?? 0) < VERSION)
-    .sort(byBudget);
+  // 다시 읽을 대상 고르기.
+  //   ① 해석기 판이 올라갔거나
+  //   ② 지난번에 못 읽은 형식이 이번에 읽을 수 있게 된 경우
+  // 판(VERSION)만 기준으로 하면 잘 읽힌 380건까지 통째로 다시 받게 됩니다.
+  // 실제로 필요한 건 실패한 30여 건뿐이라, 그것만 골라 시간을 아낍니다.
+  // 다만 배포용·암호 문서처럼 영영 못 읽는 것도 있어서 두 번까지만 시도합니다.
+  const RETRYABLE = /^(zip|ole|unknown|hwp|pdf|docx|hwpx)$/;
+  const needsRetry = (d) => {
+    if ((d.v ?? 0) < VERSION) return true;
+    if ((d.tries ?? 1) >= 2) return false;
+    return (d.kinds ?? []).some((k) => k.note && RETRYABLE.test(k.kind ?? ""));
+  };
+  const stale = withFiles.filter((it) => store[it.bidNo] && needsRetry(store[it.bidNo])).sort(byBudget);
 
   // 다시 읽을 자리를 따로 떼어 둡니다.
   //   처음에는 "안 읽은 것 먼저, 남으면 다시 읽기"로 했는데, 안 읽은 공고가
@@ -169,7 +180,8 @@ async function main() {
     process.stdout.write(`  ${String(it.title).slice(0, 34).padEnd(34)} … `);
     try {
       const r = await analyze(it, workDir);
-      store[it.bidNo] = { ...r, v: VERSION, title: it.title, org: it.org, at: new Date().toISOString() };
+      const tries = (store[it.bidNo]?.tries ?? 0) + 1;
+      store[it.bidNo] = { ...r, v: VERSION, tries, title: it.title, org: it.org, at: new Date().toISOString() };
       if (r.ok) {
         ok += 1;
         const bits = [];
@@ -186,7 +198,8 @@ async function main() {
       }
     } catch (err) {
       fail += 1;
-      store[it.bidNo] = { ok: false, v: VERSION, note: err.message, title: it.title, at: new Date().toISOString() };
+      const tries = (store[it.bidNo]?.tries ?? 0) + 1;
+      store[it.bidNo] = { ok: false, v: VERSION, tries, note: err.message, title: it.title, at: new Date().toISOString() };
       console.log(`실패: ${err.message}`);
     }
     await saveJson(OUT, store); // 중간에 멈춰도 읽은 것은 남습니다

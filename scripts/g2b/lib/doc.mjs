@@ -12,6 +12,7 @@ import { parseHwpx } from "./hwpx.mjs";
 import { parseHwp } from "./hwp.mjs";
 import { parseDocx } from "./docx.mjs";
 import { extractPdfText } from "./pdf.mjs";
+import { readZip } from "./zip.mjs";
 
 const PS1 = fileURLToPath(new URL("../hancom.ps1", import.meta.url));
 
@@ -68,6 +69,45 @@ export async function hancomReady() {
  */
 export async function readDocument(buf, opts = {}) {
   const kind = sniff(buf);
+
+  if (kind === "zip") {
+    // 나라장터에는 공고문 여러 개를 압축해 하나로 올리는 기관이 있습니다.
+    // 실측으로 13건이 "형식을 알 수 없습니다"로 버려지고 있었습니다.
+    // 압축을 풀어 안에 든 문서를 그대로 같은 방법으로 읽습니다.
+    if ((opts.depth ?? 0) >= 2) {
+      return { kind, ok: false, text: "", tables: [], note: "압축 안에 또 압축이 겹쳐 있습니다" };
+    }
+    let inner;
+    try {
+      inner = readZip(buf).filter((e) => !e.name.endsWith("/"));
+    } catch (err) {
+      return { kind, ok: false, text: "", tables: [], note: `압축을 풀지 못했습니다: ${err.message}` };
+    }
+    if (!inner.length) return { kind, ok: false, text: "", tables: [], note: "압축이 비어 있습니다" };
+
+    // 공고문일 가능성이 높은 것부터 봅니다(docs.mjs 의 rankFiles 와 같은 기준).
+    const rank = (n) =>
+      /제안요청|과업지시|과업내용|입찰공고|공고문|규격서/.test(n) ? 0
+      : /산출|내역|서약|청렴|양식|서식|위임|증명/.test(n) ? 3
+      : 1;
+    inner.sort((a, b) => rank(a.name) - rank(b.name));
+
+    let best = null;
+    for (const e of inner.slice(0, 5)) {
+      let sub;
+      try {
+        sub = await readDocument(e.read(), { ...opts, depth: (opts.depth ?? 0) + 1 });
+      } catch {
+        continue;
+      }
+      if (!sub.ok || !sub.text) continue;
+      if (!best || sub.text.length > best.text.length) best = sub;
+    }
+    if (!best) {
+      return { kind, ok: false, text: "", tables: [], note: "압축 안에서 읽을 수 있는 문서를 못 찾았습니다" };
+    }
+    return { kind: `zip>${best.kind}`, ok: true, text: best.text, tables: best.tables, note: "" };
+  }
 
   if (kind === "hwpx") {
     try {
