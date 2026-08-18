@@ -51,7 +51,15 @@ if errorlevel 1 (
 )
 
 rem checkout -B forces the local branch to FETCH_HEAD and switches to it.
-git checkout -B %BR% FETCH_HEAD
+rem -f matters: the refresh .bat unpacks a ZIP over this folder, so files
+rem that are tracked here can sit in the working tree as UNTRACKED copies
+rem when the clone is parked on an older branch. Plain checkout refuses to
+rem overwrite those ("untracked working tree files would be overwritten")
+rem and the clone stays stuck on the wrong branch forever. -f overwrites
+rem them. It cannot lose the user's own files: config\ company info,
+rem data\g2b\ and g2b-live.html are gitignored, and git leaves ignored
+rem files alone.
+git checkout -f -B %BR% FETCH_HEAD
 if errorlevel 1 (
   %SAY% pull-resetfail
   exit /b 1
