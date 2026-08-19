@@ -435,5 +435,34 @@ function buildZip(files) {
   check("근거에 실제 건수가 적힌다", /\d+건/.test(got?.why ?? ""), got?.why);
 }
 
+/* ⑧ 키워드 설정 — 안내문이 키워드로 새어 들어가지 않는지.
+      g2b-keywords.md 는 설명과 항목이 한 파일에 섞여 있습니다. 설명 한 줄이
+      키워드 목록에 섞이면 조용히 잘못된 판정을 하므로 여기서 막습니다. */
+{
+  const { loadKeywords, matchGroups, excludedBy } = await import("./lib/keywords.mjs");
+  const cfg = await loadKeywords();
+  const all = [...Object.values(cfg.groups).flat(), ...cfg.exclude, ...cfg.allow, ...cfg.kwAllow];
+  const 긴것 = all.filter((w) => w.length > 20);
+  const 설명 = all.filter((w) => /^(예|참고|주의)\s*[:：]/.test(w) || / .* .* /.test(w));
+  check("설명문이 항목으로 새지 않는다", 긴것.length === 0 && 설명.length === 0,
+        [...긴것, ...설명].join(" | "));
+  check("여섯 분야가 다 있다", Object.keys(cfg.groups).length === 6, Object.keys(cfg.groups).join(","));
+
+  // 실제로 문제였던 판정들이 지금도 맞는지 (문서 docs/키워드-기준.md 의 근거)
+  const g = (t) => matchGroups({ title: t }, cfg);
+  const ex = (t) => excludedBy({ title: t }, cfg);
+  check("수집 예외: 직무역량 안의 무역은 무시한다", !g("직무역량 강화 교육 용역").includes("수출·해외진출"),
+        g("직무역량 강화 교육 용역").join(","));
+  check("진짜 무역 공고는 그대로 잡는다", g("무역사절단 파견 대행 용역").includes("수출·해외진출"));
+  check("우선순위: 수출이 마케팅보다 먼저", g("수출마케팅 협력사업(무역사절단)")[0] === "수출·해외진출",
+        g("수출마케팅 협력사업(무역사절단)").join(","));
+  check("제외 예외: 기관명 안의 공사는 봐준다", !ex("한국도로공사 SNS 홍보 용역").includes("공사"),
+        ex("한국도로공사 SNS 홍보 용역").join(","));
+  check("진짜 공사는 그대로 막는다", ex("청사 리모델링 공사").includes("공사"));
+  check("제외 해제: 창업 맥락의 제작은 살린다", !ex("로컬창업 아이디어 시제품 제작 지원").includes("제작"),
+        ex("로컬창업 아이디어 시제품 제작 지원").join(","));
+  check("맥락 없는 제작은 그대로 막는다", ex("기관 홍보 브로슈어 제작 용역").includes("제작"));
+}
+
 console.log(`\n[자체점검] 통과 ${pass} · 실패 ${fail}`);
 if (fail) process.exitCode = 1;

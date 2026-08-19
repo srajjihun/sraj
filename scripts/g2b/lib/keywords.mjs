@@ -46,6 +46,11 @@ export async function loadKeywords(path = CONFIG_PATH) {
     // 설명 문단(문장형 줄)은 건너뜁니다 — 항목은 짧은 토큰 위주라
     // "합니다/됩니다" 같은 서술이 있으면 안내문으로 간주합니다.
     if (/[.。]$|합니다|됩니다|적용|형식:/.test(line)) continue;
+    if (/^(예|참고|주의)\s*[:：]/.test(line)) continue; // "예: ..." 로 시작하는 설명
+    // 항목은 짧습니다(가장 긴 것이 8글자). 설명문이 서술어 없이 끝나면 위 규칙을
+    // 빠져나가므로 길이로 한 번 더 막습니다. "제외 해제"는 한 줄에 여러 단어를
+    // 적는 형식이라 이 검사에서 뺍니다.
+    if (section !== "release" && line.length > 20) continue;
 
     if (section === "collect" && currentGroup) groups[currentGroup].push(line);
     else if (section === "exclude") exclude.push(line);
