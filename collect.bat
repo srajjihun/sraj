@@ -1,43 +1,94 @@
 @echo off
 chcp 65001 >nul
-rem -- 모집·신청 레이더: PC 수집 스크립트 (Windows) --
-rem GitHub 서버(해외 IP)에서 접속이 차단되는 영등포구청/기업마당/정부24를
-rem 포함해 4개 소스를 이 PC(한국 IP)에서 수집하고 저장소에 푸시한다.
-rem 사용법: collect-silent.vbs 로 실행하면 창 없이 조용히 동작한다.
-rem        (직접 실행해도 되며, 그때는 진행 상황이 창에 보인다)
+rem -- daily collector, run by the Windows task scheduler --
+rem
+rem IMPORTANT: keep this file 100%% ASCII. See scripts\g2b\say.mjs for why.
+rem Nobody watches this window (collect-silent.vbs runs it hidden), so the
+rem log lines below stay English on purpose - they are for diagnosis.
+rem
+rem Collects the four sources that GitHub Actions cannot reach from a
+rem foreign IP (ydp / seoul / bizinfo / govkr) plus G2B,
+rem from this PC on a Korean IP.
 
 cd /d "%~dp0"
 
-rem 실행 기록은 logs\collect.log 에 남긴다 (최근 실행분 위주로 확인용)
 if not exist "logs" mkdir "logs"
 set "LOG=logs\collect.log"
 
 echo. >> "%LOG%"
-echo ===== %DATE% %TIME% 수집 시작 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% collect start ===== >> "%LOG%"
 
-rem 부팅 직후에는 네트워크가 아직 안 잡혔을 수 있어 잠시 대기
+rem Right after boot the network may not be up yet.
 ping -n 16 127.0.0.1 >nul
 
-git pull --ff-only >> "%LOG%" 2>&1
+rem -- pull latest code --
+rem This used to be `git pull --ff-only`. Once local and remote diverged it
+rem failed forever and the error only went to the log, so nobody noticed.
+rem That actually happened: this PC and GitHub Actions both pushed the same
+rem data\*.json. Now (1) this PC commits nothing and (2) we only match the
+rem remote, which repairs a diverged clone on the next run.
+rem data\g2b\, g2b-live.html and config\ are untracked, so they survive.
+rem The branch is pinned - trusting the checked-out branch once left this
+rem clone syncing to an unrelated branch every single run.
+set "BR=claude/g2b-bidding-collector-y605rn"
+git fetch origin %BR% >> "%LOG%" 2>&1
+git checkout -f -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
 
-for %%s in (ydp seoul bizinfo govkr) do (
-  node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [경고] %%s 수집 실패 >> "%LOG%"
-)
+rem -- recruit/apply sources: collect and publish --
+rem These four sites block GitHub's foreign IP, so this PC is the only
+rem place they can be collected, and the website deploys from PUBBR, so
+rem the results have to land on that branch.
+rem
+rem An earlier version skipped the push entirely to avoid diverging with
+rem GitHub Actions. That silently froze the website: Actions can only
+rem reach seoul, so ydp / bizinfo / govkr stopped updating for days.
+rem
+rem This runs in its own worktree pinned to PUBBR rather than in the main
+rem checkout (pinned to the G2B feature branch). The two systems then
+rem never fight over the branch, and the data is read from and written
+rem back to the exact branch the website serves - no divergence.
+set "PUBBR=claude/frontend-design-skill-install-pyd7nc"
+set "PUBDIR=%~dp0..\sraj-publish"
+
+git fetch origin %PUBBR% >> "%LOG%" 2>&1
+if not exist "%PUBDIR%\.git" git worktree add -f -B publish "%PUBDIR%" FETCH_HEAD >> "%LOG%" 2>&1
+if not exist "%PUBDIR%\.git" goto :no_publish_dir
+
+pushd "%PUBDIR%"
+
+rem Match the remote exactly; this also repairs a diverged worktree.
+git checkout -f -B publish FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync publish worktree >> "%LOG%"
+
+for %%s in (ydp seoul bizinfo govkr) do node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [WARN] %%s collect failed >> "%LOG%"
 
 git add data\ydp-posts.json data\seoul-posts.json data\bizinfo-posts.json data\govkr-posts.json >> "%LOG%" 2>&1
-git diff --cached --quiet || git commit -m "chore: 모집/신청 공고 갱신 (PC)" >> "%LOG%" 2>&1
-git push >> "%LOG%" 2>&1
+git diff --cached --quiet
+if errorlevel 1 goto :publish_data
+echo [INFO] no new notices >> "%LOG%"
+goto :publish_done
 
-rem -- 나라장터 입찰·영업 정보시스템 --
-rem 인증키(G2B_SERVICE_KEY)가 등록돼 있을 때만 동작한다.
-rem 최초 등록은 G2B-설치.bat 을 한 번 실행하면 된다.
-rem 수집 결과는 g2b-live.html 로만 남고 저장소에는 올리지 않는다(사내 정보).
+:publish_data
+git commit -m "chore: update recruit/apply notices (PC)" >> "%LOG%" 2>&1
+git push origin HEAD:%PUBBR% >> "%LOG%" 2>&1 || echo [WARN] data push failed - next run retries >> "%LOG%"
+
+:publish_done
+popd
+goto :recruit_done
+
+:no_publish_dir
+echo [WARN] publish worktree missing - recruit sources skipped >> "%LOG%"
+
+:recruit_done
+
+rem -- G2B (nara-jangteo) --
+rem Only runs once G2B_SERVICE_KEY is registered (the setup .bat does that).
+rem Output stays in g2b-live.html and is never pushed (company-internal).
 if not "%G2B_SERVICE_KEY%"=="" (
-  node "scripts\g2b\collect.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 수집 실패 >> "%LOG%"
-  node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [경고] 나라장터 화면 생성 실패 >> "%LOG%"
+  node "scripts\g2b\collect.mjs" >> "%LOG%" 2>&1 || echo [WARN] g2b collect failed >> "%LOG%"
+  node "scripts\g2b\build-page.mjs" >> "%LOG%" 2>&1 || echo [WARN] g2b page build failed >> "%LOG%"
 )
 
-echo ===== %DATE% %TIME% 수집 종료 ===== >> "%LOG%"
+echo ===== %DATE% %TIME% collect end ===== >> "%LOG%"
 
-rem 로그가 무한정 커지지 않도록 1MB 넘으면 비운다
+rem Keep the log from growing without bound.
 for %%F in ("%LOG%") do if %%~zF GTR 1048576 type nul > "%LOG%"
