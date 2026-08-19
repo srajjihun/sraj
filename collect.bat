@@ -13,7 +13,11 @@ rem from this PC on a Korean IP.
 cd /d "%~dp0"
 
 if not exist "logs" mkdir "logs"
-set "LOG=logs\collect.log"
+rem The log path must be ABSOLUTE. It used to be relative ("logs\collect.log"),
+rem which broke every redirection after the pushd below: the publish worktree
+rem has no logs\ folder (logs/ is gitignored), so cmd printed "The system
+rem cannot find the path specified." and skipped the command entirely.
+set "LOG=%~dp0logs\collect.log"
 
 echo. >> "%LOG%"
 echo ===== %DATE% %TIME% collect start ===== >> "%LOG%"
@@ -48,9 +52,14 @@ rem checkout (pinned to the G2B feature branch). The two systems then
 rem never fight over the branch, and the data is read from and written
 rem back to the exact branch the website serves - no divergence.
 set "PUBBR=claude/frontend-design-skill-install-pyd7nc"
-set "PUBDIR=%~dp0..\sraj-publish"
+rem %~dp0 ends with a backslash, so "%~dp0..\sraj-publish" would carry a
+rem literal ".." into git worktree add. %%~fD normalizes it to a real path.
+for %%D in ("%~dp0..") do set "PUBDIR=%%~fD\sraj-publish"
 
 git fetch origin %PUBBR% >> "%LOG%" 2>&1
+rem Drops registrations whose folder was deleted by hand; without this,
+rem worktree add refuses to reuse the path.
+git worktree prune >> "%LOG%" 2>&1
 if not exist "%PUBDIR%\.git" git worktree add -f -B publish "%PUBDIR%" FETCH_HEAD >> "%LOG%" 2>&1
 if not exist "%PUBDIR%\.git" goto :no_publish_dir
 
@@ -76,7 +85,7 @@ popd
 goto :recruit_done
 
 :no_publish_dir
-echo [WARN] publish worktree missing - recruit sources skipped >> "%LOG%"
+echo [WARN] publish worktree missing at %PUBDIR% - recruit sources skipped >> "%LOG%"
 
 :recruit_done
 
