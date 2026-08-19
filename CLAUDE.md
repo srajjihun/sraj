@@ -1,3 +1,20 @@
+# 입찰 시스템은 다른 저장소로 이사했습니다 (2026-08-19)
+
+**나라장터 입찰 레이더 → https://github.com/srajjihun/sraj-g2b (main)**
+
+이 저장소에 아직 남아 있는 입찰 파일(`g2b.html` · `scripts/g2b/**` ·
+`config/g2b-*` · `config/실적DB.md` · `config/회사정보*.md` · `docs/키워드-*` ·
+`docs/g2b-design.md` · `collect-g2b.bat` · `scripts/g2b-probe.mjs` ·
+`scripts/md-to-docx.mjs` · 입찰용 .bat 들)은 **제거 대상**입니다.
+사용자 PC 가 새 폴더로 옮겨간 것을 확인한 뒤에 지워 주세요 — 먼저 지우면
+아침 자동수집이 멈춥니다. `collect.bat` 의 `collect-g2b.bat` 호출 블록도
+같이 빼면 됩니다(`if exist` 로 감싸여 있어 당장은 조용히 건너뜁니다).
+
+입찰 담당 에이전트는 이제 새 저장소에서만 작업합니다. 이 저장소에는
+푸시하지 않습니다.
+
+---
+
 # 이 저장소에는 시스템이 둘 있습니다
 
 한 폴더를 쓰지만 서로 다른 사업이고, **담당 에이전트가 다릅니다.**
