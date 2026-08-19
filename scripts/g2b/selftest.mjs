@@ -464,5 +464,44 @@ function buildZip(files) {
   check("맥락 없는 제작은 그대로 막는다", ex("기관 홍보 브로슈어 제작 용역").includes("제작"));
 }
 
+/* ⑨ 마크다운 → 워드. 우리가 만든 .docx 를 우리 docx 읽기로 되읽어 봅니다.
+      워드는 XML 안의 순서가 규격과 다르면 "읽을 수 없는 내용"이라며 열지
+      않습니다. 눈으로는 안 보이는 종류라 여기서 순서를 검사합니다. */
+{
+  const { mdToDocx } = await import("../md-to-docx.mjs");
+  const { parseDocx } = await import("./lib/docx.mjs");
+  const md = [
+    "# 제목", "", "본문 **굵게** 와 `코드` 가 든 문단.", "",
+    "- 첫째", "- 둘째", "", "1. 하나", "2. 둘", "",
+    "| 항목 | 값 |", "|---|---|", "| 실적 | 20 |", "",
+    "```", "코드 줄", "```",
+  ].join("\n");
+  const buf = mdToDocx(md);
+  const r = parseDocx(buf);
+  check("워드 파일이 다시 읽힌다", r.ok && r.text.includes("제목"), r.note ?? "");
+  check("굵게·코드가 한 문단으로 붙는다", r.text.includes("본문 굵게 와 코드 가 든 문단."),
+        JSON.stringify(r.text.split("\n").find((l) => l.includes("본문"))));
+  check("표가 살아 있다", r.tables[0]?.grid?.[1]?.join("/") === "실적/20",
+        JSON.stringify(r.tables[0]?.grid));
+
+  // 규격 순서 검사 — 워드가 파일을 여는지 여부가 여기 달려 있습니다.
+  const { readZipText } = await import("./lib/zip.mjs");
+  const doc = readZipText(buf, "word/document.xml");
+  const PPR = ["keepNext","numPr","pBdr","shd","spacing","ind","jc"];
+  const RPR = ["rFonts","b","color","sz","szCs","shd"];
+  const ordered = (tag, order) => {
+    for (const m of doc.matchAll(new RegExp(`<w:${tag}>(.*?)</w:${tag}>`, "gs"))) {
+      const flat = m[1].replace(/<w:(pBdr|numPr)>.*?<\/w:\1>/gs, "");
+      const kids = [...flat.matchAll(/<w:([a-zA-Z]+)[ />]/g)].map((k) => k[1]).filter((k) => order.includes(k));
+      for (let k = 1; k < kids.length; k += 1)
+        if (order.indexOf(kids[k - 1]) > order.indexOf(kids[k])) return `${kids[k - 1]}→${kids[k]}`;
+    }
+    return null;
+  };
+  check("문단 속성이 규격 순서다", ordered("pPr", PPR) === null, ordered("pPr", PPR) ?? "");
+  check("글자 속성이 규격 순서다", ordered("rPr", RPR) === null, ordered("rPr", RPR) ?? "");
+  check("번호 목록이 1부터 다시 센다", /w:numId w:val="2"/.test(doc) && !/w:numId w:val="3"/.test(doc));
+}
+
 console.log(`\n[자체점검] 통과 ${pass} · 실패 ${fail}`);
 if (fail) process.exitCode = 1;
