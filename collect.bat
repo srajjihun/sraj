@@ -34,8 +34,6 @@ set "LOG=%~dp0logs\collect.log"
 echo. >> "%LOG%"
 echo ===== %DATE% %TIME% collect start ===== >> "%LOG%"
 
-rem Right after boot the network may not be up yet.
-ping -n 16 127.0.0.1 >nul
 
 rem -- pull latest code --
 rem This is how both systems receive new code, including the two .bat
@@ -48,8 +46,26 @@ rem next run. data\g2b\, g2b-live.html and config\ are untracked, so they
 rem survive. The branch is pinned - trusting the checked-out branch once
 rem left this clone syncing to an unrelated branch every single run.
 set "BR=claude/g2b-bidding-collector-y605rn"
-git fetch origin %BR% >> "%LOG%" 2>&1
-git checkout -f -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
+
+rem Retry the fetch instead of waiting a fixed 15 seconds for the network.
+rem Right after boot - and after a resume from sleep - DNS is not up yet,
+rem and a fixed wait lost whole runs to "Could not resolve host: github.com"
+rem followed by every source failing with ENOTFOUND. 6 tries, 20s apart.
+set "FETCHED="
+for /L %%i in (1,1,6) do (
+  if not defined FETCHED (
+    git fetch origin %BR% >> "%LOG%" 2>&1
+    if not errorlevel 1 set "FETCHED=1"
+    if not defined FETCHED ping -n 21 127.0.0.1 >nul
+  )
+)
+if not defined FETCHED echo [WARN] network still down - keeping the code we have >> "%LOG%"
+
+rem origin/%BR%, not FETCH_HEAD: FETCH_HEAD is per-worktree and is missing
+rem or stale whenever the fetch above did not run here. The remote-tracking
+rem ref is shared and always points at the last successful fetch, so this
+rem is a harmless no-op offline instead of a fatal error.
+git checkout -f -B %BR% origin/%BR% >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
 
 rem -- run each system, in its own file --
 rem `call` reads the child fresh, so the sync above can replace them safely.

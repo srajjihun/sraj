@@ -38,19 +38,32 @@ rem %~dp0 ends with a backslash, so "%~dp0..\sraj-publish" would carry a
 rem literal ".." into git worktree add. %%~fD normalizes it to a real path.
 for %%D in ("%~dp0..") do set "PUBDIR=%%~fD\sraj-publish"
 
+rem Without a fresh remote state the worktree below would be reset to an
+rem old commit, and the push at the end would be rejected as non-fast-
+rem forward. Better to sit this run out; the next one retries.
 git fetch origin %PUBBR% >> "%LOG%" 2>&1
+if errorlevel 1 (
+  echo [WARN] fetch failed - recruit sources skipped this run >> "%LOG%"
+  goto :eof
+)
 
 rem Drops registrations whose folder was deleted by hand; without this,
 rem worktree add refuses to reuse the path.
 git worktree prune >> "%LOG%" 2>&1
 
-if not exist "%PUBDIR%\.git" git worktree add -f -B publish "%PUBDIR%" FETCH_HEAD >> "%LOG%" 2>&1
+rem origin/%PUBBR%, NOT FETCH_HEAD. FETCH_HEAD is per-worktree: the fetch
+rem above ran in the main checkout, so inside %PUBDIR% it does not exist
+rem and the checkout died with "FETCH_HEAD is not a commit". The worktree
+rem then stayed on an old commit, committed on top of it, and the push was
+rem rejected (non-fast-forward). The remote-tracking ref is shared by all
+rem worktrees, so it resolves the same everywhere.
+if not exist "%PUBDIR%\.git" git worktree add -f -B publish "%PUBDIR%" origin/%PUBBR% >> "%LOG%" 2>&1
 if not exist "%PUBDIR%\.git" goto :no_publish_dir
 
 pushd "%PUBDIR%"
 
 rem Match the remote exactly; this also repairs a diverged worktree.
-git checkout -f -B publish FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync publish worktree >> "%LOG%"
+git checkout -f -B publish origin/%PUBBR% >> "%LOG%" 2>&1 || echo [WARN] could not sync publish worktree >> "%LOG%"
 
 for %%s in (ydp seoul bizinfo govkr) do node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [WARN] %%s collect failed >> "%LOG%"
 
