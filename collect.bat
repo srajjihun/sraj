@@ -5,21 +5,24 @@ rem  daily collector - dispatcher
 rem  Registered in the Windows task scheduler (via collect-silent.vbs).
 rem ===================================================================
 rem
-rem IMPORTANT: keep this file 100%% ASCII. See scripts\g2b\say.mjs for why.
+rem IMPORTANT: keep this file 100%% ASCII - no Korean, not even in a rem.
+rem cmd.exe reads a .bat in chunks and remembers where to continue by BYTE
+rem offset; under chcp 65001 a multi-byte character on a chunk boundary
+rem shifts that offset and the next line is read mid-character, producing
+rem "'x' is not recognized as an internal or external command".
 rem Nobody watches this window (collect-silent.vbs runs it hidden), so the
 rem log lines stay English on purpose - they are for diagnosis.
 rem
-rem This file is SHARED, so it holds nothing system-specific. Each system
-rem owns exactly one file and must edit only its own:
+rem This file syncs the code and then calls collect-recruit.bat.
 rem
-rem   collect-recruit.bat  -> recruit/apply notices (ydp seoul bizinfo govkr)
-rem   collect-g2b.bat      -> nara-jangteo (G2B) bidding, logs to logs\g2b.log
-rem                          (already existed; also runnable by hand, and
-rem                           takes a day count: collect-g2b.bat 30)
+rem It used to call a second system (nara-jangteo bidding) as well. That
+rem system moved to its own repository on 2026-08-19:
+rem     https://github.com/srajjihun/sraj-g2b
+rem so its call was removed here. Nothing else changed.
 rem
-rem The G2B logic used to be pasted into this file as well. A rewrite of
-rem that copy dropped the recruit system's push block and froze the website
-rem for days without any error. Now this file only calls the two.
+rem Keep system logic in the child, not in this file. The bidding logic was
+rem once pasted in here, and a rewrite of that copy dropped the recruit
+rem system's push block and froze the website for days without any error.
 
 cd /d "%~dp0"
 
@@ -34,17 +37,17 @@ set "LOG=%~dp0logs\collect.log"
 echo. >> "%LOG%"
 echo ===== %DATE% %TIME% collect start ===== >> "%LOG%"
 
-
 rem -- pull latest code --
-rem This is how both systems receive new code, including the two .bat
-rem files below, so it lives here rather than in either child.
+rem This is how the collector below receives new code, including its own
+rem .bat, so it lives here rather than in the child.
 rem
 rem This used to be `git pull --ff-only`. Once local and remote diverged it
 rem failed forever and the error only went to the log, so nobody noticed.
 rem Now we just match the remote, which repairs a diverged clone on the
-rem next run. data\g2b\, g2b-live.html and config\ are untracked, so they
-rem survive. The branch is pinned - trusting the checked-out branch once
-rem left this clone syncing to an unrelated branch every single run.
+rem next run. Ignored files (logs\, and the leftovers from the bidding
+rem system that used to live here) survive. The branch is pinned - trusting
+rem the checked-out branch once left this clone syncing to an unrelated
+rem branch every single run.
 set "BR=claude/g2b-bidding-collector-y605rn"
 
 rem Retry the fetch instead of waiting a fixed 15 seconds for the network.
@@ -67,21 +70,12 @@ rem ref is shared and always points at the last successful fetch, so this
 rem is a harmless no-op offline instead of a fatal error.
 git checkout -f -B %BR% origin/%BR% >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
 
-rem -- run each system, in its own file --
-rem `call` reads the child fresh, so the sync above can replace them safely.
+rem -- run the collector, in its own file --
+rem `call` reads the child fresh, so the sync above can replace it safely.
 if exist "%~dp0collect-recruit.bat" (
   call "%~dp0collect-recruit.bat"
 ) else (
   echo [WARN] collect-recruit.bat missing - recruit sources skipped >> "%LOG%"
-)
-
-rem Owns its own log (logs\g2b.log) and its own start/end banner, so
-rem nothing about it belongs here. It exits 1 when the API key is not
-rem registered yet; `call` just returns, which is what we want.
-if exist "%~dp0collect-g2b.bat" (
-  call "%~dp0collect-g2b.bat"
-) else (
-  echo [WARN] collect-g2b.bat missing - g2b skipped >> "%LOG%"
 )
 
 echo ===== %DATE% %TIME% collect end ===== >> "%LOG%"
