@@ -32,15 +32,53 @@ rem The branch is pinned - trusting the checked-out branch once left this
 rem clone syncing to an unrelated branch every single run.
 set "BR=claude/g2b-bidding-collector-y605rn"
 git fetch origin %BR% >> "%LOG%" 2>&1
-git checkout -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
+git checkout -f -B %BR% FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync code >> "%LOG%"
 
-for %%s in (ydp seoul bizinfo govkr) do (
-  node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [WARN] %%s collect failed >> "%LOG%"
-)
+rem -- recruit/apply sources: collect and publish --
+rem These four sites block GitHub's foreign IP, so this PC is the only
+rem place they can be collected, and the website deploys from PUBBR, so
+rem the results have to land on that branch.
+rem
+rem An earlier version skipped the push entirely to avoid diverging with
+rem GitHub Actions. That silently froze the website: Actions can only
+rem reach seoul, so ydp / bizinfo / govkr stopped updating for days.
+rem
+rem This runs in its own worktree pinned to PUBBR rather than in the main
+rem checkout (pinned to the G2B feature branch). The two systems then
+rem never fight over the branch, and the data is read from and written
+rem back to the exact branch the website serves - no divergence.
+set "PUBBR=claude/frontend-design-skill-install-pyd7nc"
+set "PUBDIR=%~dp0..\sraj-publish"
 
-rem Results (data\*.json) are NOT pushed from this PC. GitHub Actions
-rem (ydp-monitor.yml) updates the same files; pushing from both sides
-rem guarantees a divergence. The repository side is left to Actions.
+git fetch origin %PUBBR% >> "%LOG%" 2>&1
+if not exist "%PUBDIR%\.git" git worktree add -f -B publish "%PUBDIR%" FETCH_HEAD >> "%LOG%" 2>&1
+if not exist "%PUBDIR%\.git" goto :no_publish_dir
+
+pushd "%PUBDIR%"
+
+rem Match the remote exactly; this also repairs a diverged worktree.
+git checkout -f -B publish FETCH_HEAD >> "%LOG%" 2>&1 || echo [WARN] could not sync publish worktree >> "%LOG%"
+
+for %%s in (ydp seoul bizinfo govkr) do node "scripts\%%s-monitor.mjs" >> "%LOG%" 2>&1 || echo [WARN] %%s collect failed >> "%LOG%"
+
+git add data\ydp-posts.json data\seoul-posts.json data\bizinfo-posts.json data\govkr-posts.json >> "%LOG%" 2>&1
+git diff --cached --quiet
+if errorlevel 1 goto :publish_data
+echo [INFO] no new notices >> "%LOG%"
+goto :publish_done
+
+:publish_data
+git commit -m "chore: update recruit/apply notices (PC)" >> "%LOG%" 2>&1
+git push origin HEAD:%PUBBR% >> "%LOG%" 2>&1 || echo [WARN] data push failed - next run retries >> "%LOG%"
+
+:publish_done
+popd
+goto :recruit_done
+
+:no_publish_dir
+echo [WARN] publish worktree missing - recruit sources skipped >> "%LOG%"
+
+:recruit_done
 
 rem -- G2B (nara-jangteo) --
 rem Only runs once G2B_SERVICE_KEY is registered (the setup .bat does that).
