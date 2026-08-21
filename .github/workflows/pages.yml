@@ -4,7 +4,12 @@ on:
   push:
     branches: [claude/frontend-design-skill-install-pyd7nc]
   schedule:
-    - cron: "40 22 * * *" # 매일 07:40 KST — 07:00 수집 커밋 반영용 (봇 커밋은 push 트리거를 안 타므로)
+    # 봇(GITHUB_TOKEN) 커밋은 push 트리거를 안 타므로, 수집 워크플로가 도는
+    # 시각마다 40분 뒤에 한 번씩 배포한다. 수집 3회 / 배포 1회면 점심·저녁
+    # 수집분이 다음 날 아침까지 사이트에 안 나온다.
+    - cron: "40 22 * * *" # 07:40 KST — 07:00 수집분
+    - cron: "40 4 * * *" # 13:40 KST — 13:00 수집분
+    - cron: "40 9 * * *" # 18:40 KST — 18:00 수집분
   workflow_dispatch: {}
 
 permissions:
