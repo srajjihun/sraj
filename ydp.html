@@ -180,6 +180,7 @@ td.org{color:var(--ink-2); max-width:170px; overflow:hidden; text-overflow:ellip
     <button class="chip" data-src="gov">정부24 <span class="n" id="n-gov"></span></button>
     <button class="chip toggle" id="tg-new">NEW만</button>
     <button class="chip toggle" id="tg-due">마감임박만</button>
+    <button class="chip toggle" id="tg-edu">교육·특강만</button>
     <input class="search" id="search" type="search" placeholder="🔍 제목 검색…">
   </div>
 
@@ -199,7 +200,7 @@ td.org{color:var(--ink-2); max-width:170px; overflow:hidden; text-overflow:ellip
     <div class="empty" id="empty" hidden>표시할 공고가 없습니다.</div>
   </div></div>
 
-  <div class="foot">매일 아침 <b>07:00</b> 자동 수집 · 영등포구청 / 서울시 / 기업마당 / 정부24 · 행 클릭 시 원문이 새 창으로 열립니다</div>
+  <div class="foot">매일 <b>09:40 · 13:00 · 17:00</b> 자동 수집 · 영등포구청 / 서울시 / 기업마당 / 정부24 · 행 클릭 시 원문이 새 창으로 열립니다</div>
 
 </div>
 
@@ -209,15 +210,30 @@ td.org{color:var(--ink-2); max-width:170px; overflow:hidden; text-overflow:ellip
 const NEW_DAYS = 7;      // 등록 후 7일 이내면 NEW
 const DUE_SOON_DAYS = 7; // 마감이 7일 이내로 남으면 마감임박
 
-const state = { src: "all", newOnly: false, dueOnly: false, q: "", sortKey: "date", sortDir: -1 };
+// 교육·특강류를 골라보는 필터.
+//
+// 수집 키워드를 늘리지 않고 제목으로만 거른다. 교육·특강 공고는 제목이 거의
+// 항상 "OO교육 수강생 모집" / "OO특강 신청" 형태라 지금 검색어(모집·신청)로
+// 이미 들어와 있다 - 측정해 보니 전체의 47%였다. 검색어에 "교육"을 더하면
+// 새로 들어오는 건 모집·신청이 안 붙은 안내·결과 공지가 대부분이라
+// 목록만 탁해진다.
+const EDU_RX = /교육|특강|강좌|강의|수강|아카데미|워크숍|워크샵|세미나|양성과정|연수/;
+
+const state = { src: "all", newOnly: false, dueOnly: false, eduOnly: false, q: "", sortKey: "date", sortDir: -1 };
 let items = [];
 
 /* ── helpers ── */
 function decodeEntities(s) {
   if (!s) return "";
   return String(s)
+    // 숫자 참조(&#034; &#x22; 등)를 먼저 푼다. 공공기관 게시판 제목에
+    // &#034; 가 그대로 들어오는 경우가 있어 화면에 날것으로 찍혔다.
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
     .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    // &amp; 는 반드시 마지막. 먼저 풀면 "&amp;lt;" 가 "<" 로 잘못 풀린다.
     .replace(/&amp;/g, "&");
 }
 
@@ -285,6 +301,7 @@ function visibleItems() {
       const left = daysUntil(it.deadline);
       if (left === null || left < 0 || left > DUE_SOON_DAYS) return false;
     }
+    if (state.eduOnly && !EDU_RX.test(it.title)) return false;
     if (q && !it.title.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -395,6 +412,11 @@ document.getElementById("tg-new").addEventListener("click", (e) => {
 document.getElementById("tg-due").addEventListener("click", (e) => {
   state.dueOnly = !state.dueOnly;
   e.currentTarget.classList.toggle("active", state.dueOnly);
+  render();
+});
+document.getElementById("tg-edu").addEventListener("click", (e) => {
+  state.eduOnly = !state.eduOnly;
+  e.currentTarget.classList.toggle("active", state.eduOnly);
   render();
 });
 document.getElementById("search").addEventListener("input", (e) => {
