@@ -3,6 +3,19 @@ name: GitHub Pages 배포
 on:
   push:
     branches: [claude/frontend-design-skill-install-pyd7nc]
+
+  # 수집이 끝나면 곧바로 배포한다.
+  #
+  # 봇(GITHUB_TOKEN)이 올린 커밋은 push 트리거를 타지 않아, 수집 결과가
+  # 사이트에 나오는 시점이 아래 크론에만 매달려 있었다. 크론은 혼잡하면
+  # 20분씩 밀리는데 수집-배포 간격이 20분이라, 수집이 밀리면 배포가 먼저
+  # 돌아 그 회차분이 다음 배포까지(최대 하루) 안 보였다. 실제로 그렇게
+  # 됐다. 이 트리거가 있으면 몇 분이 밀리든 항상 수집 직후에 갱신된다.
+  workflow_run:
+    workflows: ["모집/신청 공고 모니터링"]
+    types: [completed]
+
+  # 위 트리거가 어떤 이유로든 놓쳤을 때를 위한 안전망으로 남겨 둔다.
   schedule:
     # 봇(GITHUB_TOKEN) 커밋은 push 트리거를 안 타므로, 수집 워크플로가 도는
     # 시각마다 한 번씩 배포한다. 수집 3회 / 배포 1회면 낮에 수집한 분이
