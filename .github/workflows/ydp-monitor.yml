@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # 20은 러너에서 지원 종료 경고가 뜬다
 
       # 한 소스가 실패해도 나머지는 계속 수집한다.
       #
