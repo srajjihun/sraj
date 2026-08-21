@@ -58,5 +58,7 @@ jobs:
           # 30일 창을 통째로 다시 훑으므로 다음 회차에 그대로 복구된다.
           git push && exit 0
           echo "::warning::push 밀림 - 원격을 받아 다시 시도"
-          git pull --rebase || { git rebase --abort || true; echo "::warning::충돌로 이번 회차 건너뜀"; exit 0; }
+          # origin/<브랜치>를 명시한다. 인자 없는 `git pull --rebase` 는
+          # upstream 설정에 기대는데, 그게 없으면 재시도가 조용히 실패한다.
+          git pull --rebase origin "$GITHUB_REF_NAME" || { git rebase --abort || true; echo "::warning::충돌로 이번 회차 건너뜀"; exit 0; }
           git push
