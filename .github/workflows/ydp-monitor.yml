@@ -2,7 +2,11 @@ name: 모집/신청 공고 모니터링
 
 on:
   schedule:
-    - cron: "0 22 * * *" # 매일 07:00 KST
+    # 하루 세 번. 한 번(아침)만 돌렸더니 그날 낮에 올라온 공고가 다음 날에야
+    # 보였다. 공공기관 공고는 업무시간에 올라오므로 점심·퇴근 무렵을 끼운다.
+    - cron: "0 22 * * *" # 07:00 KST
+    - cron: "0 4 * * *" # 13:00 KST
+    - cron: "0 9 * * *" # 18:00 KST
   workflow_dispatch: {}
 
 permissions:
@@ -18,12 +22,23 @@ jobs:
         with:
           node-version: 20
 
-      # 한 소스가 실패해도 나머지는 계속 수집한다 (실패가 있으면 잡은 빨간색으로 남김)
+      # 한 소스가 실패해도 나머지는 계속 수집한다.
+      #
+      # ydp(영등포구청)는 해외 IP를 막아 러너에서 항상 연결이 끊긴다. 이건
+      # 국내 IP인 PC(collect-recruit.bat)가 담당하는 몫이라 실패로 치지 않는다.
+      # 예전엔 이것 때문에 매일 잡이 빨간색이었고, 그래서 진짜 고장이 나도
+      # 티가 나지 않았다. 나머지 셋이 실패할 때만 빨간색으로 남긴다.
       - name: Collect
         run: |
           FAIL=0
           for s in ydp seoul bizinfo govkr; do
-            node "scripts/${s}-monitor.mjs" || { echo "::warning::${s} 수집 실패"; FAIL=1; }
+            if node "scripts/${s}-monitor.mjs"; then continue; fi
+            if [ "$s" = ydp ]; then
+              echo "::warning::ydp 수집 실패 (해외 IP 차단 - PC가 수집)"
+            else
+              echo "::error::${s} 수집 실패"
+              FAIL=1
+            fi
           done
           exit $FAIL
 
@@ -33,5 +48,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/ydp-posts.json data/seoul-posts.json data/bizinfo-posts.json data/govkr-posts.json
-          git diff --cached --quiet || git commit -m "chore: 모집/신청 공고 갱신"
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: 모집/신청 공고 갱신"
+
+          # PC(collect-recruit.bat)도 같은 파일을 같은 브랜치에 올린다. 하루
+          # 세 번으로 늘리면서 겹칠 확률이 생겼으므로, 밀리면 한 번은 다시
+          # 얹어 본다. 데이터 파일이 충돌하면 이번 회차는 포기한다 - 수집기가
+          # 30일 창을 통째로 다시 훑으므로 다음 회차에 그대로 복구된다.
+          git push && exit 0
+          echo "::warning::push 밀림 - 원격을 받아 다시 시도"
+          git pull --rebase || { git rebase --abort || true; echo "::warning::충돌로 이번 회차 건너뜀"; exit 0; }
           git push
