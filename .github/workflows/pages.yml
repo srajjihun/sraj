@@ -42,7 +42,13 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # ref 를 명시한다. workflow_run 이벤트의 기본 checkout 대상은 "기본
+      # 브랜치의 마지막 커밋"이라 대체로 맞지만, 위 concurrency 가
+      # cancel-in-progress 라 취소·재시작이 끼면 어느 커밋이 올라가는지가
+      # 흐려진다. 배포는 항상 브랜치 끝을 올리는 게 맞다.
       - uses: actions/checkout@v4
+        with:
+          ref: claude/frontend-design-skill-install-pyd7nc
 
       - uses: actions/configure-pages@v5
         with:

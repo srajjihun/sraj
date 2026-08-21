@@ -98,7 +98,11 @@ async function main() {
       const prev = seen.get(item.url);
       if (prev) {
         // AI 요약이 늦게 붙거나 마감이 연장된 경우 갱신, firstSeenAt은 유지
-        seen.set(item.url, { ...prev, ...item, deadline: item.deadline ?? prev.deadline ?? null });
+        // 방금 받은 원문에서 다시 뽑은 값으로 덮는다. 예전에는
+        // `item.deadline ?? prev.deadline` 이라, 추출기를 고쳐도 과거
+        // 오답이 영구히 남았다 - "운영기간"·"활동기간" 종료일을 신청
+        // 마감으로 잡아 둔 값들이 그대로 박혀 있었다.
+        seen.set(item.url, { ...prev, ...item });
         continue;
       }
       seen.set(item.url, { ...item, firstSeenAt: now });
@@ -110,11 +114,10 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
-  // 추출기가 개선되면 기존 저장분에도 소급 적용
+  // 마감일은 매번 저장된 원문에서 다시 계산한다. 값을 보존하지 않으므로
+  // 추출기를 고치면 이미 저장된 글도 다음 수집에서 같이 고쳐진다.
   for (const it of merged) {
-    if (it.deadline === undefined || it.deadline === null) {
-      it.deadline = extractDeadline(it.date, it.summary, it.title);
-    }
+    it.deadline = extractDeadline(it.date, it.summary, it.title);
   }
   const filtered = filterExcluded(merged, "seoul");
   const pruned = pruneByAge(filtered, "date", RETENTION_DAYS);

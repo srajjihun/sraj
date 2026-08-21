@@ -97,7 +97,11 @@ async function main() {
       const prev = seen.get(item.nttNo);
       if (prev) {
         // 재수집 시 제목/마감일이 바뀌었으면 갱신 (연장 공고 등), firstSeenAt은 유지
-        seen.set(item.nttNo, { ...prev, ...item, deadline: item.deadline ?? prev.deadline ?? null });
+        // 방금 받은 원문에서 다시 뽑은 값으로 덮는다. 예전에는
+        // `item.deadline ?? prev.deadline` 이라, 추출기를 고쳐도 과거
+        // 오답이 영구히 남았다 - "운영기간"·"활동기간" 종료일을 신청
+        // 마감으로 잡아 둔 값들이 그대로 박혀 있었다.
+        seen.set(item.nttNo, { ...prev, ...item });
         continue;
       }
       seen.set(item.nttNo, { ...item, firstSeenAt: now });
@@ -106,11 +110,10 @@ async function main() {
   }
 
   const merged = [...seen.values()].sort((a, b) => Number(b.nttNo) - Number(a.nttNo));
-  // 추출기가 개선되면 기존 저장분에도 소급 적용
+  // 마감일은 매번 저장된 원문에서 다시 계산한다. 값을 보존하지 않으므로
+  // 추출기를 고치면 이미 저장된 글도 다음 수집에서 같이 고쳐진다.
   for (const it of merged) {
-    if (it.deadline === undefined || it.deadline === null) {
-      it.deadline = extractDeadline(it.date, it.title);
-    }
+    it.deadline = extractDeadline(it.date, it.title);
   }
   const filtered = filterExcluded(merged, "ydp");
   const pruned = pruneByAge(filtered, "date", RETENTION_DAYS);
