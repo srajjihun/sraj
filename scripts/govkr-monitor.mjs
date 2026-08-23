@@ -4,6 +4,7 @@
 // 좁혀서 검색하면 페이지를 많이 넘길 필요가 없다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { runMain } from "./lib/exit.mjs";
 import { pruneByAge } from "./lib/prune.mjs";
 import { filterExcluded } from "./lib/exclude.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
@@ -121,7 +122,7 @@ async function main() {
         headers: { "User-Agent": "Mozilla/5.0 (compatible; govkr-monitor-bot/1.0)" },
       });
       if (!res.ok) {
-        throw new Error(`검색 요청 실패 (keyword=${keyword}, page=${pageIndex}): HTTP ${res.status}`);
+        throw Object.assign(new Error(`검색 요청 실패 (keyword=${keyword}, page=${pageIndex}): HTTP ${res.status}`), { status: res.status });
       }
       const html = await res.text();
       const items = parseItems(html, keyword);
@@ -164,10 +165,7 @@ async function main() {
 
 // 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  runMain(main);
 }
 
 export { parseItems, listUrl, stripTags };

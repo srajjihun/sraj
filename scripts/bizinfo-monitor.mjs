@@ -2,6 +2,7 @@
 // data/bizinfo-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { runMain } from "./lib/exit.mjs";
 import { pruneByAge } from "./lib/prune.mjs";
 import { filterExcluded } from "./lib/exclude.mjs";
 
@@ -99,7 +100,7 @@ async function collectArea(area, seen, now) {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; bizinfo-monitor-bot/1.0)" },
     });
     if (!res.ok) {
-      throw new Error(`검색 요청 실패 (cpage=${cpage}): HTTP ${res.status}`);
+      throw Object.assign(new Error(`검색 요청 실패 (cpage=${cpage}): HTTP ${res.status}`), { status: res.status });
     }
     const html = await res.text();
     const items = parseRows(html);
@@ -145,6 +146,7 @@ async function main() {
   let addedCount = 0;
   const perArea = [];
   let failed = 0;
+  let lastError = null;
 
   for (const area of AREAS) {
     try {
@@ -155,14 +157,17 @@ async function main() {
       // 한 지역이 실패해도 나머지는 계속한다. 전국 조회가 막히더라도
       // 수도권까지 같이 날아가면 안 된다.
       failed += 1;
+      lastError = err;
       perArea.push(`${area.label} 실패`);
       console.error(`[${area.label}] ${err.message}`);
     }
   }
 
-  // 전부 실패했으면 저장하지 않는다 (빈손으로 파일을 건드리지 않기 위해)
+  // 전부 실패했으면 저장하지 않는다 (빈손으로 파일을 건드리지 않기 위해).
+  // cause 로 원인을 물려줘야 한다 - 안 그러면 연결이 안 된 것뿐인데도
+  // 파싱이 깨진 것과 구분되지 않아 워크플로가 빨간불이 된다.
   if (failed === AREAS.length) {
-    throw new Error("모든 지역 조회 실패 - 저장하지 않음");
+    throw new Error("모든 지역 조회 실패 - 저장하지 않음", { cause: lastError });
   }
 
   const merged = [...seen.values()].sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -176,10 +181,7 @@ async function main() {
 
 // 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  runMain(main);
 }
 
 export { parseRows, listUrl, stripTags, AREAS };

@@ -2,6 +2,7 @@
 // data/seoul-posts.json에 누적 저장한다.
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { runMain } from "./lib/exit.mjs";
 import { pruneByAge } from "./lib/prune.mjs";
 import { filterExcluded } from "./lib/exclude.mjs";
 import { extractDeadline } from "./lib/deadline.mjs";
@@ -87,7 +88,7 @@ async function main() {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; seoul-monitor-bot/1.0)" },
     });
     if (!res.ok) {
-      throw new Error(`검색 요청 실패 (fetchStart=${fetchStart}): HTTP ${res.status}`);
+      throw Object.assign(new Error(`검색 요청 실패 (fetchStart=${fetchStart}): HTTP ${res.status}`), { status: res.status });
     }
     const html = await res.text();
     const items = parseItems(html);
@@ -128,10 +129,7 @@ async function main() {
 
 // 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  runMain(main);
 }
 
 export { parseItems, listUrl, stripTags, extractDeadline };
