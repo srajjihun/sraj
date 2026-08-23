@@ -1,0 +1,186 @@
+# 모집 신청 시스템 — 새 PC 설치
+
+영등포구청 · 서울시 · 기업마당 · 정부24의 모집/신청 공고를 모아
+[웹페이지](https://srajjihun.github.io/sraj/ydp.html)에 보여주는 시스템입니다.
+
+이 문서는 **PC를 바꿨을 때** 다시 붙이는 방법입니다.
+Claude Code 새 창에서 "SETUP.md 보고 셋팅해줘" 라고 하셔도 되고,
+아래를 직접 따라 하셔도 됩니다.
+
+---
+
+## 먼저 — PC가 꼭 필요한가?
+
+**대부분은 필요 없습니다.** 수집은 GitHub 서버에서 하루 세 번
+(09:40 · 13:00 · 17:00 KST) 자동으로 돌고, PC 전원과 무관합니다.
+
+PC의 역할은 **영등포구청 하나뿐**입니다. 이 사이트는 해외 IP를 간헐적으로
+막아서, GitHub 서버에서 연결이 끊기는 날이 있습니다. 국내 IP인 PC가
+그 빈틈을 메웁니다.
+
+| | PC 없이 |
+|---|---|
+| 서울시 · 기업마당 · 정부24 | 문제 없음 |
+| 영등포구청 | 막히는 회차만 빠짐. 다음 회차에 회수됨 |
+
+수집기는 매번 최근 30일치를 통째로 다시 훑기 때문에, 몇 회차를 걸러도
+**영구히 놓치지는 않고 늦어질 뿐**입니다.
+
+그래서 선택하세요.
+
+- **설치 안 함** — 영등포구청이 가끔 몇 시간 늦게 들어옵니다. 그걸로 충분하면 여기서 끝.
+- **설치함** — 영등포구청까지 확실하게. 아래 5단계, 30분쯤.
+
+---
+
+## 설치
+
+### 1. Git · Node.js
+
+- Git: <https://git-scm.com/download/win>
+- Node.js: <https://nodejs.org> (LTS)
+
+둘 다 설치 후 새 명령 프롬프트에서 확인합니다.
+
+```
+git --version
+node --version
+```
+
+### 2. 이름·이메일 등록
+
+수집 결과를 GitHub에 올리려면 커밋 작성자가 필요합니다.
+**이걸 빼먹으면 수집은 되는데 업로드에서 조용히 멈춥니다** (실제로 겪었습니다).
+
+```
+git config --global user.name "이름"
+git config --global user.email "sraj.jihun@gmail.com"
+```
+
+### 3. 저장소 받기
+
+경로는 어디든 되지만, 아래 문서와 맞추려면 `%USERPROFILE%\sraj` 를 권합니다.
+
+```
+cd %USERPROFILE%
+git clone https://github.com/srajjihun/sraj.git
+cd sraj
+git checkout claude/g2b-bidding-collector-y605rn
+```
+
+> 브랜치가 `g2b`인 건 옛 이름입니다. 나라장터 시스템이 이 저장소에 같이
+> 있던 시절의 흔적으로, 지금은 그 시스템이 별도 저장소로 나갔습니다.
+> `collect.bat` 이 이 브랜치로 자기를 고정하므로 그대로 두면 됩니다.
+
+### 4. 한 번 실행해서 확인
+
+```
+collect.bat
+```
+
+1~2분 걸립니다. 끝나면 로그를 봅니다.
+
+```
+type logs\collect.log
+```
+
+아래처럼 나오면 정상입니다.
+
+```
+===== ... collect start =====
+Reset branch 'publish'
+총 45건 저장 (신규 ...)      <- 영등포구청
+총 17건 저장 (신규 ...)      <- 서울시
+총 134건 저장 (...) [전국 +.., 수도권 +..]   <- 기업마당
+총 133건 저장 (신규 ...)     <- 정부24
+[publish xxxxxxx] chore: update recruit/apply notices (PC)
+   xxxxxxx..xxxxxxx  HEAD -> claude/frontend-design-skill-install-pyd7nc
+```
+
+첫 실행 때 GitHub 로그인 창이 뜹니다. 로그인하면 이후로는 안 뜹니다.
+`[INFO] no new notices` 는 오류가 아니라 "새 공고 없음"이라는 뜻입니다.
+
+### 5. 자동 실행 등록
+
+`collect-silent.vbs` 가 `collect.bat` 을 **창 없이** 실행합니다.
+검은 창이 뜨는 게 싫으면 반드시 이 파일을 등록하세요.
+
+작업 스케줄러(`taskschd.msc`) → **작업 만들기**
+
+- **일반**: 이름 `모집신청 수집` / "사용자가 로그온할 때만 실행"
+- **트리거**: 새로 만들기 → **로그온할 때**
+  - 매일 정해진 시각에도 돌리려면 트리거를 하나 더 추가하세요.
+    PC를 계속 켜두는 날에는 로그온 트리거가 다시 안 걸립니다.
+- **동작**: 프로그램 시작
+  - 프로그램/스크립트: `wscript.exe`
+  - 인수 추가: `"C:\Users\<사용자>\sraj\collect-silent.vbs"` (따옴표 포함)
+  - 시작 위치: `C:\Users\<사용자>\sraj`
+- **조건**: "컴퓨터의 AC 전원이 켜져 있는 경우에만" 체크 해제 (노트북이면)
+
+등록 후 목록에서 우클릭 → **실행** 으로 한 번 테스트하고,
+`logs\collect.log` 에 새 줄이 붙었는지 확인합니다.
+
+---
+
+## 구조
+
+```
+%USERPROFILE%\sraj\             <- 본체. collect.bat 이 자기를 이 브랜치에 고정
+    collect.bat                 <- 스케줄러가 부르는 껍데기
+    collect-recruit.bat         <- 실제 수집 + 업로드
+    collect-silent.vbs          <- 창 없이 실행하는 래퍼
+    logs\collect.log            <- 모든 기록
+%USERPROFILE%\sraj-publish\     <- collect-recruit.bat 이 자동으로 만드는 작업 폴더
+                                   (사이트 배포 브랜치에 고정)
+```
+
+`sraj-publish` 를 따로 만든 이유: 데이터는 사이트가 배포되는 브랜치에
+올라가야 하는데, 본체는 다른 브랜치에 고정돼 있습니다. 한 폴더에서 브랜치를
+왔다갔다 하면 서로 덮어씁니다. git worktree 라 저장소는 공유해서 디스크는
+거의 안 먹습니다.
+
+---
+
+## 안 될 때
+
+로그(`logs\collect.log`)를 먼저 보세요. 대부분 원인이 그대로 적혀 있습니다.
+
+| 로그에 보이는 것 | 뜻 | 할 일 |
+|---|---|---|
+| `Author identity unknown` | 2단계를 안 했음 | `git config --global` 두 줄 실행 |
+| `network still down` | 부팅 직후 DNS가 안 잡힘 | 그냥 두면 다음 회차에 복구됨 |
+| `data push failed` | 업로드가 밀림 | 다음 회차가 재시도함 |
+| `ydp collect failed` | 영등포구청 연결 끊김 | 사이트 쪽 문제. 다음 회차에 회수됨 |
+| `publish worktree missing` | `sraj-publish` 를 못 만듦 | 상위 폴더 쓰기 권한 확인 |
+
+로그가 아예 안 생기면 스케줄러의 **시작 위치**가 저장소 폴더인지 확인하세요.
+
+---
+
+## 이 PC 없이 돌아가는 부분
+
+| | 언제 | 하는 일 |
+|---|---|---|
+| GitHub Actions | 09:40 · 13:00 · 17:00 KST | 4개 소스 수집 후 업로드 |
+| GitHub Pages | 수집이 끝나는 즉시 | 사이트 갱신 |
+
+수집 이력은 저장소 **Actions** 탭에서 볼 수 있습니다.
+영등포구청 실패는 경고로만 남고 빨간불이 되지 않습니다 — 원래 막히는 날이
+있고, 그게 PC의 몫이기 때문입니다. 나머지 셋이 실패하면 빨간불이 됩니다.
+
+---
+
+## 손댈 만한 것
+
+| 하고 싶은 것 | 파일 |
+|---|---|
+| 특정 단어 들어간 공고 빼기 | `scripts/lib/exclude.mjs` (맨 위에 방법 적어둠) |
+| 보관 기간 바꾸기 (기본 30일) | 각 `scripts/*-monitor.mjs` 의 `RETENTION_DAYS` |
+| 수집 시각 바꾸기 | `.github/workflows/ydp-monitor.yml` 과 `pages.yml` 의 `cron` (UTC, KST-9). **둘은 짝이라 같이 고쳐야 합니다** |
+| 화면 | `ydp.html` 한 파일 |
+
+마감일 추출을 손볼 때는 먼저 테스트를 돌려 보세요.
+
+```
+node scripts/lib/deadline.test.mjs
+```
