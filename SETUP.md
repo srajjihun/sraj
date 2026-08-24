@@ -60,16 +60,31 @@ node --version
 
 ### 2. 저장소 받기
 
-명령 프롬프트에 붙여넣습니다.
+**경로는 어디든 됩니다.** 스크립트가 `%~dp0` 로 자기 위치를 스스로 찾으므로
+폴더 이름도 자유롭게 바꾸셔도 됩니다. 한글 폴더명도 괜찮습니다.
+
+기본 위치로 받으려면:
 
 ```
 cd %USERPROFILE%
 git clone https://github.com/srajjihun/sraj.git
 ```
 
+원하는 위치·이름으로 받으려면 (예: `C:\siraj\모집홍보`):
+
+```
+mkdir C:\siraj
+cd /d C:\siraj
+git clone https://github.com/srajjihun/sraj.git 모집홍보
+```
+
+> 나중에 폴더를 **옮기거나 이름을 바꾸면** 작업 스케줄러에 등록된 경로가
+> 어긋납니다. 그때는 `모집신청-설치.bat` 을 새 위치에서 한 번 더
+> 실행하시면 다시 맞춰집니다.
+
 ### 3. 설치 파일 실행
 
-`%USERPROFILE%\sraj` 폴더의 **`모집신청-설치.bat`** 을 더블클릭합니다.
+받은 폴더의 **`모집신청-설치.bat`** 을 더블클릭합니다.
 
 이게 알아서 합니다.
 
@@ -136,15 +151,21 @@ schtasks /Create /TN "모집신청 수집 (매일)" /TR "wscript.exe \"C:\Users\
 ## 구조
 
 ```
-%USERPROFILE%\sraj\             <- 본체. collect.bat 이 자기를 이 브랜치에 고정
+<받은 곳>\                       <- 본체. collect.bat 이 자기를 이 브랜치에 고정
     collect.bat                 <- 스케줄러가 부르는 껍데기
     collect-recruit.bat         <- 실제 수집 + 업로드
     collect-silent.vbs          <- 창 없이 실행하는 래퍼
     모집신청-설치.bat            <- 처음 한 번만 실행 (스케줄러 등록까지)
     logs\collect.log            <- 모든 기록
-%USERPROFILE%\sraj-publish\     <- collect-recruit.bat 이 자동으로 만드는 작업 폴더
+<받은 곳의 옆>\sraj-publish\     <- collect-recruit.bat 이 자동으로 만드는 작업 폴더
                                    (사이트 배포 브랜치에 고정)
 ```
+
+예를 들어 `C:\siraj\모집홍보` 에 받으셨다면 워크트리는
+`C:\siraj\sraj-publish` 에 생깁니다.
+
+**`sraj-publish` 는 지우지 마세요.** 지워도 다음 수집 때 다시 만들어지긴
+하지만, 그 회차는 건너뜁니다.
 
 `sraj-publish` 를 따로 만든 이유: 데이터는 사이트가 배포되는 브랜치에
 올라가야 하는데, 본체는 다른 브랜치에 고정돼 있습니다. 한 폴더에서 브랜치를
