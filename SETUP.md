@@ -4,7 +4,15 @@
 [웹페이지](https://srajjihun.github.io/sraj/ydp.html)에 보여주는 시스템입니다.
 
 이 문서는 **PC를 바꿨을 때** 다시 붙이는 방법입니다.
-Claude Code 새 창에서 "SETUP.md 보고 셋팅해줘" 라고 하셔도 되고,
+
+새 PC의 Claude Code 에 아래 한 줄을 그대로 붙여넣으면 됩니다.
+저장소 주소가 들어 있어야 합니다 — 새 PC에는 아직 저장소가 없어서
+"SETUP.md 보고 셋팅해줘" 만으로는 읽을 파일이 없습니다.
+
+```
+https://github.com/srajjihun/sraj 를 %USERPROFILE%\sraj 에 클론하고, 그 안의 SETUP.md 대로 셋팅해줘
+```
+
 아래를 직접 따라 하셔도 됩니다.
 
 ---
