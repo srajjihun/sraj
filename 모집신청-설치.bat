@@ -64,9 +64,13 @@ echo.
 
 rem -- 2. 자동 실행 등록 -------------------------
 rem 작업 스케줄러 화면을 열지 않고 schtasks 로 바로 등록한다.
-rem 트리거를 두 개 만드는 이유: 로그온만 걸면 PC 를 며칠 계속 켜 둔 날에는
-rem 다시 걸리지 않는다. 하나는 켤 때, 하나는 매일 오전.
-echo   [2/3] PC 를 켤 때 자동 실행되도록 등록합니다.
+rem
+rem 시간대는 GitHub 쪽 자동 수집(.github/workflows/ydp-monitor.yml)과
+rem 맞춘 09:40 / 13:00 / 17:00 세 번이다. PC 가 이 중 하나라도 켜져 있으면
+rem 영등포구청(해외 IP 차단으로 GitHub 러너에서 자주 끊기는 소스)이
+rem 그 시간에 같이 회수된다. 로그온 트리거도 따로 둔다 - PC 를 그 시간대
+rem 밖에서만 쓰는 경우, 켤 때 한 번은 확실히 돌게 하기 위해서다.
+echo   [2/3] 자동 실행을 등록합니다 (매일 09:40 · 13:00 · 17:00, 켤 때).
 
 set "VBS=%~dp0collect-silent.vbs"
 if not exist "%VBS%" (
@@ -77,31 +81,38 @@ if not exist "%VBS%" (
   exit /b 1
 )
 
+rem 예전 버전(매일 10:00 하나)을 설치했던 적이 있으면 지운다. 남겨 두면
+rem 시간대가 4개가 되어 헷갈린다. 없던 작업을 지우려는 것뿐이라 실패해도
+rem 무시한다.
+schtasks /Delete /TN "모집신청 수집 (매일)" /F >nul 2>&1
+
 set "OK=0"
 
 schtasks /Create /TN "모집신청 수집 (로그온)" /TR "wscript.exe \"%VBS%\"" /SC ONLOGON /F >nul 2>&1
 schtasks /Query /TN "모집신청 수집 (로그온)" >nul 2>&1
 if errorlevel 1 (
-  echo         [경고] 로그온 등록에 실패했습니다.
+  echo         [경고] 로그온할 때 등록에 실패했습니다.
 ) else (
   echo         로그온할 때  - 등록했습니다.
   set "OK=1"
 )
 
-schtasks /Create /TN "모집신청 수집 (매일)" /TR "wscript.exe \"%VBS%\"" /SC DAILY /ST 10:00 /F >nul 2>&1
-schtasks /Query /TN "모집신청 수집 (매일)" >nul 2>&1
-if errorlevel 1 (
-  echo         [경고] 매일 10:00 등록에 실패했습니다.
-) else (
-  echo         매일 10:00  - 등록했습니다.
-  set "OK=1"
+for %%T in (09:40 13:00 17:00) do (
+  schtasks /Create /TN "모집신청 수집 (%%T)" /TR "wscript.exe \"%VBS%\"" /SC DAILY /ST %%T /F >nul 2>&1
+  schtasks /Query /TN "모집신청 수집 (%%T)" >nul 2>&1
+  if errorlevel 1 (
+    echo         [경고] %%T 등록에 실패했습니다.
+  ) else (
+    echo         매일 %%T  - 등록했습니다.
+    set "OK=1"
+  )
 )
 
-rem 둘 다 실패하면 손으로 등록해야 한다. 그냥 넘어가면 자동 실행이
+rem 전부 실패하면 손으로 등록해야 한다. 그냥 넘어가면 자동 실행이
 rem 안 되는 채로 설치가 끝난 줄 알게 된다.
 if "%OK%"=="0" (
   echo.
-  echo         자동 등록이 안 됐습니다. SETUP.md 의 5단계를 보고
+  echo         자동 등록이 안 됐습니다. SETUP.md 의 "직접 하려면" 을 보고
   echo         작업 스케줄러에서 직접 등록해 주세요.
 )
 echo.

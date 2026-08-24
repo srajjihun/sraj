@@ -89,7 +89,7 @@ git clone https://github.com/srajjihun/sraj.git 모집홍보
 이게 알아서 합니다.
 
 - 커밋 작성자(이름·이메일) 등록 — 없으면 물어봅니다
-- 작업 스케줄러 등록 — 로그온할 때 + 매일 10:00, 두 개
+- 작업 스케줄러 등록 — 로그온할 때 + 매일 09:40 · 13:00 · 17:00 (GitHub 쪽 수집 시각과 동일)
 - 한 번 시험 실행하고 결과를 보여줍니다
 
 중간에 **GitHub 로그인 창**이 뜹니다. 로그인해 주세요. 처음 한 번만입니다.
@@ -128,14 +128,19 @@ git config --global user.email "sraj.jihun@gmail.com"
 
 ```
 schtasks /Create /TN "모집신청 수집 (로그온)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC ONLOGON /F
-schtasks /Create /TN "모집신청 수집 (매일)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 10:00 /F
+schtasks /Create /TN "모집신청 수집 (09:40)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 09:40 /F
+schtasks /Create /TN "모집신청 수집 (13:00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 13:00 /F
+schtasks /Create /TN "모집신청 수집 (17:00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 17:00 /F
 ```
 
 작업 스케줄러(`taskschd.msc`) 화면에서 하시려면 → **작업 만들기**
 
 - **일반**: 이름 `모집신청 수집` / "사용자가 로그온할 때만 실행"
-- **트리거**: **로그온할 때** 하나, **매일 10:00** 하나. 둘 다 필요합니다 —
-  로그온만 걸면 PC 를 며칠 계속 켜 둔 날에는 다시 걸리지 않습니다.
+- **트리거**: **로그온할 때** 하나 + **매일 09:40 · 13:00 · 17:00** 세 개.
+  시각은 GitHub 쪽 자동 수집(`.github/workflows/ydp-monitor.yml`)과
+  맞춘 것입니다 — PC 가 그 중 한 시각에 켜져 있으면 영등포구청(해외 IP
+  차단으로 GitHub 러너에서 자주 끊기는 소스)이 그때 같이 회수됩니다.
+  로그온 트리거는 PC 를 이 시간대 밖에서만 쓰는 날을 위한 것입니다.
 - **동작**: 프로그램 시작
   - 프로그램/스크립트: `wscript.exe`
   - 인수 추가: `"C:\Users\<사용자>\sraj\collect-silent.vbs"` (따옴표 포함)
