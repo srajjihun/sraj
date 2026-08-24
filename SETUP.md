@@ -5,15 +5,16 @@
 
 이 문서는 **PC를 바꿨을 때** 다시 붙이는 방법입니다.
 
-새 PC의 Claude Code 에 아래 한 줄을 그대로 붙여넣으면 됩니다.
+**Git 과 Node.js 만 설치하시면 나머지는 `모집신청-설치.bat` 이 다 합니다.**
+아래 [설치](#설치) 를 보세요. 5분이면 됩니다.
+
+Claude Code 를 새 PC에서 쓰신다면 이 한 줄을 붙여넣으셔도 됩니다.
 저장소 주소가 들어 있어야 합니다 — 새 PC에는 아직 저장소가 없어서
 "SETUP.md 보고 셋팅해줘" 만으로는 읽을 파일이 없습니다.
 
 ```
 https://github.com/srajjihun/sraj 를 %USERPROFILE%\sraj 에 클론하고, 그 안의 SETUP.md 대로 셋팅해줘
 ```
-
-아래를 직접 따라 하셔도 됩니다.
 
 ---
 
@@ -43,60 +44,44 @@ PC의 역할은 **영등포구청 하나뿐**입니다. 이 사이트는 해외 
 
 ## 설치
 
-### 1. Git · Node.js
+### 1. Git · Node.js 설치
+
+이 둘만 손으로 설치하시면 됩니다. 나머지는 자동입니다.
 
 - Git: <https://git-scm.com/download/win>
 - Node.js: <https://nodejs.org> (LTS)
 
-둘 다 설치 후 새 명령 프롬프트에서 확인합니다.
+설치 후 **새** 명령 프롬프트에서 확인합니다. (기존 창은 PATH 를 모릅니다)
 
 ```
 git --version
 node --version
 ```
 
-### 2. 이름·이메일 등록
+### 2. 저장소 받기
 
-수집 결과를 GitHub에 올리려면 커밋 작성자가 필요합니다.
-**이걸 빼먹으면 수집은 되는데 업로드에서 조용히 멈춥니다** (실제로 겪었습니다).
-
-```
-git config --global user.name "이름"
-git config --global user.email "sraj.jihun@gmail.com"
-```
-
-### 3. 저장소 받기
-
-경로는 어디든 되지만, 아래 문서와 맞추려면 `%USERPROFILE%\sraj` 를 권합니다.
+명령 프롬프트에 붙여넣습니다.
 
 ```
 cd %USERPROFILE%
 git clone https://github.com/srajjihun/sraj.git
-cd sraj
-git checkout claude/g2b-bidding-collector-y605rn
 ```
 
-> 브랜치가 `g2b`인 건 옛 이름입니다. 나라장터 시스템이 이 저장소에 같이
-> 있던 시절의 흔적으로, 지금은 그 시스템이 별도 저장소로 나갔습니다.
-> `collect.bat` 이 이 브랜치로 자기를 고정하므로 그대로 두면 됩니다.
+### 3. 설치 파일 실행
 
-### 4. 한 번 실행해서 확인
+`%USERPROFILE%\sraj` 폴더의 **`모집신청-설치.bat`** 을 더블클릭합니다.
 
-```
-collect.bat
-```
+이게 알아서 합니다.
 
-1~2분 걸립니다. 끝나면 로그를 봅니다.
+- 커밋 작성자(이름·이메일) 등록 — 없으면 물어봅니다
+- 작업 스케줄러 등록 — 로그온할 때 + 매일 10:00, 두 개
+- 한 번 시험 실행하고 결과를 보여줍니다
 
-```
-type logs\collect.log
-```
+중간에 **GitHub 로그인 창**이 뜹니다. 로그인해 주세요. 처음 한 번만입니다.
 
-아래처럼 나오면 정상입니다.
+마지막에 이런 줄들이 보이면 정상입니다.
 
 ```
-===== ... collect start =====
-Reset branch 'publish'
 총 45건 저장 (신규 ...)      <- 영등포구청
 총 17건 저장 (신규 ...)      <- 서울시
 총 134건 저장 (...) [전국 +.., 수도권 +..]   <- 기업마당
@@ -105,27 +90,45 @@ Reset branch 'publish'
    xxxxxxx..xxxxxxx  HEAD -> claude/frontend-design-skill-install-pyd7nc
 ```
 
-첫 실행 때 GitHub 로그인 창이 뜹니다. 로그인하면 이후로는 안 뜹니다.
 `[INFO] no new notices` 는 오류가 아니라 "새 공고 없음"이라는 뜻입니다.
 
-### 5. 자동 실행 등록
+---
 
-`collect-silent.vbs` 가 `collect.bat` 을 **창 없이** 실행합니다.
-검은 창이 뜨는 게 싫으면 반드시 이 파일을 등록하세요.
+## 직접 하려면
 
-작업 스케줄러(`taskschd.msc`) → **작업 만들기**
+설치 파일이 안 될 때만 보시면 됩니다.
+
+**커밋 작성자** — 빼먹으면 수집은 되는데 업로드에서만 조용히 멈춥니다.
+로그에 `Author identity unknown` 만 남아 알아채기 어렵습니다.
+
+```
+git config --global user.name "이름"
+git config --global user.email "sraj.jihun@gmail.com"
+```
+
+**자동 실행 등록** — `collect-silent.vbs` 가 `collect.bat` 을 **창 없이**
+실행합니다. 검은 창이 뜨는 게 싫으면 반드시 이 파일을 등록하세요.
+
+명령 프롬프트에서 (경로의 `<사용자>` 만 바꾸세요):
+
+```
+schtasks /Create /TN "모집신청 수집 (로그온)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC ONLOGON /F
+schtasks /Create /TN "모집신청 수집 (매일)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 10:00 /F
+```
+
+작업 스케줄러(`taskschd.msc`) 화면에서 하시려면 → **작업 만들기**
 
 - **일반**: 이름 `모집신청 수집` / "사용자가 로그온할 때만 실행"
-- **트리거**: 새로 만들기 → **로그온할 때**
-  - 매일 정해진 시각에도 돌리려면 트리거를 하나 더 추가하세요.
-    PC를 계속 켜두는 날에는 로그온 트리거가 다시 안 걸립니다.
+- **트리거**: **로그온할 때** 하나, **매일 10:00** 하나. 둘 다 필요합니다 —
+  로그온만 걸면 PC 를 며칠 계속 켜 둔 날에는 다시 걸리지 않습니다.
 - **동작**: 프로그램 시작
   - 프로그램/스크립트: `wscript.exe`
   - 인수 추가: `"C:\Users\<사용자>\sraj\collect-silent.vbs"` (따옴표 포함)
-  - 시작 위치: `C:\Users\<사용자>\sraj`
 - **조건**: "컴퓨터의 AC 전원이 켜져 있는 경우에만" 체크 해제 (노트북이면)
 
-등록 후 목록에서 우클릭 → **실행** 으로 한 번 테스트하고,
+시작 위치는 비워 두셔도 됩니다. 스크립트가 자기 위치를 스스로 찾습니다.
+
+등록 후 목록에서 우클릭 → **실행** 으로 시험하고,
 `logs\collect.log` 에 새 줄이 붙었는지 확인합니다.
 
 ---
@@ -137,6 +140,7 @@ Reset branch 'publish'
     collect.bat                 <- 스케줄러가 부르는 껍데기
     collect-recruit.bat         <- 실제 수집 + 업로드
     collect-silent.vbs          <- 창 없이 실행하는 래퍼
+    모집신청-설치.bat            <- 처음 한 번만 실행 (스케줄러 등록까지)
     logs\collect.log            <- 모든 기록
 %USERPROFILE%\sraj-publish\     <- collect-recruit.bat 이 자동으로 만드는 작업 폴더
                                    (사이트 배포 브랜치에 고정)
@@ -161,7 +165,14 @@ Reset branch 'publish'
 | `ydp collect failed` | 영등포구청 연결 끊김 | 사이트 쪽 문제. 다음 회차에 회수됨 |
 | `publish worktree missing` | `sraj-publish` 를 못 만듦 | 상위 폴더 쓰기 권한 확인 |
 
-로그가 아예 안 생기면 스케줄러의 **시작 위치**가 저장소 폴더인지 확인하세요.
+로그가 아예 안 생기면 작업 스케줄러에 등록이 안 된 것입니다. 확인:
+
+```
+schtasks /Query /TN "모집신청 수집 (로그온)"
+```
+
+없다고 나오면 `모집신청-설치.bat` 을 다시 실행하거나,
+위 [직접 하려면](#직접-하려면) 의 `schtasks` 두 줄을 붙여넣으세요.
 
 ---
 
