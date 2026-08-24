@@ -92,8 +92,18 @@ async function loadExisting() {
 }
 
 // 한 지역을 훑어 seen에 합치고, 새로 추가된 건수를 돌려준다.
+// 한 지역 탭을 훑는다. 돌려주는 값은 진단용 요약이다.
+//
+// added(신규)만 찍어서는 "새 글을 못 찾은 것"과 "새 글이 자체가 없는 것"이
+// 구분되지 않는다. 실제로 그것 때문에 사흘치 공백의 원인을 못 좁혔다.
+// 그래서 "사이트에서 본 것 중 가장 최근 등록일"을 같이 돌려준다.
+// 이 값이 오늘 날짜인데 저장이 0건이면 우리 쪽 문제고,
+// 이 값 자체가 며칠 전에 멈춰 있으면 사이트에 새 글이 없는 것이다.
 async function collectArea(area, seen, now) {
   let added = 0;
+  let scanned = 0;
+  let pages = 0;
+  let newestSeen = "";
 
   for (let cpage = 1; cpage <= MAX_PAGES; cpage += 1) {
     const res = await fetch(listUrl(cpage, area.code), {
@@ -105,9 +115,14 @@ async function collectArea(area, seen, now) {
     const html = await res.text();
     const items = parseRows(html);
     if (!items.length) break;
+    pages = cpage;
+    scanned += items.length;
 
     let pageHadNew = false;
     for (const item of items) {
+      const date = (item.date || "").slice(0, 10);
+      if (date > newestSeen) newestSeen = date;
+
       const prev = seen.get(item.eventId);
       if (prev) {
         // 행사 연기 등으로 기간이 바뀌면 갱신, firstSeenAt은 유지
@@ -123,7 +138,7 @@ async function collectArea(area, seen, now) {
     if (!pageHadNew && cpage >= MIN_PAGES) break;
   }
 
-  return added;
+  return { added, scanned, pages, newestSeen };
 }
 
 function regionSummary(items) {
@@ -148,11 +163,14 @@ async function main() {
   let failed = 0;
   let lastError = null;
 
+  const scans = [];
+
   for (const area of AREAS) {
     try {
-      const added = await collectArea(area, seen, now);
-      addedCount += added;
-      perArea.push(`${area.label} +${added}`);
+      const r = await collectArea(area, seen, now);
+      addedCount += r.added;
+      scans.push({ label: area.label, ...r });
+      perArea.push(`${area.label} +${r.added}`);
     } catch (err) {
       // 한 지역이 실패해도 나머지는 계속한다. 전국 조회가 막히더라도
       // 수도권까지 같이 날아가면 안 된다.
@@ -177,6 +195,18 @@ async function main() {
 
   console.log(`총 ${pruned.length}건 저장 (신규 ${addedCount}건, 제외 ${merged.length - filtered.length}건, 정리 ${filtered.length - pruned.length}건) [${perArea.join(", ")}]`);
   console.log(`  지역: ${regionSummary(pruned)}`);
+
+  // 진단용. "사이트 최신"이 오늘인데 저장이 안 늘면 우리 쪽 문제이고,
+  // "사이트 최신" 자체가 며칠 전이면 사이트에 새 글이 없는 것이다.
+  for (const s of scans) {
+    console.log(`  [${s.label}] ${s.pages}페이지 ${s.scanned}건 확인 · 사이트 최신 등록일 ${s.newestSeen || "없음"}`);
+  }
+
+  const siteNewest = scans.reduce((a, s) => (s.newestSeen > a ? s.newestSeen : a), "");
+  const savedNewest = pruned.reduce((a, i) => ((i.date || "") > a ? i.date : a), "");
+  if (siteNewest && savedNewest && siteNewest > savedNewest) {
+    console.log(`  [주의] 사이트에는 ${siteNewest} 글이 있는데 저장본 최신은 ${savedNewest} 입니다.`);
+  }
 }
 
 // 직접 실행됐을 때만 main() 호출 (Windows 경로도 처리되도록 pathToFileURL 사용)
