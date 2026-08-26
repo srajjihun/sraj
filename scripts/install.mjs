@@ -25,10 +25,16 @@ const LOG = join(REPO, "logs", "collect.log");
 // PC 가 이 중 한 시각에 켜져 있으면, 그날 GitHub 러너가 해외 IP 차단으로
 // 놓친 소스를 국내 IP 인 PC 가 대신 주워 온다.
 const TIMES = ["09:40", "13:00", "17:00"];
-const TASK = (suffix) => `모집신청 수집 (${suffix})`;
+
+// 작업 이름에는 콜론을 쓸 수 없다. 작업 스케줄러는 각 작업을
+// C:\Windows\System32\Tasks 아래 파일로 저장하므로 이름이 유효한 파일명이어야
+// 하고, 파일명 금지문자( \ / : * ? " < > | )가 들어가면 생성이 실패한다.
+// "모집신청 수집 (09:40)" 으로 만들었다가 세 개 모두 실패했다. 콜론이 없던
+// "(로그온)" 만 성공해서 원인이 드러났다.
+const TASK = (suffix) => `모집신청 수집 (${String(suffix).replace(/[\\/:*?"<>|]/g, "-")})`;
 
 // 예전 버전이 만들던 작업들. 남겨 두면 시간대가 뒤섞여 헷갈린다.
-const OBSOLETE = ["모집신청 수집 (매일)", "모집신청 수집 (10:00)"];
+const OBSOLETE = ["모집신청 수집 (매일)", "모집신청 수집 (10-00)"];
 
 function line(s = "") {
   console.log(s);
@@ -41,13 +47,18 @@ function pad(s, width) {
   return s + " ".repeat(Math.max(0, width - w));
 }
 
-// 실패해도 죽지 않는 조용한 실행. 성공 여부만 돌려준다.
+// 실패해도 죽지 않는 실행. 성공 여부와 함께 오류 메시지를 돌려준다.
+//
+// 처음엔 stdio: "ignore" 로 오류를 통째로 버렸는데, 그 탓에 작업 등록이
+// 왜 실패했는지 화면에 아무것도 안 남아 원인을 짐작으로 좁혀야 했다.
+// 실패했을 때만이라도 사유가 보여야 한다.
 function run(cmd, args) {
   try {
-    execFileSync(cmd, args, { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
+    execFileSync(cmd, args, { stdio: ["ignore", "ignore", "pipe"] });
+    return { ok: true, err: "" };
+  } catch (e) {
+    const err = String(e.stderr || e.message || "").trim().split(/\r?\n/).filter(Boolean)[0] || "";
+    return { ok: false, err };
   }
 }
 
@@ -130,13 +141,14 @@ function registerTasks() {
 
   const create = (suffix, extra) => {
     const name = TASK(suffix);
-    run("schtasks", ["/Create", "/TN", name, "/TR", target, ...extra, "/F"]);
+    const made = run("schtasks", ["/Create", "/TN", name, "/TR", target, ...extra, "/F"]);
     // errorlevel 을 믿지 않고 실제로 조회해 확인한다.
-    if (run("schtasks", ["/Query", "/TN", name])) {
+    if (run("schtasks", ["/Query", "/TN", name]).ok) {
       line(`        ${pad(suffix, 8)} - 등록했습니다.`);
       ok += 1;
     } else {
       line(`        ${pad(suffix, 8)} - [경고] 등록에 실패했습니다.`);
+      if (made.err) line(`                   ${made.err}`);
     }
   };
 

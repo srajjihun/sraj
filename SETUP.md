@@ -128,9 +128,9 @@ git config --global user.email "sraj.jihun@gmail.com"
 
 ```
 schtasks /Create /TN "모집신청 수집 (로그온)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC ONLOGON /F
-schtasks /Create /TN "모집신청 수집 (09:40)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 09:40 /F
-schtasks /Create /TN "모집신청 수집 (13:00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 13:00 /F
-schtasks /Create /TN "모집신청 수집 (17:00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 17:00 /F
+schtasks /Create /TN "모집신청 수집 (09-40)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 09:40 /F
+schtasks /Create /TN "모집신청 수집 (13-00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 13:00 /F
+schtasks /Create /TN "모집신청 수집 (17-00)" /TR "wscript.exe \"C:\Users\<사용자>\sraj\collect-silent.vbs\"" /SC DAILY /ST 17:00 /F
 ```
 
 작업 스케줄러(`taskschd.msc`) 화면에서 하시려면 → **작업 만들기**
@@ -147,6 +147,11 @@ schtasks /Create /TN "모집신청 수집 (17:00)" /TR "wscript.exe \"C:\Users\<
 - **조건**: "컴퓨터의 AC 전원이 켜져 있는 경우에만" 체크 해제 (노트북이면)
 
 시작 위치는 비워 두셔도 됩니다. 스크립트가 자기 위치를 스스로 찾습니다.
+
+> 작업 **이름**에는 콜론을 쓸 수 없습니다. 작업 스케줄러는 각 작업을
+> `C:\Windows\System32\Tasks` 아래 파일로 저장하므로 이름이 유효한 파일명이어야
+> 하고, `\ / : * ? " < > |` 가 들어가면 생성이 실패합니다. 그래서 위 이름이
+> `(09-40)` 처럼 하이픈입니다. `/ST 09:40` 의 콜론은 시각이라 괜찮습니다.
 
 등록 후 목록에서 우클릭 → **실행** 으로 시험하고,
 `logs\collect.log` 에 새 줄이 붙었는지 확인합니다.
