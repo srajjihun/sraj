@@ -45,7 +45,16 @@ rem Now we just match the remote, which repairs a diverged clone on the
 rem next run. data\g2b\, g2b-live.html and config\ are untracked, so they
 rem survive. The branch is pinned - trusting the checked-out branch once
 rem left this clone syncing to an unrelated branch every single run.
-set "BR=claude/g2b-bidding-collector-y605rn"
+rem
+rem This MUST be the repository's default branch - the one a plain
+rem `git clone` lands on, and the one the website is deployed from.
+rem It used to point at claude/g2b-bidding-collector-y605rn, which is a
+rem stale side branch: the bidding system moved out to srajjihun/sraj-g2b
+rem and that branch has since fallen ~20 commits behind. So every run
+rem dragged a freshly cloned PC off the branch it was set up on and onto
+rem old code - most recently undoing the task-scheduler fix, so re-running
+rem the installer kept reproducing a bug that was already fixed.
+set "BR=claude/frontend-design-skill-install-pyd7nc"
 
 rem Retry the fetch instead of waiting a fixed 15 seconds for the network.
 rem Right after boot - and after a resume from sleep - DNS is not up yet,
