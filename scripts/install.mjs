@@ -12,6 +12,7 @@
 
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { createInterface } from "node:readline";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,15 +21,26 @@ const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
 const VBS = join(REPO, "collect-silent.vbs");
 const BAT = join(REPO, "collect.bat");
 const LOG = join(REPO, "logs", "collect.log");
+const SELF = fileURLToPath(import.meta.url);
+
+// 저장소의 기본 브랜치. `git clone` 이 내려앉는 곳이자 웹사이트가 배포되는 곳.
+// 여기를 벗어난 클론은 낡은 코드를 받게 되므로 설치할 때마다 되돌린다.
+const BRANCH = "claude/frontend-design-skill-install-pyd7nc";
 
 // GitHub 쪽 자동 수집(.github/workflows/ydp-monitor.yml)과 맞춘 시각.
 // PC 가 이 중 한 시각에 켜져 있으면, 그날 GitHub 러너가 해외 IP 차단으로
 // 놓친 소스를 국내 IP 인 PC 가 대신 주워 온다.
 const TIMES = ["09:40", "13:00", "17:00"];
-const TASK = (suffix) => `모집신청 수집 (${suffix})`;
+
+// 작업 이름에는 콜론을 쓸 수 없다. 작업 스케줄러는 각 작업을
+// C:\Windows\System32\Tasks 아래 파일로 저장하므로 이름이 유효한 파일명이어야
+// 하고, 파일명 금지문자( \ / : * ? " < > | )가 들어가면 생성이 실패한다.
+// "모집신청 수집 (09:40)" 으로 만들었다가 세 개 모두 실패했다. 콜론이 없던
+// "(로그온)" 만 성공해서 원인이 드러났다.
+const TASK = (suffix) => `모집신청 수집 (${String(suffix).replace(/[\\/:*?"<>|]/g, "-")})`;
 
 // 예전 버전이 만들던 작업들. 남겨 두면 시간대가 뒤섞여 헷갈린다.
-const OBSOLETE = ["모집신청 수집 (매일)", "모집신청 수집 (10:00)"];
+const OBSOLETE = ["모집신청 수집 (매일)", "모집신청 수집 (10-00)"];
 
 function line(s = "") {
   console.log(s);
@@ -41,26 +53,92 @@ function pad(s, width) {
   return s + " ".repeat(Math.max(0, width - w));
 }
 
-// 실패해도 죽지 않는 조용한 실행. 성공 여부만 돌려준다.
+// 실패해도 죽지 않는 실행. 성공 여부와 함께 오류 메시지를 돌려준다.
+//
+// 처음엔 stdio: "ignore" 로 오류를 통째로 버렸는데, 그 탓에 작업 등록이
+// 왜 실패했는지 화면에 아무것도 안 남아 원인을 짐작으로 좁혀야 했다.
+// 실패했을 때만이라도 사유가 보여야 한다.
 function run(cmd, args) {
   try {
-    execFileSync(cmd, args, { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
+    execFileSync(cmd, args, { cwd: REPO, stdio: ["ignore", "ignore", "pipe"] });
+    return { ok: true, err: "" };
+  } catch (e) {
+    const err = String(e.stderr || e.message || "").trim().split(/\r?\n/).filter(Boolean)[0] || "";
+    return { ok: false, err };
   }
 }
 
 function gitConfig(key) {
   try {
-    return execFileSync("git", ["config", "--global", key], { encoding: "utf8" }).trim();
+    return execFileSync("git", ["config", "--global", key], { cwd: REPO, encoding: "utf8" }).trim();
   } catch {
     return "";
   }
 }
 
+function gitOut(args) {
+  try {
+    return execFileSync("git", args, { cwd: REPO, encoding: "utf8" }).trim();
+  } catch {
+    return "";
+  }
+}
+
+function hashOf(file) {
+  try {
+    return createHash("sha1").update(readFileSync(file)).digest("hex");
+  } catch {
+    return "";
+  }
+}
+
+// 설치를 시작하기 전에 저장소 자체를 고쳐 놓는다.
+//
+// 왜 필요한가: 이 PC 는 명령 프롬프트를 열 수 없는 자리에 있다. 그런데
+// 클론이 한 번 어긋나면(다른 브랜치로 넘어갔거나, 로컬과 원격이 갈라졌거나)
+// 런처의 `git pull --ff-only` 는 조용히 실패하고, 그 뒤로는 무엇을 고쳐
+// 올려도 이 PC 에 닿지 않는다. 실제로 그렇게 됐다 - collect.bat 이 낡은
+// 곁가지 브랜치로 클론을 끌고 가는 바람에, 고쳐 놓은 작업 스케줄러 문제가
+// 설치를 다시 할 때마다 그대로 되살아났다.
+//
+// 그래서 pull 이 아니라 원격에 맞춘다. 추적되지 않는 파일(config\, data\g2b\)
+// 은 checkout -f 로 지워지지 않으므로 그대로 남는다.
+function syncRepo() {
+  line("  [1/4] 코드를 최신으로 맞춥니다.");
+
+  if (!existsSync(join(REPO, ".git"))) {
+    line("        [경고] 이 폴더는 git 저장소가 아닙니다.");
+    line("               GitHub 의 ZIP 을 받으신 것 같습니다. SETUP.md 대로");
+    line("               git clone 으로 다시 받아 주세요.");
+    line();
+    return;
+  }
+
+  const was = gitOut(["rev-parse", "--abbrev-ref", "HEAD"]);
+
+  const fetched = run("git", ["fetch", "origin", BRANCH]);
+  if (!fetched.ok) {
+    line("        [경고] 인터넷에 닿지 않아 지금 있는 코드로 진행합니다.");
+    if (fetched.err) line(`               ${fetched.err}`);
+    line();
+    return;
+  }
+
+  const moved = run("git", ["checkout", "-f", "-B", BRANCH, `origin/${BRANCH}`]);
+  if (!moved.ok) {
+    line("        [경고] 코드를 맞추지 못해 지금 있는 것으로 진행합니다.");
+    if (moved.err) line(`               ${moved.err}`);
+    line();
+    return;
+  }
+
+  if (was && was !== BRANCH) line(`        ${was} -> ${BRANCH} 로 되돌렸습니다.`);
+  line(`        ${BRANCH}  ${gitOut(["rev-parse", "--short", "HEAD"])}`);
+  line();
+}
+
 async function ensureAuthor() {
-  line("  [1/3] 커밋 작성자를 확인합니다.");
+  line("  [2/4] 커밋 작성자를 확인합니다.");
 
   let name = gitConfig("user.name");
   let email = gitConfig("user.email");
@@ -115,7 +193,7 @@ async function ensureAuthor() {
 // schtasks 를 셸을 거치지 않고 직접 부른다. 배치에서 하던 따옴표 중첩
 // (\"%VBS%\") 이 필요 없어져 인용 실수가 원천적으로 사라진다.
 function registerTasks() {
-  line(`  [2/3] 자동 실행을 등록합니다 (매일 ${TIMES.join(" · ")}, 켤 때).`);
+  line(`  [3/4] 자동 실행을 등록합니다 (매일 ${TIMES.join(" · ")}, 켤 때).`);
 
   if (!existsSync(VBS)) {
     line("        [오류] collect-silent.vbs 를 찾을 수 없습니다.");
@@ -130,13 +208,14 @@ function registerTasks() {
 
   const create = (suffix, extra) => {
     const name = TASK(suffix);
-    run("schtasks", ["/Create", "/TN", name, "/TR", target, ...extra, "/F"]);
+    const made = run("schtasks", ["/Create", "/TN", name, "/TR", target, ...extra, "/F"]);
     // errorlevel 을 믿지 않고 실제로 조회해 확인한다.
-    if (run("schtasks", ["/Query", "/TN", name])) {
+    if (run("schtasks", ["/Query", "/TN", name]).ok) {
       line(`        ${pad(suffix, 8)} - 등록했습니다.`);
       ok += 1;
     } else {
       line(`        ${pad(suffix, 8)} - [경고] 등록에 실패했습니다.`);
+      if (made.err) line(`                   ${made.err}`);
     }
   };
 
@@ -153,7 +232,7 @@ function registerTasks() {
 }
 
 function testRun() {
-  line("  [3/3] 한 번 실행해 봅니다. 1~2분 걸립니다.");
+  line("  [4/4] 한 번 실행해 봅니다. 1~2분 걸립니다.");
   line("        GitHub 로그인 창이 뜨면 로그인해 주세요. 처음 한 번만입니다.");
   line("        (창이 다른 창 뒤에 숨어 있을 수 있습니다)");
   line();
@@ -186,6 +265,23 @@ async function main() {
   line();
   line(`  설치 위치: ${REPO}`);
   line();
+
+  const before = hashOf(SELF);
+  syncRepo();
+
+  // 방금 받은 코드에 이 파일의 새 버전이 들어 있을 수 있다. Node 는 시작할 때
+  // 소스를 이미 읽어 버렸으므로, 지금 메모리에 있는 건 낡은 쪽이다.
+  // 바뀌었으면 새것으로 한 번만 다시 실행한다(RELOADED 로 무한 반복 차단).
+  if (!process.env.RECRUIT_INSTALL_RELOADED && hashOf(SELF) !== before) {
+    line("  설치 파일이 갱신되어 새 버전으로 이어서 실행합니다.");
+    line();
+    const again = spawnSync(process.execPath, [SELF], {
+      cwd: REPO,
+      stdio: "inherit",
+      env: { ...process.env, RECRUIT_INSTALL_RELOADED: "1" },
+    });
+    process.exit(again.status ?? 1);
+  }
 
   if ((await ensureAuthor()) === false) return;
   registerTasks();
