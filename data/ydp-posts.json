@@ -368,35 +368,5 @@
     "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418459",
     "matchedKeyword": "신청",
     "firstSeenAt": "2026-08-18T22:55:11.941Z"
-  },
-  {
-    "nttNo": "418424",
-    "title": "영등포 K-POP 보컬 아카데미 수강생 모집",
-    "dept": "문화예술과",
-    "date": "2026-08-14",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418424",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-08-16T00:00:00Z",
-    "deadline": null
-  },
-  {
-    "nttNo": "418423",
-    "title": "중장년 1인가구 소셜다이닝(행복한 밥상) 정규 3기 및 특별 3기 참여자 모집 안내",
-    "dept": "복지정책과",
-    "date": "2026-08-14",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418423",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-08-16T00:00:00Z",
-    "deadline": null
-  },
-  {
-    "nttNo": "418421",
-    "title": "9월 청년 1인가구 급식 지원 사업 참여자 모집",
-    "dept": "복지정책과",
-    "date": "2026-08-14",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418421",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-08-16T00:00:00Z",
-    "deadline": null
   }
 ]
