@@ -1,5 +1,15 @@
 [
   {
+    "nttNo": "419981",
+    "title": "2026년 상생기업 팝업마켓 판매부스 모집(~10/2)",
+    "dept": "일자리경제과",
+    "date": "2026-09-30",
+    "deadline": "2026-10-02",
+    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=419981",
+    "matchedKeyword": "모집",
+    "firstSeenAt": "2026-10-01T00:40:59.544Z"
+  },
+  {
     "nttNo": "419964",
     "title": "&lt;인간의 경제학: 경제 속으로 들어가기&gt; 서울대 연계 영등포지식인 수강생 모집",
     "dept": "미래교육과",
@@ -378,45 +388,5 @@
     "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418973",
     "matchedKeyword": "모집",
     "firstSeenAt": "2026-09-02T04:10:32.364Z"
-  },
-  {
-    "nttNo": "418935",
-    "title": "2026년 영등포구 민주주의 축제 「민회」 구민 참가자 ‘구민주권 영등포200’ 모집",
-    "dept": "자치행정과",
-    "date": "2026-09-01",
-    "deadline": null,
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418935",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-01T08:00:03.881Z"
-  },
-  {
-    "nttNo": "418928",
-    "title": "「2026년 영등포 청년 창업 도약 아카데미」 참여자 모집",
-    "dept": "청년정책과",
-    "date": "2026-09-01",
-    "deadline": null,
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418928",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-01T08:00:03.881Z"
-  },
-  {
-    "nttNo": "418920",
-    "title": "2026년 사회연대경제 청년 일경험 시범사업 참여청년 모집(~9/7)",
-    "dept": "일자리경제과",
-    "date": "2026-09-01",
-    "deadline": "2026-09-07",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418920",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-01T04:00:03.398Z"
-  },
-  {
-    "nttNo": "418914",
-    "title": "2026년 영등포구 하반기 청년 실전경제교육 3회차(9월) 참여자 모집",
-    "dept": "청년정책과",
-    "date": "2026-09-01",
-    "deadline": null,
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418914",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-01T04:00:03.398Z"
   }
 ]
