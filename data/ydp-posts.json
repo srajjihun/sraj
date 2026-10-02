@@ -1,5 +1,15 @@
 [
   {
+    "nttNo": "420040",
+    "title": "여의도복지관 중장년 인문학 수강생 모집",
+    "dept": "어르신복지과",
+    "date": "2026-10-01",
+    "deadline": null,
+    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420040",
+    "matchedKeyword": "모집",
+    "firstSeenAt": "2026-10-02T00:40:03.906Z"
+  },
+  {
     "nttNo": "420031",
     "title": "영등포 K-POP댄스 아카데미 수강생 추가 모집",
     "dept": "문화예술과",
@@ -388,15 +398,5 @@
     "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=419127",
     "matchedKeyword": "모집",
     "firstSeenAt": "2026-09-04T04:00:03.850Z"
-  },
-  {
-    "nttNo": "418973",
-    "title": "영등포 청년 운동비 지원 사업 ★청년 오운완 프로젝트★ 특별모집 ( ~ 10. 4.)",
-    "dept": "청년정책과",
-    "date": "2026-09-02",
-    "deadline": "2026-10-04",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=418973",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-02T04:10:32.364Z"
   }
 ]
