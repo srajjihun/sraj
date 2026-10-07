@@ -1,13 +1,33 @@
 [
   {
-    "eventId": "EVEN_000000000069575",
-    "title": "[전국] 2026년 디스플레이 및 첨단산업분야 AI보안 실무 교육",
+    "eventId": "EVEN_000000000069576",
+    "title": "[전국] 중소기업 재직자를 위한 직무별 AI 실무교육 10월 과정 모집 안내",
     "region": "서울",
-    "period": "2026-10-20 ~ 2026-10-21",
-    "org": "한국산업기술진흥원",
+    "period": "2026-10-16 ~ 2026-10-30",
+    "org": "한국산업인력공단",
     "date": "2026-10-07",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069575",
-    "firstSeenAt": "2026-10-07T08:00:09.806Z"
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069576",
+    "firstSeenAt": "2026-10-07T15:17:46.908Z"
+  },
+  {
+    "eventId": "EVEN_000000000069579",
+    "title": "[전국] 사업재편 아카데미 교육 참여기업 모집 안내",
+    "region": "서울",
+    "period": "2026-10-12 ~ 2026-11-06",
+    "org": "한국생산성본부",
+    "date": "2026-10-07",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069579",
+    "firstSeenAt": "2026-10-07T15:17:46.908Z"
+  },
+  {
+    "eventId": "EVEN_000000000069578",
+    "title": "[전국] 2026년 온라인수출 정기교육 8회차 플랫폼 규정 및 리스크ㆍ무역보험 및 무역사기 예방",
+    "region": "전국",
+    "period": "2026-10-14 ~ 2026-10-14",
+    "org": "중소벤처기업진흥공단",
+    "date": "2026-10-07",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069578",
+    "firstSeenAt": "2026-10-07T15:17:46.908Z"
   },
   {
     "eventId": "EVEN_000000000069571",
@@ -20,73 +40,23 @@
     "firstSeenAt": "2026-10-07T08:00:09.806Z"
   },
   {
-    "eventId": "EVEN_000000000069561",
-    "title": "[전국] 2026년 10월 YES FTA 전문교육 신청 및 수강 안내",
-    "region": "전국",
-    "period": "2026-10-20 ~ 2026-10-29",
-    "org": "한국원산지정보원",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069561",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
-  },
-  {
-    "eventId": "EVEN_000000000069570",
-    "title": "[인천] 2026년 LLM부터 AI Agent까지 AI 서비스 개발 올인원 과정(ICT이노베이션스퀘어 확산사업ㆍ디지털신기술 교육)",
-    "region": "인천",
-    "period": "2026-10-24 ~ 2026-11-21",
-    "org": "인천테크노파크",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069570",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
-  },
-  {
-    "eventId": "EVEN_000000000069569",
-    "title": "[인천] 2026년 기업 현장 데이터 기반 AX 실무 과정(ICT이노베이션스퀘어 확산사업ㆍ디지털신기술 교육)",
-    "region": "인천",
-    "period": "2026-10-24 ~ 2026-11-21",
-    "org": "인천테크노파크",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069569",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
-  },
-  {
-    "eventId": "EVEN_000000000069568",
-    "title": "[서울] 서초창업스테이션 10월 1:1 전문 분야 컨설팅 프로그램",
+    "eventId": "EVEN_000000000069575",
+    "title": "[전국] 2026년 디스플레이 및 첨단산업분야 AI보안 실무 교육",
     "region": "서울",
-    "period": "2026-10-28 ~ 2026-10-29",
-    "org": "서초창업스테이션",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069568",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+    "period": "2026-10-20 ~ 2026-10-21",
+    "org": "한국산업기술진흥원",
+    "date": "2026-10-07",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069575",
+    "firstSeenAt": "2026-10-07T08:00:09.806Z"
   },
   {
-    "eventId": "EVEN_000000000069567",
-    "title": "[서울] 서초창업스테이션 10월 창업 교육 프로그램",
-    "region": "서울",
-    "period": "2026-10-27 ~ 2026-10-27",
-    "org": "서초창업스테이션",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069567",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
-  },
-  {
-    "eventId": "EVEN_000000000069566",
-    "title": "[전국] 사례별 계약종료 및 징계, 해고 등 노무관리 실무",
+    "eventId": "EVEN_000000000069559",
+    "title": "[전국] 제46회 창업가정신포럼 개최",
     "region": "경기",
-    "period": "2026-11-12 ~ 2026-11-12",
-    "org": "안산상공회의소",
+    "period": "2026-10-21 ~ 2026-10-21",
+    "org": "경기창조경제혁신센터",
     "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069566",
-    "firstSeenAt": "2026-10-06T08:00:08.399Z"
-  },
-  {
-    "eventId": "EVEN_000000000069562",
-    "title": "[경기] K-뷰티 해외수출 화장품 인증 대응 설명회 참가기업 모집 안내",
-    "region": "경기",
-    "period": "2026-10-15 ~ 2026-10-15",
-    "org": "용인시산업진흥원",
-    "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069562",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069559",
     "firstSeenAt": "2026-10-06T08:00:08.399Z"
   },
   {
@@ -100,63 +70,83 @@
     "firstSeenAt": "2026-10-06T08:00:08.399Z"
   },
   {
-    "eventId": "EVEN_000000000069559",
-    "title": "[전국] 제46회 창업가정신포럼 개최",
+    "eventId": "EVEN_000000000069562",
+    "title": "[경기] K-뷰티 해외수출 화장품 인증 대응 설명회 참가기업 모집 안내",
     "region": "경기",
-    "period": "2026-10-21 ~ 2026-10-21",
-    "org": "경기창조경제혁신센터",
+    "period": "2026-10-15 ~ 2026-10-15",
+    "org": "용인시산업진흥원",
     "date": "2026-10-06",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069559",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069562",
     "firstSeenAt": "2026-10-06T08:00:08.399Z"
   },
   {
-    "eventId": "EVEN_000000000069556",
-    "title": "[전국] 2026년 3차 직무발명보상 우수기업 인증제 온라인 설명회 개최",
-    "region": "전국",
-    "period": "2026-10-14 ~ 2026-10-14",
-    "org": "한국발명진흥회",
-    "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069556",
-    "firstSeenAt": "2026-10-02T10:18:41.644Z"
-  },
-  {
-    "eventId": "EVEN_000000000069554",
-    "title": "[전국] 2026년 민간자율인공지능윤리위원회 표준지침 설명회 개최",
-    "region": "전국",
-    "period": "2026-10-08 ~ 2026-10-08",
-    "org": "정보통신정책연구원",
-    "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069554",
-    "firstSeenAt": "2026-10-02T10:18:41.644Z"
-  },
-  {
-    "eventId": "EVEN_000000000069558",
-    "title": "[전국] 2026년 5회차 서울디자인런 창업역량강화 프로그램 안내(쓰레기를 예술로, 제로웨이스트를 동네로)",
-    "region": "서울",
-    "period": "2026-10-15 ~ 2026-10-15",
-    "org": "서울디자인재단",
-    "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069558",
-    "firstSeenAt": "2026-10-02T10:18:41.644Z"
-  },
-  {
-    "eventId": "EVEN_000000000069557",
-    "title": "[경기] 안산시 2026년 11월 핵심직무능력향상교육 실시 안내(2027년 신고대비 법인 결산과 세무조정 실무)",
+    "eventId": "EVEN_000000000069566",
+    "title": "[전국] 사례별 계약종료 및 징계, 해고 등 노무관리 실무",
     "region": "경기",
-    "period": "2026-11-18 ~ 2026-11-19",
+    "period": "2026-11-12 ~ 2026-11-12",
     "org": "안산상공회의소",
-    "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069557",
-    "firstSeenAt": "2026-10-02T10:18:41.644Z"
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069566",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
   },
   {
-    "eventId": "EVEN_000000000069555",
-    "title": "[전국] 언리얼엔진5 시퀀서를 활용한 산업현장 교육 콘텐츠 제작 과정",
-    "region": "경기",
-    "period": "2026-10-27 ~ 2026-10-29",
-    "org": "한국가상융합디지털산업협회",
+    "eventId": "EVEN_000000000069567",
+    "title": "[서울] 서초창업스테이션 10월 창업 교육 프로그램",
+    "region": "서울",
+    "period": "2026-10-27 ~ 2026-10-27",
+    "org": "서초창업스테이션",
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069567",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+  },
+  {
+    "eventId": "EVEN_000000000069568",
+    "title": "[서울] 서초창업스테이션 10월 1:1 전문 분야 컨설팅 프로그램",
+    "region": "서울",
+    "period": "2026-10-28 ~ 2026-10-29",
+    "org": "서초창업스테이션",
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069568",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+  },
+  {
+    "eventId": "EVEN_000000000069569",
+    "title": "[인천] 2026년 기업 현장 데이터 기반 AX 실무 과정(ICT이노베이션스퀘어 확산사업ㆍ디지털신기술 교육)",
+    "region": "인천",
+    "period": "2026-10-24 ~ 2026-11-21",
+    "org": "인천테크노파크",
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069569",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+  },
+  {
+    "eventId": "EVEN_000000000069570",
+    "title": "[인천] 2026년 LLM부터 AI Agent까지 AI 서비스 개발 올인원 과정(ICT이노베이션스퀘어 확산사업ㆍ디지털신기술 교육)",
+    "region": "인천",
+    "period": "2026-10-24 ~ 2026-11-21",
+    "org": "인천테크노파크",
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069570",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+  },
+  {
+    "eventId": "EVEN_000000000069561",
+    "title": "[전국] 2026년 10월 YES FTA 전문교육 신청 및 수강 안내",
+    "region": "전국",
+    "period": "2026-10-20 ~ 2026-10-29",
+    "org": "한국원산지정보원",
+    "date": "2026-10-06",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069561",
+    "firstSeenAt": "2026-10-06T08:00:08.399Z"
+  },
+  {
+    "eventId": "EVEN_000000000069551",
+    "title": "[전국] 2026년 여성CEO비즈니스아카데미 점프업 클래스 수출과정 참가자 모집 안내",
+    "region": "서울",
+    "period": "2026-10-20 ~ 2026-11-10",
+    "org": "한국여성경제인협회",
     "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069555",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069551",
     "firstSeenAt": "2026-10-02T10:18:41.644Z"
   },
   {
@@ -170,34 +160,54 @@
     "firstSeenAt": "2026-10-02T10:18:41.644Z"
   },
   {
-    "eventId": "EVEN_000000000069551",
-    "title": "[전국] 2026년 여성CEO비즈니스아카데미 점프업 클래스 수출과정 참가자 모집 안내",
-    "region": "서울",
-    "period": "2026-10-20 ~ 2026-11-10",
-    "org": "한국여성경제인협회",
+    "eventId": "EVEN_000000000069555",
+    "title": "[전국] 언리얼엔진5 시퀀서를 활용한 산업현장 교육 콘텐츠 제작 과정",
+    "region": "경기",
+    "period": "2026-10-27 ~ 2026-10-29",
+    "org": "한국가상융합디지털산업협회",
     "date": "2026-10-02",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069551",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069555",
     "firstSeenAt": "2026-10-02T10:18:41.644Z"
   },
   {
-    "eventId": "EVEN_000000000069550",
-    "title": "[전국] 국내 최대 공간정보 박람회, K-Geo Festa 피칭데이 발표 기업 모집",
+    "eventId": "EVEN_000000000069557",
+    "title": "[경기] 안산시 2026년 11월 핵심직무능력향상교육 실시 안내(2027년 신고대비 법인 결산과 세무조정 실무)",
     "region": "경기",
-    "period": "2026-11-05 ~ 2026-11-05",
-    "org": "한국국토정보공사",
-    "date": "2026-10-01",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069550",
-    "firstSeenAt": "2026-10-01T08:00:07.666Z"
+    "period": "2026-11-18 ~ 2026-11-19",
+    "org": "안산상공회의소",
+    "date": "2026-10-02",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069557",
+    "firstSeenAt": "2026-10-02T10:18:41.644Z"
   },
   {
-    "eventId": "EVEN_000000000069543",
-    "title": "[인천] 원산지결정기준을 알면 원산지판정이 보인다! FTA 실무교육 안내",
-    "region": "인천",
-    "period": "2026-10-21 ~ 2026-10-21",
-    "org": "인천상공회의소",
-    "date": "2026-10-01",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069543",
-    "firstSeenAt": "2026-10-01T06:30:02.119Z"
+    "eventId": "EVEN_000000000069558",
+    "title": "[전국] 2026년 5회차 서울디자인런 창업역량강화 프로그램 안내(쓰레기를 예술로, 제로웨이스트를 동네로)",
+    "region": "서울",
+    "period": "2026-10-15 ~ 2026-10-15",
+    "org": "서울디자인재단",
+    "date": "2026-10-02",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069558",
+    "firstSeenAt": "2026-10-02T10:18:41.644Z"
+  },
+  {
+    "eventId": "EVEN_000000000069554",
+    "title": "[전국] 2026년 민간자율인공지능윤리위원회 표준지침 설명회 개최",
+    "region": "전국",
+    "period": "2026-10-08 ~ 2026-10-08",
+    "org": "정보통신정책연구원",
+    "date": "2026-10-02",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069554",
+    "firstSeenAt": "2026-10-02T10:18:41.644Z"
+  },
+  {
+    "eventId": "EVEN_000000000069556",
+    "title": "[전국] 2026년 3차 직무발명보상 우수기업 인증제 온라인 설명회 개최",
+    "region": "전국",
+    "period": "2026-10-14 ~ 2026-10-14",
+    "org": "한국발명진흥회",
+    "date": "2026-10-02",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069556",
+    "firstSeenAt": "2026-10-02T10:18:41.644Z"
   },
   {
     "eventId": "EVEN_000000000069542",
@@ -210,73 +220,33 @@
     "firstSeenAt": "2026-10-01T06:30:02.119Z"
   },
   {
-    "eventId": "EVEN_000000000069528",
-    "title": "[전국] 2026년 용인 오픈이노베이션 교류회 5회차 참가 안내",
-    "region": "경기",
-    "period": "2026-10-13 ~ 2026-10-13",
-    "org": "용인시산업진흥원",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069528",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069529",
-    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 27회차 교육생 모집",
-    "region": "서울",
-    "period": "2026-10-24 ~ 2026-10-24",
-    "org": "한국인터넷진흥원",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069529",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069530",
-    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 28회차 교육생 모집",
-    "region": "서울",
-    "period": "2026-10-25 ~ 2026-10-25",
-    "org": "한국인터넷진흥원",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069530",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069531",
-    "title": "[전국] 인천디자인교육센터 10월 데이터와 업무도구를 연결하는 AI 에이전트 구축 실무 교육생 모집 안내",
+    "eventId": "EVEN_000000000069543",
+    "title": "[인천] 원산지결정기준을 알면 원산지판정이 보인다! FTA 실무교육 안내",
     "region": "인천",
-    "period": "2026-10-21 ~ 2026-10-28",
-    "org": "인천디자인교육센터",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069531",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069532",
-    "title": "[전국] 2026년 제4회 ICT콤플렉스 스타트업 투자상담회 참가기업 모집",
-    "region": "서울",
-    "period": "2026-10-23 ~ 2026-10-23",
-    "org": "ICT콤플렉스",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069532",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069534",
-    "title": "[전국] 2026년 제9회 세미나 참가자 모집(AI 에이전트 시대, AX 전략부터 SaaS 혁신까지)",
-    "region": "경기",
-    "period": "2026-10-14 ~ 2026-10-14",
-    "org": "정보통신산업진흥원",
-    "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069534",
-    "firstSeenAt": "2026-09-30T08:00:08.365Z"
-  },
-  {
-    "eventId": "EVEN_000000000069535",
-    "title": "[전국] 2026년 K-BIO 글로벌 파트너십 협력 포럼",
-    "region": "서울",
     "period": "2026-10-21 ~ 2026-10-21",
-    "org": "대한무역투자진흥공사",
+    "org": "인천상공회의소",
+    "date": "2026-10-01",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069543",
+    "firstSeenAt": "2026-10-01T06:30:02.119Z"
+  },
+  {
+    "eventId": "EVEN_000000000069550",
+    "title": "[전국] 국내 최대 공간정보 박람회, K-Geo Festa 피칭데이 발표 기업 모집",
+    "region": "경기",
+    "period": "2026-11-05 ~ 2026-11-05",
+    "org": "한국국토정보공사",
+    "date": "2026-10-01",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069550",
+    "firstSeenAt": "2026-10-01T08:00:07.666Z"
+  },
+  {
+    "eventId": "EVEN_000000000069537",
+    "title": "[전국] 10월 FTA 원산지 이론 및 시스템 교육 안내",
+    "region": "전국",
+    "period": "2026-10-16 ~ 2026-10-30",
+    "org": "한국무역정보통신",
     "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069535",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069537",
     "firstSeenAt": "2026-09-30T08:00:08.365Z"
   },
   {
@@ -290,43 +260,83 @@
     "firstSeenAt": "2026-09-30T08:00:08.365Z"
   },
   {
-    "eventId": "EVEN_000000000069537",
-    "title": "[전국] 10월 FTA 원산지 이론 및 시스템 교육 안내",
-    "region": "전국",
-    "period": "2026-10-16 ~ 2026-10-30",
-    "org": "한국무역정보통신",
+    "eventId": "EVEN_000000000069535",
+    "title": "[전국] 2026년 K-BIO 글로벌 파트너십 협력 포럼",
+    "region": "서울",
+    "period": "2026-10-21 ~ 2026-10-21",
+    "org": "대한무역투자진흥공사",
     "date": "2026-09-30",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069537",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069535",
     "firstSeenAt": "2026-09-30T08:00:08.365Z"
   },
   {
-    "eventId": "EVEN_000000000069525",
-    "title": "[전국] 대만 화장품 PIF 등록 제도 설명회 참가 안내",
-    "region": "전국",
-    "period": "2026-10-21 ~ 2026-10-21",
-    "org": "대한무역투자진흥공사",
-    "date": "2026-09-29",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069525",
-    "firstSeenAt": "2026-09-29T10:24:14.593Z"
-  },
-  {
-    "eventId": "EVEN_000000000069523",
-    "title": "[전국] 미국 통상ㆍ산업정책 변화와 대미 투자 리스크 대응 세미나 개최",
-    "region": "서울",
-    "period": "2026-10-19 ~ 2026-10-19",
-    "org": "대한상공회의소",
-    "date": "2026-09-29",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069523",
-    "firstSeenAt": "2026-09-29T10:24:14.593Z"
-  },
-  {
-    "eventId": "EVEN_000000000069522",
-    "title": "[경기] 김포시 2026년 2차 소공인 AI 활용교육 개최 안내",
+    "eventId": "EVEN_000000000069534",
+    "title": "[전국] 2026년 제9회 세미나 참가자 모집(AI 에이전트 시대, AX 전략부터 SaaS 혁신까지)",
     "region": "경기",
-    "period": "2026-10-07 ~ 2026-10-07",
-    "org": "김포산업지원센터",
+    "period": "2026-10-14 ~ 2026-10-14",
+    "org": "정보통신산업진흥원",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069534",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069532",
+    "title": "[전국] 2026년 제4회 ICT콤플렉스 스타트업 투자상담회 참가기업 모집",
+    "region": "서울",
+    "period": "2026-10-23 ~ 2026-10-23",
+    "org": "ICT콤플렉스",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069532",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069531",
+    "title": "[전국] 인천디자인교육센터 10월 데이터와 업무도구를 연결하는 AI 에이전트 구축 실무 교육생 모집 안내",
+    "region": "인천",
+    "period": "2026-10-21 ~ 2026-10-28",
+    "org": "인천디자인교육센터",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069531",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069530",
+    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 28회차 교육생 모집",
+    "region": "서울",
+    "period": "2026-10-25 ~ 2026-10-25",
+    "org": "한국인터넷진흥원",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069530",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069529",
+    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 27회차 교육생 모집",
+    "region": "서울",
+    "period": "2026-10-24 ~ 2026-10-24",
+    "org": "한국인터넷진흥원",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069529",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069528",
+    "title": "[전국] 2026년 용인 오픈이노베이션 교류회 5회차 참가 안내",
+    "region": "경기",
+    "period": "2026-10-13 ~ 2026-10-13",
+    "org": "용인시산업진흥원",
+    "date": "2026-09-30",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069528",
+    "firstSeenAt": "2026-09-30T08:00:08.365Z"
+  },
+  {
+    "eventId": "EVEN_000000000069514",
+    "title": "[경기] 파주시 하반기 파주청년창업지원센터 청년창업아카데미 참여기업ㆍ팀 모집",
+    "region": "경기",
+    "period": "2026-10-13 ~ 2026-10-22",
+    "org": "경기테크노파크",
     "date": "2026-09-29",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069522",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069514",
     "firstSeenAt": "2026-09-29T10:24:14.593Z"
   },
   {
@@ -340,63 +350,43 @@
     "firstSeenAt": "2026-09-29T10:24:14.593Z"
   },
   {
-    "eventId": "EVEN_000000000069514",
-    "title": "[경기] 파주시 하반기 파주청년창업지원센터 청년창업아카데미 참여기업ㆍ팀 모집",
+    "eventId": "EVEN_000000000069522",
+    "title": "[경기] 김포시 2026년 2차 소공인 AI 활용교육 개최 안내",
     "region": "경기",
-    "period": "2026-10-13 ~ 2026-10-22",
-    "org": "경기테크노파크",
+    "period": "2026-10-07 ~ 2026-10-07",
+    "org": "김포산업지원센터",
     "date": "2026-09-29",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069514",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069522",
     "firstSeenAt": "2026-09-29T10:24:14.593Z"
   },
   {
-    "eventId": "EVEN_000000000069506",
-    "title": "[전북] 데이터 관련 자격 취득과정 2차 온라인 교육생 모집(AI 빅데이터 전문인력 양성사업)",
-    "region": "전국",
-    "period": "2026-10-08 ~ 2026-11-14",
-    "org": "전북테크노파크",
-    "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069506",
-    "firstSeenAt": "2026-09-28T08:54:36.537Z"
-  },
-  {
-    "eventId": "EVEN_000000000069513",
-    "title": "[경기] 용인시 2026년 9차 창의융합 캠퍼스 AI 디지털 실무 아카데미 교육생 모집 공고",
-    "region": "경기",
-    "period": "2026-10-12 ~ 2026-11-06",
-    "org": "용인시산업진흥원",
-    "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069513",
-    "firstSeenAt": "2026-09-28T08:54:36.537Z"
-  },
-  {
-    "eventId": "EVEN_000000000069511",
-    "title": "[전국] 2026년 지식재산권 출원 지원(OASIS-3) 2기 참여자 모집 안내(창업이민종합지원시스템)",
+    "eventId": "EVEN_000000000069523",
+    "title": "[전국] 미국 통상ㆍ산업정책 변화와 대미 투자 리스크 대응 세미나 개최",
     "region": "서울",
-    "period": "2026-10-12 ~ 2026-10-31",
-    "org": "글로벌창업이민센터",
-    "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069511",
-    "firstSeenAt": "2026-09-28T08:54:36.537Z"
+    "period": "2026-10-19 ~ 2026-10-19",
+    "org": "대한상공회의소",
+    "date": "2026-09-29",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069523",
+    "firstSeenAt": "2026-09-29T10:24:14.593Z"
   },
   {
-    "eventId": "EVEN_000000000069509",
-    "title": "[전국] 2026년 13차 RF 실무 교육(RF기초 및 벡터네트일크분석기 실습)",
-    "region": "인천",
-    "period": "2026-10-27 ~ 2026-10-28",
-    "org": "한국전파진흥협회",
-    "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069509",
-    "firstSeenAt": "2026-09-28T08:54:36.537Z"
+    "eventId": "EVEN_000000000069525",
+    "title": "[전국] 대만 화장품 PIF 등록 제도 설명회 참가 안내",
+    "region": "전국",
+    "period": "2026-10-21 ~ 2026-10-21",
+    "org": "대한무역투자진흥공사",
+    "date": "2026-09-29",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069525",
+    "firstSeenAt": "2026-09-29T10:24:14.593Z"
   },
   {
-    "eventId": "EVEN_000000000069508",
-    "title": "[경기] 성남시 SBIC demo day 2026 참가기업 모집",
-    "region": "경기",
-    "period": "2026-10-30 ~ 2026-10-30",
-    "org": "성남산업진흥원",
+    "eventId": "EVEN_000000000069504",
+    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 26회차 교육생 모집",
+    "region": "서울",
+    "period": "2026-10-17 ~ 2026-10-17",
+    "org": "한국인터넷진흥원",
     "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069508",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069504",
     "firstSeenAt": "2026-09-28T08:54:36.537Z"
   },
   {
@@ -410,33 +400,73 @@
     "firstSeenAt": "2026-09-28T08:54:36.537Z"
   },
   {
-    "eventId": "EVEN_000000000069504",
-    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 26회차 교육생 모집",
-    "region": "서울",
-    "period": "2026-10-17 ~ 2026-10-17",
-    "org": "한국인터넷진흥원",
+    "eventId": "EVEN_000000000069508",
+    "title": "[경기] 성남시 SBIC demo day 2026 참가기업 모집",
+    "region": "경기",
+    "period": "2026-10-30 ~ 2026-10-30",
+    "org": "성남산업진흥원",
     "date": "2026-09-28",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069504",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069508",
     "firstSeenAt": "2026-09-28T08:54:36.537Z"
   },
   {
-    "eventId": "EVEN_000000000069497",
-    "title": "[전국] 언리얼 엔진을 활용한 버추얼 휴먼 제작 과정(메타휴먼ㆍ마커리스 모션캡쳐)",
-    "region": "서울",
-    "period": "2026-10-14 ~ 2026-10-16",
-    "org": "한국가상융합디지털산업협회",
-    "date": "2026-09-23",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069497",
-    "firstSeenAt": "2026-09-23T05:08:07.490Z"
+    "eventId": "EVEN_000000000069509",
+    "title": "[전국] 2026년 13차 RF 실무 교육(RF기초 및 벡터네트일크분석기 실습)",
+    "region": "인천",
+    "period": "2026-10-27 ~ 2026-10-28",
+    "org": "한국전파진흥협회",
+    "date": "2026-09-28",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069509",
+    "firstSeenAt": "2026-09-28T08:54:36.537Z"
   },
   {
-    "eventId": "EVEN_000000000069499",
-    "title": "[경기] 2026년 스타트업 교육 교육생 모집 공고",
+    "eventId": "EVEN_000000000069511",
+    "title": "[전국] 2026년 지식재산권 출원 지원(OASIS-3) 2기 참여자 모집 안내(창업이민종합지원시스템)",
+    "region": "서울",
+    "period": "2026-10-12 ~ 2026-10-31",
+    "org": "글로벌창업이민센터",
+    "date": "2026-09-28",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069511",
+    "firstSeenAt": "2026-09-28T08:54:36.537Z"
+  },
+  {
+    "eventId": "EVEN_000000000069513",
+    "title": "[경기] 용인시 2026년 9차 창의융합 캠퍼스 AI 디지털 실무 아카데미 교육생 모집 공고",
     "region": "경기",
-    "period": "2026-10-12 ~ 2026-11-18",
-    "org": "시흥산업진흥원",
+    "period": "2026-10-12 ~ 2026-11-06",
+    "org": "용인시산업진흥원",
+    "date": "2026-09-28",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069513",
+    "firstSeenAt": "2026-09-28T08:54:36.537Z"
+  },
+  {
+    "eventId": "EVEN_000000000069506",
+    "title": "[전북] 데이터 관련 자격 취득과정 2차 온라인 교육생 모집(AI 빅데이터 전문인력 양성사업)",
+    "region": "전국",
+    "period": "2026-10-08 ~ 2026-11-14",
+    "org": "전북테크노파크",
+    "date": "2026-09-28",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069506",
+    "firstSeenAt": "2026-09-28T08:54:36.537Z"
+  },
+  {
+    "eventId": "EVEN_000000000069503",
+    "title": "[전국] 2026년 하반기 표준특허 전문가 양성 교육 안내",
+    "region": "서울",
+    "period": "2026-10-30 ~ 2026-10-30",
+    "org": "한국특허전략개발원",
     "date": "2026-09-23",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069499",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069503",
+    "firstSeenAt": "2026-09-23T13:26:18.940Z"
+  },
+  {
+    "eventId": "EVEN_000000000069502",
+    "title": "[경기] 성남시 OA 상위 1% 광고인의 압도적 스킬 PPT 마스터 교육 안내",
+    "region": "경기",
+    "period": "2026-10-15 ~ 2026-10-15",
+    "org": "성남상공회의소",
+    "date": "2026-09-23",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069502",
     "firstSeenAt": "2026-09-23T05:08:07.490Z"
   },
   {
@@ -450,83 +480,33 @@
     "firstSeenAt": "2026-09-23T05:08:07.490Z"
   },
   {
-    "eventId": "EVEN_000000000069502",
-    "title": "[경기] 성남시 OA 상위 1% 광고인의 압도적 스킬 PPT 마스터 교육 안내",
+    "eventId": "EVEN_000000000069499",
+    "title": "[경기] 2026년 스타트업 교육 교육생 모집 공고",
     "region": "경기",
-    "period": "2026-10-15 ~ 2026-10-15",
-    "org": "성남상공회의소",
+    "period": "2026-10-12 ~ 2026-11-18",
+    "org": "시흥산업진흥원",
     "date": "2026-09-23",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069502",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069499",
     "firstSeenAt": "2026-09-23T05:08:07.490Z"
   },
   {
-    "eventId": "EVEN_000000000069503",
-    "title": "[전국] 2026년 하반기 표준특허 전문가 양성 교육 안내",
+    "eventId": "EVEN_000000000069497",
+    "title": "[전국] 언리얼 엔진을 활용한 버추얼 휴먼 제작 과정(메타휴먼ㆍ마커리스 모션캡쳐)",
     "region": "서울",
-    "period": "2026-10-30 ~ 2026-10-30",
-    "org": "한국특허전략개발원",
+    "period": "2026-10-14 ~ 2026-10-16",
+    "org": "한국가상융합디지털산업협회",
     "date": "2026-09-23",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069503",
-    "firstSeenAt": "2026-09-23T13:26:18.940Z"
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069497",
+    "firstSeenAt": "2026-09-23T05:08:07.490Z"
   },
   {
-    "eventId": "EVEN_000000000069490",
-    "title": "[전국] 2026년 제3회 해양수산 과학기술 혁신포럼 개최 안내",
-    "region": "전국",
-    "period": "2026-09-28 ~ 2026-09-28",
-    "org": "해양수산과학기술진흥원",
-    "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069490",
-    "firstSeenAt": "2026-09-22T10:28:37.239Z"
-  },
-  {
-    "eventId": "EVEN_000000000069494",
-    "title": "[전국] 2026년 10월 중소기업 재직자 대상 광고ㆍ마케팅 무료교육 안내",
+    "eventId": "EVEN_000000000069486",
+    "title": "[전국] 2026년 특허기반 사업화 R&D 사업설명회 및 IP 제품혁신 방법론 교육 안내(예비 수혜기업)",
     "region": "서울",
-    "period": "2026-10-17 ~ 2026-10-31",
-    "org": "한국방송광고진흥공사",
+    "period": "2026-11-02 ~ 2026-11-02",
+    "org": "한국발명진흥회",
     "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069494",
-    "firstSeenAt": "2026-09-22T10:28:37.239Z"
-  },
-  {
-    "eventId": "EVEN_000000000069493",
-    "title": "[경기] 2026년 모빌리티 기술활용 재난안전 과정 교육 안내",
-    "region": "경기",
-    "period": "2026-10-30 ~ 2026-10-30",
-    "org": "고양산업진흥원",
-    "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069493",
-    "firstSeenAt": "2026-09-22T10:28:37.239Z"
-  },
-  {
-    "eventId": "EVEN_000000000069492",
-    "title": "[전국] 2026년 G-FAIR 연계 중국 유력 유통망 진출전략 설명ㆍ상담회",
-    "region": "경기",
-    "period": "2026-10-29 ~ 2026-10-29",
-    "org": "대한무역투자진흥공사",
-    "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069492",
-    "firstSeenAt": "2026-09-22T10:28:37.239Z"
-  },
-  {
-    "eventId": "EVEN_000000000069489",
-    "title": "[경기] 2026년 ESG 인식확산 교육(5~7회차) 참여자 모집 안내",
-    "region": "경기",
-    "period": "2026-09-11 ~ 2026-10-16",
-    "org": "경기도경제과학진흥원",
-    "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069489",
-    "firstSeenAt": "2026-09-22T10:28:37.239Z"
-  },
-  {
-    "eventId": "EVEN_000000000069488",
-    "title": "[경기] 2026 스타트업 플렉스 빅테크 커넥트 참가기업 모집 안내",
-    "region": "경기",
-    "period": "2026-10-13 ~ 2026-10-13",
-    "org": "경기지방중소벤처기업청",
-    "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069488",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069486",
     "firstSeenAt": "2026-09-22T10:28:37.239Z"
   },
   {
@@ -540,93 +520,73 @@
     "firstSeenAt": "2026-09-22T10:28:37.239Z"
   },
   {
-    "eventId": "EVEN_000000000069486",
-    "title": "[전국] 2026년 특허기반 사업화 R&D 사업설명회 및 IP 제품혁신 방법론 교육 안내(예비 수혜기업)",
-    "region": "서울",
-    "period": "2026-11-02 ~ 2026-11-02",
-    "org": "한국발명진흥회",
+    "eventId": "EVEN_000000000069488",
+    "title": "[경기] 2026 스타트업 플렉스 빅테크 커넥트 참가기업 모집 안내",
+    "region": "경기",
+    "period": "2026-10-13 ~ 2026-10-13",
+    "org": "경기지방중소벤처기업청",
     "date": "2026-09-22",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069486",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069488",
     "firstSeenAt": "2026-09-22T10:28:37.239Z"
   },
   {
-    "eventId": "EVEN_000000000069480",
-    "title": "[경기] 용인시 AI 활용 콘텐츠 및 랜딩 페이지 제작 실무 교육",
-    "region": "전국",
-    "period": "2026-10-19 ~ 2026-10-20",
-    "org": "용인시산업진흥원",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069480",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069477",
-    "title": "[전국] 2026년 9~12차 생활화학제품 안전관리 제도이행기업 교육",
-    "region": "전국",
-    "period": "2026-10-08 ~ 2026-10-30",
-    "org": "한국환경산업기술원",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069477",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069473",
-    "title": "[서울] 2026년 34기 IP창업존 청년특화과정 교육생 모집(서울지식재산센터 IP(지식재산)디딤돌프로그램)",
-    "region": "전국",
-    "period": "2026-10-19 ~ 2026-10-22",
-    "org": "서울경제진흥원",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069473",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069484",
-    "title": "[전국] 2026년 화장품 위해평가 국제심포지엄 개최 및 사전등록 안내",
-    "region": "서울",
-    "period": "2026-10-08 ~ 2026-10-08",
-    "org": "식품의약품안전평가원",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069484",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069483",
-    "title": "[전국] 임원ㆍ관리자를 위한 AI 업무 혁신 교육(팀의 AI 전환을 이끄는 리더 실무 교육)",
-    "region": "서울",
-    "period": "2026-10-21 ~ 2026-10-21",
-    "org": "메인비즈협회",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069483",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069482",
-    "title": "[전국] 공급망 ESG 관리 및 실사대응 실무 교육",
-    "region": "서울",
-    "period": "2026-10-28 ~ 2026-10-28",
-    "org": "한국환경산업기술원",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069482",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069481",
-    "title": "[전국] 2026년 서울 스타트업 원스톱 지원센터 AI 활용 실전 사업계획서 완성 캠프 참가자 모집 ​",
-    "region": "서울",
-    "period": "2026-10-27 ~ 2026-10-27",
-    "org": "서울창조경제혁신센터",
-    "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069481",
-    "firstSeenAt": "2026-09-21T11:31:04.589Z"
-  },
-  {
-    "eventId": "EVEN_000000000069479",
-    "title": "[경기] 2026년 8차 판교 퇴근길 밋업 참여자 모집",
+    "eventId": "EVEN_000000000069489",
+    "title": "[경기] 2026년 ESG 인식확산 교육(5~7회차) 참여자 모집 안내",
     "region": "경기",
-    "period": "2026-10-07 ~ 2026-10-07",
+    "period": "2026-09-11 ~ 2026-10-16",
     "org": "경기도경제과학진흥원",
+    "date": "2026-09-22",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069489",
+    "firstSeenAt": "2026-09-22T10:28:37.239Z"
+  },
+  {
+    "eventId": "EVEN_000000000069492",
+    "title": "[전국] 2026년 G-FAIR 연계 중국 유력 유통망 진출전략 설명ㆍ상담회",
+    "region": "경기",
+    "period": "2026-10-29 ~ 2026-10-29",
+    "org": "대한무역투자진흥공사",
+    "date": "2026-09-22",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069492",
+    "firstSeenAt": "2026-09-22T10:28:37.239Z"
+  },
+  {
+    "eventId": "EVEN_000000000069493",
+    "title": "[경기] 2026년 모빌리티 기술활용 재난안전 과정 교육 안내",
+    "region": "경기",
+    "period": "2026-10-30 ~ 2026-10-30",
+    "org": "고양산업진흥원",
+    "date": "2026-09-22",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069493",
+    "firstSeenAt": "2026-09-22T10:28:37.239Z"
+  },
+  {
+    "eventId": "EVEN_000000000069494",
+    "title": "[전국] 2026년 10월 중소기업 재직자 대상 광고ㆍ마케팅 무료교육 안내",
+    "region": "서울",
+    "period": "2026-10-17 ~ 2026-10-31",
+    "org": "한국방송광고진흥공사",
+    "date": "2026-09-22",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069494",
+    "firstSeenAt": "2026-09-22T10:28:37.239Z"
+  },
+  {
+    "eventId": "EVEN_000000000069490",
+    "title": "[전국] 2026년 제3회 해양수산 과학기술 혁신포럼 개최 안내",
+    "region": "전국",
+    "period": "2026-09-28 ~ 2026-09-28",
+    "org": "해양수산과학기술진흥원",
+    "date": "2026-09-22",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069490",
+    "firstSeenAt": "2026-09-22T10:28:37.239Z"
+  },
+  {
+    "eventId": "EVEN_000000000069472",
+    "title": "[인천] 2026년 무역비용 절감기법 교육 참여기업 모집(수출초보기업 교육 지원사업)",
+    "region": "인천",
+    "period": "2026-09-30 ~ 2026-09-30",
+    "org": "인천테크노파크",
     "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069479",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069472",
     "firstSeenAt": "2026-09-21T11:31:04.589Z"
   },
   {
@@ -640,43 +600,93 @@
     "firstSeenAt": "2026-09-21T11:31:04.589Z"
   },
   {
-    "eventId": "EVEN_000000000069472",
-    "title": "[인천] 2026년 무역비용 절감기법 교육 참여기업 모집(수출초보기업 교육 지원사업)",
-    "region": "인천",
-    "period": "2026-09-30 ~ 2026-09-30",
-    "org": "인천테크노파크",
+    "eventId": "EVEN_000000000069479",
+    "title": "[경기] 2026년 8차 판교 퇴근길 밋업 참여자 모집",
+    "region": "경기",
+    "period": "2026-10-07 ~ 2026-10-07",
+    "org": "경기도경제과학진흥원",
     "date": "2026-09-21",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069472",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069479",
     "firstSeenAt": "2026-09-21T11:31:04.589Z"
   },
   {
-    "eventId": "EVEN_000000000069470",
-    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 24회차 교육생 모집",
+    "eventId": "EVEN_000000000069481",
+    "title": "[전국] 2026년 서울 스타트업 원스톱 지원센터 AI 활용 실전 사업계획서 완성 캠프 참가자 모집 ​",
     "region": "서울",
-    "period": "2026-10-10 ~ 2026-10-10",
-    "org": "한국인터넷진흥원",
-    "date": "2026-09-18",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069470",
-    "firstSeenAt": "2026-09-18T08:00:07.528Z"
+    "period": "2026-10-27 ~ 2026-10-27",
+    "org": "서울창조경제혁신센터",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069481",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
   },
   {
-    "eventId": "EVEN_000000000069471",
-    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 25회차 교육생 모집",
+    "eventId": "EVEN_000000000069482",
+    "title": "[전국] 공급망 ESG 관리 및 실사대응 실무 교육",
     "region": "서울",
-    "period": "2026-10-11 ~ 2026-10-11",
-    "org": "한국인터넷진흥원",
-    "date": "2026-09-18",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069471",
-    "firstSeenAt": "2026-09-18T08:00:07.528Z"
+    "period": "2026-10-28 ~ 2026-10-28",
+    "org": "한국환경산업기술원",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069482",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
   },
   {
-    "eventId": "EVEN_000000000069465",
-    "title": "[전국] 원료ㆍ제조물 분야 중대시민재해 교육 개최",
+    "eventId": "EVEN_000000000069483",
+    "title": "[전국] 임원ㆍ관리자를 위한 AI 업무 혁신 교육(팀의 AI 전환을 이끄는 리더 실무 교육)",
+    "region": "서울",
+    "period": "2026-10-21 ~ 2026-10-21",
+    "org": "메인비즈협회",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069483",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
+  },
+  {
+    "eventId": "EVEN_000000000069484",
+    "title": "[전국] 2026년 화장품 위해평가 국제심포지엄 개최 및 사전등록 안내",
+    "region": "서울",
+    "period": "2026-10-08 ~ 2026-10-08",
+    "org": "식품의약품안전평가원",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069484",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
+  },
+  {
+    "eventId": "EVEN_000000000069473",
+    "title": "[서울] 2026년 34기 IP창업존 청년특화과정 교육생 모집(서울지식재산센터 IP(지식재산)디딤돌프로그램)",
     "region": "전국",
-    "period": "2026-09-30 ~ 2026-11-25",
-    "org": "KOTITI시험연구원",
+    "period": "2026-10-19 ~ 2026-10-22",
+    "org": "서울경제진흥원",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069473",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
+  },
+  {
+    "eventId": "EVEN_000000000069477",
+    "title": "[전국] 2026년 9~12차 생활화학제품 안전관리 제도이행기업 교육",
+    "region": "전국",
+    "period": "2026-10-08 ~ 2026-10-30",
+    "org": "한국환경산업기술원",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069477",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
+  },
+  {
+    "eventId": "EVEN_000000000069480",
+    "title": "[경기] 용인시 AI 활용 콘텐츠 및 랜딩 페이지 제작 실무 교육",
+    "region": "전국",
+    "period": "2026-10-19 ~ 2026-10-20",
+    "org": "용인시산업진흥원",
+    "date": "2026-09-21",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069480",
+    "firstSeenAt": "2026-09-21T11:31:04.589Z"
+  },
+  {
+    "eventId": "EVEN_000000000069467",
+    "title": "[전국] 2026년 의료기기 품질관리 국제기준 실습교육 및 해외인증 교육 안내",
+    "region": "전국",
+    "period": "2026-10-01 ~ 2026-10-02",
+    "org": "한국건설생활환경시험연구원",
     "date": "2026-09-18",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069465",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069467",
     "firstSeenAt": "2026-09-18T08:00:07.528Z"
   },
   {
@@ -690,53 +700,43 @@
     "firstSeenAt": "2026-09-18T08:00:07.528Z"
   },
   {
-    "eventId": "EVEN_000000000069467",
-    "title": "[전국] 2026년 의료기기 품질관리 국제기준 실습교육 및 해외인증 교육 안내",
+    "eventId": "EVEN_000000000069465",
+    "title": "[전국] 원료ㆍ제조물 분야 중대시민재해 교육 개최",
     "region": "전국",
-    "period": "2026-10-01 ~ 2026-10-02",
-    "org": "한국건설생활환경시험연구원",
+    "period": "2026-09-30 ~ 2026-11-25",
+    "org": "KOTITI시험연구원",
     "date": "2026-09-18",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069467",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069465",
     "firstSeenAt": "2026-09-18T08:00:07.528Z"
   },
   {
-    "eventId": "EVEN_000000000069454",
-    "title": "[전국] 물기업 재직자 역량강화 교육(국내인증 공장심사 준비과정(품질보증검사 실무&자재관리 실무))",
+    "eventId": "EVEN_000000000069471",
+    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 25회차 교육생 모집",
     "region": "서울",
-    "period": "2026-10-15 ~ 2026-10-16",
-    "org": "한국물기술인증원",
-    "date": "2026-09-17",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069454",
-    "firstSeenAt": "2026-09-17T08:00:07.036Z"
+    "period": "2026-10-11 ~ 2026-10-11",
+    "org": "한국인터넷진흥원",
+    "date": "2026-09-18",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069471",
+    "firstSeenAt": "2026-09-18T08:00:07.528Z"
   },
   {
-    "eventId": "EVEN_000000000069456",
-    "title": "[전국] 2026년 경기 가상융합산업 전문가 포럼 개최",
-    "region": "경기",
-    "period": "2026-10-01 ~ 2026-10-01",
-    "org": "정보통신산업진흥원",
-    "date": "2026-09-17",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069456",
-    "firstSeenAt": "2026-09-17T08:00:07.036Z"
+    "eventId": "EVEN_000000000069470",
+    "title": "[전국] 2026년 블록체인 밋업데이(BCMD) 24회차 교육생 모집",
+    "region": "서울",
+    "period": "2026-10-10 ~ 2026-10-10",
+    "org": "한국인터넷진흥원",
+    "date": "2026-09-18",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069470",
+    "firstSeenAt": "2026-09-18T08:00:07.528Z"
   },
   {
-    "eventId": "EVEN_000000000069457",
-    "title": "[인천] 2026년 하반기 온라인 마케팅 역량강화 교육 및 맞춤형 컨설팅 모집 안내",
-    "region": "인천",
-    "period": "2026-10-13 ~ 2026-10-20",
-    "org": "인천광역시 식품산업육성지원센터",
+    "eventId": "EVEN_000000000069461",
+    "title": "[전국] 화장품GMP 전문가 양성을 위한 실시간웨비나(온라인) 교육 실시 안내",
+    "region": "전국",
+    "period": "2026-10-06 ~ 2026-10-07",
+    "org": "대한화장품협회",
     "date": "2026-09-17",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069457",
-    "firstSeenAt": "2026-09-17T08:00:07.036Z"
-  },
-  {
-    "eventId": "EVEN_000000000069463",
-    "title": "[인천] 2026년 IP창업존 51기 교육(모두의창업 연계과정) 모집 공고 안내",
-    "region": "인천",
-    "period": "2026-10-01 ~ 2026-10-07",
-    "org": "인천지식재산센터",
-    "date": "2026-09-17",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069463",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069461",
     "firstSeenAt": "2026-09-17T08:00:07.036Z"
   },
   {
@@ -750,43 +750,53 @@
     "firstSeenAt": "2026-09-17T08:00:07.036Z"
   },
   {
-    "eventId": "EVEN_000000000069461",
-    "title": "[전국] 화장품GMP 전문가 양성을 위한 실시간웨비나(온라인) 교육 실시 안내",
-    "region": "전국",
-    "period": "2026-10-06 ~ 2026-10-07",
-    "org": "대한화장품협회",
+    "eventId": "EVEN_000000000069463",
+    "title": "[인천] 2026년 IP창업존 51기 교육(모두의창업 연계과정) 모집 공고 안내",
+    "region": "인천",
+    "period": "2026-10-01 ~ 2026-10-07",
+    "org": "인천지식재산센터",
     "date": "2026-09-17",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069461",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069463",
     "firstSeenAt": "2026-09-17T08:00:07.036Z"
   },
   {
-    "eventId": "EVEN_000000000069447",
-    "title": "[전국] 2026년 클라우드 서비스 보안인증(CSAP) 교육 안내",
-    "region": "서울",
-    "period": "2026-09-11 ~ 2026-11-29",
-    "org": "한국인터넷진흥원",
-    "date": "2026-09-16",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069447",
-    "firstSeenAt": "2026-09-16T08:00:07.695Z"
+    "eventId": "EVEN_000000000069457",
+    "title": "[인천] 2026년 하반기 온라인 마케팅 역량강화 교육 및 맞춤형 컨설팅 모집 안내",
+    "region": "인천",
+    "period": "2026-10-13 ~ 2026-10-20",
+    "org": "인천광역시 식품산업육성지원센터",
+    "date": "2026-09-17",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069457",
+    "firstSeenAt": "2026-09-17T08:00:07.036Z"
   },
   {
-    "eventId": "EVEN_000000000069449",
-    "title": "[경기] 의정부시 2026년 첨단산업 스케일업 AI 비즈니스 실전 전략 3회차 세미나 개최",
+    "eventId": "EVEN_000000000069456",
+    "title": "[전국] 2026년 경기 가상융합산업 전문가 포럼 개최",
     "region": "경기",
-    "period": "2026-10-21 ~ 2026-10-21",
-    "org": "경기창조경제혁신센터",
-    "date": "2026-09-16",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069449",
-    "firstSeenAt": "2026-09-16T08:00:07.695Z"
+    "period": "2026-10-01 ~ 2026-10-01",
+    "org": "정보통신산업진흥원",
+    "date": "2026-09-17",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069456",
+    "firstSeenAt": "2026-09-17T08:00:07.036Z"
   },
   {
-    "eventId": "EVEN_000000000069450",
-    "title": "[서울] 2026년 영등포 청년 창업 도약 아카데미 교육생 모집 안내",
+    "eventId": "EVEN_000000000069454",
+    "title": "[전국] 물기업 재직자 역량강화 교육(국내인증 공장심사 준비과정(품질보증검사 실무&자재관리 실무))",
     "region": "서울",
-    "period": "2026-10-15 ~ 2026-10-29",
-    "org": "서울창조경제혁신센터",
+    "period": "2026-10-15 ~ 2026-10-16",
+    "org": "한국물기술인증원",
+    "date": "2026-09-17",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069454",
+    "firstSeenAt": "2026-09-17T08:00:07.036Z"
+  },
+  {
+    "eventId": "EVEN_000000000069452",
+    "title": "[경기] 용인시 2026년 8차 창의융합 캠퍼스 AI 디지털 실무 아카데미 교육생 모집",
+    "region": "전국",
+    "period": "2026-09-28 ~ 2026-10-13",
+    "org": "용인시산업진흥원",
     "date": "2026-09-16",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069450",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069452",
     "firstSeenAt": "2026-09-16T08:00:07.695Z"
   },
   {
@@ -800,63 +810,43 @@
     "firstSeenAt": "2026-09-16T08:00:07.695Z"
   },
   {
-    "eventId": "EVEN_000000000069452",
-    "title": "[경기] 용인시 2026년 8차 창의융합 캠퍼스 AI 디지털 실무 아카데미 교육생 모집",
-    "region": "전국",
-    "period": "2026-09-28 ~ 2026-10-13",
-    "org": "용인시산업진흥원",
+    "eventId": "EVEN_000000000069450",
+    "title": "[서울] 2026년 영등포 청년 창업 도약 아카데미 교육생 모집 안내",
+    "region": "서울",
+    "period": "2026-10-15 ~ 2026-10-29",
+    "org": "서울창조경제혁신센터",
     "date": "2026-09-16",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069452",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069450",
     "firstSeenAt": "2026-09-16T08:00:07.695Z"
   },
   {
-    "eventId": "EVEN_000000000069441",
-    "title": "[제주] 2026년 3차 가치만드소(所) 밀착형 창업교육 운영 및 모집 안내",
-    "region": "전국",
-    "period": "2026-10-12 ~ 2026-10-28",
-    "org": "장애인기업종합지원센터",
-    "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069441",
-    "firstSeenAt": "2026-09-15T08:46:51.385Z"
-  },
-  {
-    "eventId": "EVEN_000000000069443",
-    "title": "[전국] 인천디자인교육센터 10월 재직자 무료 디자인교육 안내",
-    "region": "인천",
-    "period": "2026-10-06 ~ 2026-10-28",
-    "org": "인천디자인교육센터",
-    "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069443",
-    "firstSeenAt": "2026-09-15T08:46:51.385Z"
-  },
-  {
-    "eventId": "EVEN_000000000069439",
-    "title": "[경기] 화성시 2026년 반도체 분야 기술세미나 개최",
+    "eventId": "EVEN_000000000069449",
+    "title": "[경기] 의정부시 2026년 첨단산업 스케일업 AI 비즈니스 실전 전략 3회차 세미나 개최",
     "region": "경기",
-    "period": "2026-09-18 ~ 2026-09-18",
-    "org": "화성산업진흥원",
-    "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069439",
-    "firstSeenAt": "2026-09-15T08:46:51.385Z"
+    "period": "2026-10-21 ~ 2026-10-21",
+    "org": "경기창조경제혁신센터",
+    "date": "2026-09-16",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069449",
+    "firstSeenAt": "2026-09-16T08:00:07.695Z"
   },
   {
-    "eventId": "EVEN_000000000069438",
-    "title": "[전국] 2026년 재도전 마인드업(힐링캠프) 참여자 모집 안내",
-    "region": "경기",
-    "period": "2026-09-30 ~ 2026-10-01",
-    "org": "중소벤처기업진흥공단",
-    "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069438",
-    "firstSeenAt": "2026-09-15T08:46:51.385Z"
-  },
-  {
-    "eventId": "EVEN_000000000069436",
-    "title": "[전국] 중소기업 대상 신속시범사업 설명회 안내",
+    "eventId": "EVEN_000000000069447",
+    "title": "[전국] 2026년 클라우드 서비스 보안인증(CSAP) 교육 안내",
     "region": "서울",
-    "period": "2026-09-18 ~ 2026-09-18",
-    "org": "국방신속획득기술연구원",
+    "period": "2026-09-11 ~ 2026-11-29",
+    "org": "한국인터넷진흥원",
+    "date": "2026-09-16",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069447",
+    "firstSeenAt": "2026-09-16T08:00:07.695Z"
+  },
+  {
+    "eventId": "EVEN_000000000069434",
+    "title": "[전국] 디지털의료기기 인허가 심사를 위한 사용적합성(UsabiIity) 업무 설명회",
+    "region": "서울",
+    "period": "2026-09-29 ~ 2026-09-29",
+    "org": "한국의료기기안전정보원",
     "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069436",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069434",
     "firstSeenAt": "2026-09-15T08:46:51.385Z"
   },
   {
@@ -870,33 +860,63 @@
     "firstSeenAt": "2026-09-15T08:46:51.385Z"
   },
   {
-    "eventId": "EVEN_000000000069434",
-    "title": "[전국] 디지털의료기기 인허가 심사를 위한 사용적합성(UsabiIity) 업무 설명회",
+    "eventId": "EVEN_000000000069436",
+    "title": "[전국] 중소기업 대상 신속시범사업 설명회 안내",
     "region": "서울",
-    "period": "2026-09-29 ~ 2026-09-29",
-    "org": "한국의료기기안전정보원",
+    "period": "2026-09-18 ~ 2026-09-18",
+    "org": "국방신속획득기술연구원",
     "date": "2026-09-15",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069434",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069436",
     "firstSeenAt": "2026-09-15T08:46:51.385Z"
   },
   {
-    "eventId": "EVEN_000000000069427",
-    "title": "[전국] 2026년 사회연대경제 성장 포럼 개최",
-    "region": "서울",
-    "period": "2026-09-22 ~ 2026-09-22",
-    "org": "중소벤처기업연구원",
-    "date": "2026-09-14",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069427",
-    "firstSeenAt": "2026-09-14T09:33:39.868Z"
+    "eventId": "EVEN_000000000069438",
+    "title": "[전국] 2026년 재도전 마인드업(힐링캠프) 참여자 모집 안내",
+    "region": "경기",
+    "period": "2026-09-30 ~ 2026-10-01",
+    "org": "중소벤처기업진흥공단",
+    "date": "2026-09-15",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069438",
+    "firstSeenAt": "2026-09-15T08:46:51.385Z"
   },
   {
-    "eventId": "EVEN_000000000069428",
-    "title": "[전국] 2026년 중소기업기술마켓 공공조달 및 개인정보 보호 역량강화 교육ㆍ컨설팅 모집",
-    "region": "서울",
-    "period": "2026-09-21 ~ 2026-09-21",
-    "org": "한국인터넷진흥원",
+    "eventId": "EVEN_000000000069439",
+    "title": "[경기] 화성시 2026년 반도체 분야 기술세미나 개최",
+    "region": "경기",
+    "period": "2026-09-18 ~ 2026-09-18",
+    "org": "화성산업진흥원",
+    "date": "2026-09-15",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069439",
+    "firstSeenAt": "2026-09-15T08:46:51.385Z"
+  },
+  {
+    "eventId": "EVEN_000000000069443",
+    "title": "[전국] 인천디자인교육센터 10월 재직자 무료 디자인교육 안내",
+    "region": "인천",
+    "period": "2026-10-06 ~ 2026-10-28",
+    "org": "인천디자인교육센터",
+    "date": "2026-09-15",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069443",
+    "firstSeenAt": "2026-09-15T08:46:51.385Z"
+  },
+  {
+    "eventId": "EVEN_000000000069441",
+    "title": "[제주] 2026년 3차 가치만드소(所) 밀착형 창업교육 운영 및 모집 안내",
+    "region": "전국",
+    "period": "2026-10-12 ~ 2026-10-28",
+    "org": "장애인기업종합지원센터",
+    "date": "2026-09-15",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069441",
+    "firstSeenAt": "2026-09-15T08:46:51.385Z"
+  },
+  {
+    "eventId": "EVEN_000000000069430",
+    "title": "[경기] 2026년 경기도형 스마트공장 디지털 제조혁신 전문인력 양성 교육(스마트공장 구축 이후 활용 전략) 참가자 모집 공고",
+    "region": "경기",
+    "period": "2026-09-30 ~ 2026-09-30",
+    "org": "경기테크노파크",
     "date": "2026-09-14",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069428",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069430",
     "firstSeenAt": "2026-09-14T09:33:39.868Z"
   },
   {
@@ -910,43 +930,33 @@
     "firstSeenAt": "2026-09-14T09:33:39.868Z"
   },
   {
-    "eventId": "EVEN_000000000069430",
-    "title": "[경기] 2026년 경기도형 스마트공장 디지털 제조혁신 전문인력 양성 교육(스마트공장 구축 이후 활용 전략) 참가자 모집 공고",
-    "region": "경기",
-    "period": "2026-09-30 ~ 2026-09-30",
-    "org": "경기테크노파크",
+    "eventId": "EVEN_000000000069428",
+    "title": "[전국] 2026년 중소기업기술마켓 공공조달 및 개인정보 보호 역량강화 교육ㆍ컨설팅 모집",
+    "region": "서울",
+    "period": "2026-09-21 ~ 2026-09-21",
+    "org": "한국인터넷진흥원",
     "date": "2026-09-14",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069430",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069428",
     "firstSeenAt": "2026-09-14T09:33:39.868Z"
   },
   {
-    "eventId": "EVEN_000000000069421",
-    "title": "[경기] 성남시 2026년 의료기기-ICT 기업 간 기술교류회 참가기업 모집 안내",
+    "eventId": "EVEN_000000000069427",
+    "title": "[전국] 2026년 사회연대경제 성장 포럼 개최",
+    "region": "서울",
+    "period": "2026-09-22 ~ 2026-09-22",
+    "org": "중소벤처기업연구원",
+    "date": "2026-09-14",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069427",
+    "firstSeenAt": "2026-09-14T09:33:39.868Z"
+  },
+  {
+    "eventId": "EVEN_000000000069426",
+    "title": "[경기] 고양시 2026년 1차 28청춘창업소 액셀러레이팅 창업 특강ㆍ네트워킹 데이 개최",
     "region": "경기",
-    "period": "2026-11-05 ~ 2026-11-05",
-    "org": "기초자치단체",
+    "period": "2026-09-28 ~ 2026-09-28",
+    "org": "고양산업진흥원",
     "date": "2026-09-11",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069421",
-    "firstSeenAt": "2026-09-11T08:00:08.091Z"
-  },
-  {
-    "eventId": "EVEN_000000000069422",
-    "title": "[서울] 강남구 2026년 사회연대경제기업 창업 아카데미 참가자 모집 안내",
-    "region": "서울",
-    "period": "2026-10-06 ~ 2026-11-30",
-    "org": "기초자치단체",
-    "date": "2026-09-11",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069422",
-    "firstSeenAt": "2026-09-11T08:00:08.091Z"
-  },
-  {
-    "eventId": "EVEN_000000000069423",
-    "title": "[전국] 2026년 우즈베키스탄 타슈켄트 바이오클러스터 사업설명회 개최",
-    "region": "서울",
-    "period": "2026-09-17 ~ 2026-09-17",
-    "org": "한국해외인프라도시개발지원공사",
-    "date": "2026-09-11",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069423",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069426",
     "firstSeenAt": "2026-09-11T08:00:08.091Z"
   },
   {
@@ -960,43 +970,43 @@
     "firstSeenAt": "2026-09-11T08:00:08.091Z"
   },
   {
-    "eventId": "EVEN_000000000069426",
-    "title": "[경기] 고양시 2026년 1차 28청춘창업소 액셀러레이팅 창업 특강ㆍ네트워킹 데이 개최",
-    "region": "경기",
-    "period": "2026-09-28 ~ 2026-09-28",
-    "org": "고양산업진흥원",
+    "eventId": "EVEN_000000000069423",
+    "title": "[전국] 2026년 우즈베키스탄 타슈켄트 바이오클러스터 사업설명회 개최",
+    "region": "서울",
+    "period": "2026-09-17 ~ 2026-09-17",
+    "org": "한국해외인프라도시개발지원공사",
     "date": "2026-09-11",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069426",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069423",
     "firstSeenAt": "2026-09-11T08:00:08.091Z"
   },
   {
-    "eventId": "EVEN_000000000069412",
-    "title": "[전국] 2026년 소상공인 업종전문기술교육 업종기초(5시간이면 충분한 AI 쓰는 사장님)과정 모집",
-    "region": "경기",
-    "period": "2026-10-08 ~ 2026-10-08",
-    "org": "소상공인시장진흥공단",
-    "date": "2026-09-10",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069412",
-    "firstSeenAt": "2026-09-10T08:14:31.391Z"
-  },
-  {
-    "eventId": "EVEN_000000000069413",
-    "title": "[전국] 2026년 소상공인 업종전문기술교육 업종심화(이제, AI에게 일 시키는 사장님)과정 모집",
-    "region": "경기",
-    "period": "2026-10-15 ~ 2026-10-16",
-    "org": "소상공인시장진흥공단",
-    "date": "2026-09-10",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069413",
-    "firstSeenAt": "2026-09-10T08:14:31.391Z"
-  },
-  {
-    "eventId": "EVEN_000000000069414",
-    "title": "[전국] 2026년 AI 활용 정보보호제품 개발ㆍ보안 역량 강화 교육",
+    "eventId": "EVEN_000000000069422",
+    "title": "[서울] 강남구 2026년 사회연대경제기업 창업 아카데미 참가자 모집 안내",
     "region": "서울",
-    "period": "2026-09-15 ~ 2026-09-15",
-    "org": "한국인터넷진흥원",
+    "period": "2026-10-06 ~ 2026-11-30",
+    "org": "기초자치단체",
+    "date": "2026-09-11",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069422",
+    "firstSeenAt": "2026-09-11T08:00:08.091Z"
+  },
+  {
+    "eventId": "EVEN_000000000069421",
+    "title": "[경기] 성남시 2026년 의료기기-ICT 기업 간 기술교류회 참가기업 모집 안내",
+    "region": "경기",
+    "period": "2026-11-05 ~ 2026-11-05",
+    "org": "기초자치단체",
+    "date": "2026-09-11",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069421",
+    "firstSeenAt": "2026-09-11T08:00:08.091Z"
+  },
+  {
+    "eventId": "EVEN_000000000069419",
+    "title": "[서울] 2026년 협동조합 역량강화 프로그램 협동조합은 만들었는데, 사업은 어떻게 키우죠? 참여자 모집 안내",
+    "region": "서울",
+    "period": "2026-09-18 ~ 2026-09-22",
+    "org": "서울특별시사회적경제지원센터",
     "date": "2026-09-10",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069414",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069419",
     "firstSeenAt": "2026-09-10T08:14:31.391Z"
   },
   {
@@ -1010,33 +1020,43 @@
     "firstSeenAt": "2026-09-10T08:14:31.391Z"
   },
   {
-    "eventId": "EVEN_000000000069419",
-    "title": "[서울] 2026년 협동조합 역량강화 프로그램 협동조합은 만들었는데, 사업은 어떻게 키우죠? 참여자 모집 안내",
+    "eventId": "EVEN_000000000069414",
+    "title": "[전국] 2026년 AI 활용 정보보호제품 개발ㆍ보안 역량 강화 교육",
     "region": "서울",
-    "period": "2026-09-18 ~ 2026-09-22",
-    "org": "서울특별시사회적경제지원센터",
+    "period": "2026-09-15 ~ 2026-09-15",
+    "org": "한국인터넷진흥원",
     "date": "2026-09-10",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069419",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069414",
     "firstSeenAt": "2026-09-10T08:14:31.391Z"
   },
   {
-    "eventId": "EVEN_000000000069404",
-    "title": "[전국] 복수의결권주식ㆍ성과조건부주식 설명회 개최",
-    "region": "서울",
-    "period": "2026-10-01 ~ 2026-10-01",
-    "org": "벤처기업협회",
-    "date": "2026-09-09",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069404",
-    "firstSeenAt": "2026-09-09T04:00:07.293Z"
+    "eventId": "EVEN_000000000069413",
+    "title": "[전국] 2026년 소상공인 업종전문기술교육 업종심화(이제, AI에게 일 시키는 사장님)과정 모집",
+    "region": "경기",
+    "period": "2026-10-15 ~ 2026-10-16",
+    "org": "소상공인시장진흥공단",
+    "date": "2026-09-10",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069413",
+    "firstSeenAt": "2026-09-10T08:14:31.391Z"
   },
   {
-    "eventId": "EVEN_000000000069410",
-    "title": "[경기] 2026년 경기도 수출역량강화교육 7차 교육생 모집",
+    "eventId": "EVEN_000000000069412",
+    "title": "[전국] 2026년 소상공인 업종전문기술교육 업종기초(5시간이면 충분한 AI 쓰는 사장님)과정 모집",
     "region": "경기",
-    "period": "2026-10-13 ~ 2026-10-22",
-    "org": "경기도수출기업협회",
+    "period": "2026-10-08 ~ 2026-10-08",
+    "org": "소상공인시장진흥공단",
+    "date": "2026-09-10",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069412",
+    "firstSeenAt": "2026-09-10T08:14:31.391Z"
+  },
+  {
+    "eventId": "EVEN_000000000069405",
+    "title": "[전국] VICON 기반 모션캡쳐 실무 파이프라인 디지털 휴먼 콘텐츠 제작 과정",
+    "region": "경기",
+    "period": "2026-10-06 ~ 2026-10-08",
+    "org": "한국가상융합디지털산업협회",
     "date": "2026-09-09",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069410",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069405",
     "firstSeenAt": "2026-09-09T07:28:47.238Z"
   },
   {
@@ -1050,53 +1070,33 @@
     "firstSeenAt": "2026-09-09T07:28:47.238Z"
   },
   {
-    "eventId": "EVEN_000000000069405",
-    "title": "[전국] VICON 기반 모션캡쳐 실무 파이프라인 디지털 휴먼 콘텐츠 제작 과정",
+    "eventId": "EVEN_000000000069410",
+    "title": "[경기] 2026년 경기도 수출역량강화교육 7차 교육생 모집",
     "region": "경기",
-    "period": "2026-10-06 ~ 2026-10-08",
-    "org": "한국가상융합디지털산업협회",
+    "period": "2026-10-13 ~ 2026-10-22",
+    "org": "경기도수출기업협회",
     "date": "2026-09-09",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069405",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069410",
     "firstSeenAt": "2026-09-09T07:28:47.238Z"
   },
   {
-    "eventId": "EVEN_000000000069401",
-    "title": "[경기] 용인시 2026년 판로역량 강화교육 무역실무 과정 4회ㆍ5회차 교육생 모집 안내",
-    "region": "경기",
-    "period": "2026-10-07 ~ 2026-10-21",
-    "org": "용인시산업진흥원",
-    "date": "2026-09-08",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069401",
-    "firstSeenAt": "2026-09-08T08:00:07.570Z"
+    "eventId": "EVEN_000000000069404",
+    "title": "[전국] 복수의결권주식ㆍ성과조건부주식 설명회 개최",
+    "region": "서울",
+    "period": "2026-10-01 ~ 2026-10-01",
+    "org": "벤처기업협회",
+    "date": "2026-09-09",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069404",
+    "firstSeenAt": "2026-09-09T04:00:07.293Z"
   },
   {
-    "eventId": "EVEN_000000000069400",
-    "title": "[전국] 2026년 3회차 스포츠산업 수출상담회 참여기업 모집",
+    "eventId": "EVEN_000000000069395",
+    "title": "[서울] 서초창업스테이션 9월 창업 교육 프로그램",
     "region": "서울",
-    "period": "2026-10-27 ~ 2026-10-27",
-    "org": "국민체육진흥공단",
+    "period": "2026-09-22 ~ 2026-09-22",
+    "org": "서초창업스테이션",
     "date": "2026-09-08",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069400",
-    "firstSeenAt": "2026-09-08T08:00:07.570Z"
-  },
-  {
-    "eventId": "EVEN_000000000069399",
-    "title": "[전국] 2026년 10월 ESG 전문인력 양성과정 교육생 모집",
-    "region": "서울",
-    "period": "2026-10-12 ~ 2026-10-30",
-    "org": "한국환경산업기술원",
-    "date": "2026-09-08",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069399",
-    "firstSeenAt": "2026-09-08T08:00:07.570Z"
-  },
-  {
-    "eventId": "EVEN_000000000069397",
-    "title": "[전국] 2026년 바이오 소재 AI 기반 제품화 및 인체적용시험을 통한 글로벌 사업화 세미나 모집",
-    "region": "서울",
-    "period": "2026-09-16 ~ 2026-09-16",
-    "org": "한국산업기술시험원",
-    "date": "2026-09-08",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069397",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069395",
     "firstSeenAt": "2026-09-08T08:00:07.570Z"
   },
   {
@@ -1110,13 +1110,43 @@
     "firstSeenAt": "2026-09-08T08:00:07.570Z"
   },
   {
-    "eventId": "EVEN_000000000069395",
-    "title": "[서울] 서초창업스테이션 9월 창업 교육 프로그램",
+    "eventId": "EVEN_000000000069397",
+    "title": "[전국] 2026년 바이오 소재 AI 기반 제품화 및 인체적용시험을 통한 글로벌 사업화 세미나 모집",
     "region": "서울",
-    "period": "2026-09-22 ~ 2026-09-22",
-    "org": "서초창업스테이션",
+    "period": "2026-09-16 ~ 2026-09-16",
+    "org": "한국산업기술시험원",
     "date": "2026-09-08",
-    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069395",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069397",
+    "firstSeenAt": "2026-09-08T08:00:07.570Z"
+  },
+  {
+    "eventId": "EVEN_000000000069399",
+    "title": "[전국] 2026년 10월 ESG 전문인력 양성과정 교육생 모집",
+    "region": "서울",
+    "period": "2026-10-12 ~ 2026-10-30",
+    "org": "한국환경산업기술원",
+    "date": "2026-09-08",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069399",
+    "firstSeenAt": "2026-09-08T08:00:07.570Z"
+  },
+  {
+    "eventId": "EVEN_000000000069400",
+    "title": "[전국] 2026년 3회차 스포츠산업 수출상담회 참여기업 모집",
+    "region": "서울",
+    "period": "2026-10-27 ~ 2026-10-27",
+    "org": "국민체육진흥공단",
+    "date": "2026-09-08",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069400",
+    "firstSeenAt": "2026-09-08T08:00:07.570Z"
+  },
+  {
+    "eventId": "EVEN_000000000069401",
+    "title": "[경기] 용인시 2026년 판로역량 강화교육 무역실무 과정 4회ㆍ5회차 교육생 모집 안내",
+    "region": "경기",
+    "period": "2026-10-07 ~ 2026-10-21",
+    "org": "용인시산업진흥원",
+    "date": "2026-09-08",
+    "url": "https://www.bizinfo.go.kr/sie/siea/selectSIEA430Detail.do?eventInfoId=EVEN_000000000069401",
     "firstSeenAt": "2026-09-08T08:00:07.570Z"
   }
 ]
