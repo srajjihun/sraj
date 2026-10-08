@@ -1,5 +1,15 @@
 [
   {
+    "nttNo": "420244",
+    "title": "서울시 「동행안심벨(구 안심헬프미) 지원사업」 하반기 신청·접수 안내",
+    "dept": "아동청소년과",
+    "date": "2026-10-07",
+    "deadline": null,
+    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420244",
+    "matchedKeyword": "신청",
+    "firstSeenAt": "2026-10-08T00:44:28.601Z"
+  },
+  {
     "nttNo": "420134",
     "title": "영등포구 우수평생학습동아리 &lt;재능기부 원데이 클래스&gt; 수강생 모집",
     "dept": "미래교육과",
@@ -428,15 +438,5 @@
     "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=419282",
     "matchedKeyword": "신청",
     "firstSeenAt": "2026-09-09T04:00:04.239Z"
-  },
-  {
-    "nttNo": "419241",
-    "title": "수변 웰니스 달빛여행 2회차 참가자 모집",
-    "dept": "문화예술과",
-    "date": "2026-09-08",
-    "deadline": null,
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=419241",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-09-08T08:00:04.609Z"
   }
 ]
