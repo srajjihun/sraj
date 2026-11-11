@@ -1,5 +1,15 @@
 [
   {
+    "nttNo": "421411",
+    "title": "서울시 「동행안심벨(구 안심헬프미) 지원사업」 하반기 신청·접수 안내(오프라인 신청 추가)",
+    "dept": "아동청소년과",
+    "date": "2026-11-11",
+    "deadline": null,
+    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=421411",
+    "matchedKeyword": "신청",
+    "firstSeenAt": "2026-11-11T00:30:39.792Z"
+  },
+  {
     "nttNo": "421334",
     "title": "영등포 K-POP 댄스 아카데미(실전반) 수강생 모집(신길책마루문화센터)",
     "dept": "문화예술과",
@@ -198,35 +208,5 @@
     "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420437",
     "matchedKeyword": "모집",
     "firstSeenAt": "2026-10-13T11:24:19.716Z"
-  },
-  {
-    "nttNo": "420413",
-    "title": "2026년 라이브커머스 판로성장 프로그램 참여기업 모집 (~10/30)",
-    "dept": "일자리경제과",
-    "date": "2026-10-12",
-    "deadline": "2026-10-30",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420413",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-10-13T00:40:04.302Z"
-  },
-  {
-    "nttNo": "420390",
-    "title": "〈영등포 청년건축학교〉 2026년 도장기능사 기술교육 3차 교육생 모집!!!",
-    "dept": "청년정책과",
-    "date": "2026-10-12",
-    "deadline": null,
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420390",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-10-12T05:24:05.183Z"
-  },
-  {
-    "nttNo": "420389",
-    "title": "2026 영등포 청년 독립 프로젝트 「영(Young)한 독립생활」 참가자 모집 (10. 19. ~ 11. 3.)",
-    "dept": "청년정책과",
-    "date": "2026-10-12",
-    "deadline": "2026-11-03",
-    "url": "https://www.ydp.go.kr/www/selectBbsNttView.do?bbsNo=40&key=2848&nttNo=420389",
-    "matchedKeyword": "모집",
-    "firstSeenAt": "2026-10-12T05:24:05.183Z"
   }
 ]
