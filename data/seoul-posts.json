@@ -1,5 +1,14 @@
 [
   {
+    "url": "https://news.seoul.go.kr/env/archives/571562",
+    "title": "&#39;난방에너지 절감 시민 실천&#39; 참여자 모집 (&#39;26.12. ~ &#39;27.3.)",
+    "date": "2026-11-26",
+    "category": "",
+    "summary": "서울시 도시가스 개별난방 가구의 세대원이라면, 2026년 12월~2027년 3월 중 도시가스 사용량을 전년 같은 달보다 줄여 참여할 수 있습니다. 도시가스 사용량 절감 인증 사진을 인증용 구글폼에 올려 주세요. 인증한 달의 다음 달에 1,000명을 추첨해 1인당 1,000 에코마일리지를 드립니다.",
+    "deadline": null,
+    "firstSeenAt": "2026-11-26T08:51:27.923Z"
+  },
+  {
     "url": "https://news.seoul.go.kr/economy/archives/575344",
     "title": "KIST와 함께하는 과학 진로 특강 시리즈 (4,5회차) 참여자 모집 안내",
     "date": "2026-11-23",
@@ -36,15 +45,6 @@
     "firstSeenAt": "2026-11-18T00:39:00.623Z"
   },
   {
-    "url": "https://news.seoul.go.kr/welfare/archives/584737",
-    "title": "노로바이러스 감염증 예방·관리 교육자료 신청 안내",
-    "date": "2026-11-17",
-    "category": "",
-    "summary": "서울시 시민건강국 감염병관리과에서는 영유아 시설과 가정의 노로바이러스 예방 역량 강화를 위해 교육자료 6종을 제작하였습니다. 신청 대상은 서울시 소재 어린이집·유치원 및 학부모입니다. 자료는 지침서 1종, 포스터 2종, 청소·소독 절차 2종, 리플릿 1종으로 구성되어 있습니다. QR코드를 통해 11월 27일까지 신청서를 제출하시면 12월 1일부터 기재하신 주소로 순차 배송됩니다. 수량이 제한되어 선착순 배부하며, 자료는 출처 표시 후 비영리적 공유만 가능함을 안내드립니다.",
-    "deadline": "2026-11-27",
-    "firstSeenAt": "2026-11-17T08:26:24.502Z"
-  },
-  {
     "url": "https://news.seoul.go.kr/economy/archives/575212",
     "title": "강북노동자복지관 입주단체 모집",
     "date": "2026-11-17",
@@ -54,13 +54,22 @@
     "firstSeenAt": "2026-11-18T12:38:18.044Z"
   },
   {
-    "url": "https://news.seoul.go.kr/economy/archives/575191",
-    "title": "2026년도 2차 서울주얼리지원센터 직원(과장급) 채용공고",
-    "date": "2026-11-16",
+    "url": "https://news.seoul.go.kr/welfare/archives/584737",
+    "title": "노로바이러스 감염증 예방·관리 교육자료 신청 안내",
+    "date": "2026-11-17",
     "category": "",
-    "summary": "서울주얼리지원센터는 2026년 2차 공고로 과장급 계약직 1명을 모집 중입니다. 주요 업무는 주얼리 지원사업 기획·예산·성과관리이며 근무는 화~토 10~19시이고 월급은 세전 315만6,900원입니다. 지원 마감은 11월 28일 14시이며 제출처는 meet@sjc.or.kr입니다.",
+    "summary": "서울시 시민건강국 감염병관리과에서는 영유아 시설과 가정의 노로바이러스 예방 역량 강화를 위해 교육자료 6종을 제작하였습니다. 신청 대상은 서울시 소재 어린이집·유치원 및 학부모입니다. 자료는 지침서 1종, 포스터 2종, 청소·소독 절차 2종, 리플릿 1종으로 구성되어 있습니다. QR코드를 통해 11월 27일까지 신청서를 제출하시면 12월 1일부터 기재하신 주소로 순차 배송됩니다. 수량이 제한되어 선착순 배부하며, 자료는 출처 표시 후 비영리적 공유만 가능함을 안내드립니다.",
+    "deadline": "2026-11-27",
+    "firstSeenAt": "2026-11-17T08:26:24.502Z"
+  },
+  {
+    "url": "https://news.seoul.go.kr/gov/archives/581952",
+    "title": "2026 행복나눔 플리마켓 - 서울시 산타요정들의 나눔대작전! with 서울시 홍보대사",
+    "date": "2026-11-16",
+    "category": "행정",
+    "summary": "",
     "deadline": null,
-    "firstSeenAt": "2026-11-16T04:00:05.238Z"
+    "firstSeenAt": "2026-11-16T00:31:03.888Z"
   },
   {
     "url": "https://news.seoul.go.kr/gov/archives/582009",
@@ -72,13 +81,13 @@
     "firstSeenAt": "2026-11-16T04:00:05.238Z"
   },
   {
-    "url": "https://news.seoul.go.kr/gov/archives/581952",
-    "title": "2026 행복나눔 플리마켓 - 서울시 산타요정들의 나눔대작전! with 서울시 홍보대사",
+    "url": "https://news.seoul.go.kr/economy/archives/575191",
+    "title": "2026년도 2차 서울주얼리지원센터 직원(과장급) 채용공고",
     "date": "2026-11-16",
-    "category": "행정",
-    "summary": "",
+    "category": "",
+    "summary": "서울주얼리지원센터는 2026년 2차 공고로 과장급 계약직 1명을 모집 중입니다. 주요 업무는 주얼리 지원사업 기획·예산·성과관리이며 근무는 화~토 10~19시이고 월급은 세전 315만6,900원입니다. 지원 마감은 11월 28일 14시이며 제출처는 meet@sjc.or.kr입니다.",
     "deadline": null,
-    "firstSeenAt": "2026-11-16T00:31:03.888Z"
+    "firstSeenAt": "2026-11-16T04:00:05.238Z"
   },
   {
     "url": "https://news.seoul.go.kr/economy/archives/575178",
@@ -99,22 +108,13 @@
     "firstSeenAt": "2026-11-09T07:08:00.370Z"
   },
   {
-    "url": "https://news.seoul.go.kr/gov/archives/581804",
-    "title": "로컬 창업의 첫 걸음! &lt;찾아가는 넥스트로컬 in 나주&gt; 참여 청년 모집(~11.18)",
+    "url": "https://news.seoul.go.kr/welfare/archives/584379",
+    "title": "2026 서울 외국인 취업채용박람회 개최(11. 18. 수요일)",
     "date": "2026-11-04",
-    "category": "행정",
+    "category": "",
     "summary": "",
     "deadline": null,
-    "firstSeenAt": "2026-11-04T16:01:14.757Z"
-  },
-  {
-    "url": "https://news.seoul.go.kr/gov/archives/581800",
-    "title": "[상주서울농장] 제철먹거리체험-상주곶감여행 (261120)",
-    "date": "2026-11-04",
-    "category": "행정",
-    "summary": "",
-    "deadline": null,
-    "firstSeenAt": "2026-11-04T04:00:04.382Z"
+    "firstSeenAt": "2026-11-05T04:00:04.626Z"
   },
   {
     "url": "https://news.seoul.go.kr/economy/archives/575117",
@@ -126,13 +126,22 @@
     "firstSeenAt": "2026-11-04T06:57:06.085Z"
   },
   {
-    "url": "https://news.seoul.go.kr/welfare/archives/584379",
-    "title": "2026 서울 외국인 취업채용박람회 개최(11. 18. 수요일)",
+    "url": "https://news.seoul.go.kr/gov/archives/581800",
+    "title": "[상주서울농장] 제철먹거리체험-상주곶감여행 (261120)",
     "date": "2026-11-04",
-    "category": "",
+    "category": "행정",
     "summary": "",
     "deadline": null,
-    "firstSeenAt": "2026-11-05T04:00:04.626Z"
+    "firstSeenAt": "2026-11-04T04:00:04.382Z"
+  },
+  {
+    "url": "https://news.seoul.go.kr/gov/archives/581804",
+    "title": "로컬 창업의 첫 걸음! &lt;찾아가는 넥스트로컬 in 나주&gt; 참여 청년 모집(~11.18)",
+    "date": "2026-11-04",
+    "category": "행정",
+    "summary": "",
+    "deadline": null,
+    "firstSeenAt": "2026-11-04T16:01:14.757Z"
   },
   {
     "url": "https://news.seoul.go.kr/culture/archives/535159",
@@ -144,8 +153,8 @@
     "firstSeenAt": "2026-11-03T11:36:51.770Z"
   },
   {
-    "url": "https://news.seoul.go.kr/gov/archives/581767",
-    "title": "[부여서울농장] 겨울 여행도 부여가 맛집 (261120)",
+    "url": "https://news.seoul.go.kr/gov/archives/581763",
+    "title": "[괴산서울농장] 자연울림 맛의울림-총각김치편-2 (261121)",
     "date": "2026-11-02",
     "category": "행정",
     "summary": "",
@@ -153,8 +162,8 @@
     "firstSeenAt": "2026-11-02T11:59:11.331Z"
   },
   {
-    "url": "https://news.seoul.go.kr/gov/archives/581763",
-    "title": "[괴산서울농장] 자연울림 맛의울림-총각김치편-2 (261121)",
+    "url": "https://news.seoul.go.kr/gov/archives/581767",
+    "title": "[부여서울농장] 겨울 여행도 부여가 맛집 (261120)",
     "date": "2026-11-02",
     "category": "행정",
     "summary": "",
@@ -171,20 +180,20 @@
     "firstSeenAt": "2026-10-31T10:10:36.963Z"
   },
   {
-    "url": "https://news.seoul.go.kr/economy/archives/575053",
-    "title": "2026 서울퀀텀캠퍼스 겨울캠프 양자컴퓨팅 활용 과정 교육생 모집",
-    "date": "2026-10-30",
-    "category": "",
-    "summary": "교육 기간은 2026년 11월 30일~12월 4일 10~17시입니다. 장소는 서울바이오허브와 SDT 데이터센터입니다. 주요 내용은 양자컴퓨터 실습·견학·아이디어 구상입니다. 모집은 11월 2일 10시~18일 24시이며 정원 20명입니다. 지원은 링크에서 온라인 신청서 제출입니다.",
-    "deadline": null,
-    "firstSeenAt": "2026-10-30T10:42:39.295Z"
-  },
-  {
     "url": "https://news.seoul.go.kr/culture/archives/535140",
     "title": "시 읽는 서울지하철, 시인과 함께 떠나보세요~(&#39;26.11.1. 일요일)",
     "date": "2026-10-30",
     "category": "",
     "summary": "",
+    "deadline": null,
+    "firstSeenAt": "2026-10-30T10:42:39.295Z"
+  },
+  {
+    "url": "https://news.seoul.go.kr/economy/archives/575053",
+    "title": "2026 서울퀀텀캠퍼스 겨울캠프 양자컴퓨팅 활용 과정 교육생 모집",
+    "date": "2026-10-30",
+    "category": "",
+    "summary": "교육 기간은 2026년 11월 30일~12월 4일 10~17시입니다. 장소는 서울바이오허브와 SDT 데이터센터입니다. 주요 내용은 양자컴퓨터 실습·견학·아이디어 구상입니다. 모집은 11월 2일 10시~18일 24시이며 정원 20명입니다. 지원은 링크에서 온라인 신청서 제출입니다.",
     "deadline": null,
     "firstSeenAt": "2026-10-30T10:42:39.295Z"
   },
@@ -196,14 +205,5 @@
     "summary": "서울시는 신축 공동주택 단지 교통시설 품질·안전 점검을 위한 제3기 품질점검단 교통 분야 위원 10명을 모집합니다. 자격은 건축사 등 주택법 시행령 제53조의4 요건을 충족한 교통시설 설계·시공 전문가입니다. 접수는 2026년 10월 29일부터 11월 13일까지이며 위촉기간은 2026년 12월 1일부터 2027년 6월 30일까지입니다.",
     "deadline": "2026-11-13",
     "firstSeenAt": "2026-10-29T06:24:56.639Z"
-  },
-  {
-    "url": "https://news.seoul.go.kr/welfare/archives/584184",
-    "title": "서울특별시장애인일자리센터 직원 채용 재공고(회계 업무 / 육아휴직 대체인력)",
-    "date": "2026-10-27",
-    "category": "",
-    "summary": "서울특별시장애인일자리센터가 예산·회계 담당 계약직 사무원 1명을 모집합니다. 사회복지사·재활상담사·회계 자격 보유자 및 9호봉 이하 경력자를 우대합니다. 근무는 주5일 09~18시이며 보수는 서울시 기준에 따릅니다. 원서접수는 10월27일부터 11월11일 18시까지 이메일 또는 우편으로 받습니다. 자세한 자격·제출서류는 공고문을 확인해 주시기 바랍니다.",
-    "deadline": "2026-11-11",
-    "firstSeenAt": "2026-10-27T14:07:50.715Z"
   }
 ]
